@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -47,4 +46,12 @@ def user_logout(request):
 
 @login_required
 def profile(request):
+	if request.method == 'POST' and 'email' in request.POST:
+		new_email = request.POST.get('email', '').strip()
+		if new_email and new_email != request.user.email:
+			request.user.email = new_email
+			request.user.save()
+			messages.success(request, 'Email updated successfully!')
+		else:
+			messages.info(request, 'No changes made to your email.')
 	return render(request, 'users/profile.html', {'user': request.user})

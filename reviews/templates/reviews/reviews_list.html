@@ -1,20 +1,31 @@
 {% extends 'base.html' %}
 {% block content %}
-<div style="max-width:900px;margin:2.5rem auto 0 auto;">
-  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:2rem;">All Reviews</h2>
-  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
+<div style="max-width:1100px;margin:3.5rem auto 0 auto;">
+  <h2 style="font-size:2.3rem;font-weight:900;color:#2d2013;margin-bottom:2.7rem;text-align:center;letter-spacing:1.5px;font-family:'Playfair Display',serif;">All Reviews</h2>
+  <div style="display:flex;flex-direction:column;gap:2.5rem;align-items:center;">
     {% for review in reviews %}
-      <div style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:340px;">
-        <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.7rem;">
-          <span style="font-size:1.3rem;color:#ffd700;font-weight:700;">&#9733; {{ review.rating }}</span>
-          <span style="color:#6b6b6b;font-size:1rem;">by <strong style="color:#a67c52;">{{ review.reviewer.first_name }} {{ review.reviewer.last_name }}</strong></span>
+      <div style="background:#fff;border-radius:1.5rem;box-shadow:0 8px 32px rgba(199,161,122,0.13);padding:2.5rem 2rem 2rem 2rem;display:flex;flex-direction:column;align-items:center;position:relative;transition:box-shadow 0.3s;">
+        <div style="position:absolute;top:-38px;left:50%;transform:translateX(-50%);">
+          {% if review.reviewer.profile_picture %}
+            <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.first_name }}" style="width:76px;height:76px;object-fit:cover;border-radius:50%;border:3px solid #ffd700;box-shadow:0 2px 8px #fffbe6;background:#fff;">
+          {% else %}
+            <div style="width:76px;height:76px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:3px solid #ffd700;font-size:2.3rem;color:#a67c52;">{{ review.reviewer.first_name|first|default:review.reviewer.username|first|upper }}</div>
+          {% endif %}
         </div>
-        <div style="color:#2d2013;font-size:1.08rem;margin-bottom:0.5rem;">for <a href="{% url 'photographer_detail' review.photographer.pk %}" style="color:#2d2013;font-weight:700;text-decoration:none;">{{ review.photographer.first_name }} {{ review.photographer.last_name }}</a></div>
-        <div style="color:#444;font-size:1.05rem;margin-bottom:0.7rem;">{{ review.comment }}</div>
-        <div style="color:#a67c52;font-size:0.97rem;">{{ review.created_at|date:'M d, Y H:i' }}</div>
+        <div style="margin-top:2.7rem;width:100%;text-align:center;">
+          <div style="margin-bottom:0.7rem;">
+            {% for i in "12345"|slice:":review.rating" %}<span style="font-size:1.35rem;color:#ffd700;">&#9733;</span>{% endfor %}
+            {% for i in "12345"|slice:"review.rating:" %}<span style="font-size:1.35rem;color:#e0d7c3;">&#9733;</span>{% endfor %}
+            <span style="font-size:1.08rem;color:#a67c52;margin-left:0.5rem;vertical-align:middle;">({{ review.rating }})</span>
+          </div>
+          <div style="color:#2d2013;font-size:1.13rem;font-weight:700;margin-bottom:0.2rem;">{{ review.reviewer.first_name }} {{ review.reviewer.last_name }}</div>
+          <div style="color:#6b6b6b;font-size:1.01rem;margin-bottom:0.5rem;">reviewed <a href="{% url 'photographer_detail' review.photographer.pk %}" style="color:#a67c52;font-weight:700;text-decoration:none;">{{ review.photographer.first_name }} {{ review.photographer.last_name }}</a></div>
+          <div style="color:#444;font-size:1.15rem;margin-bottom:1.2rem;font-style:italic;line-height:1.6;">“{{ review.comment }}”</div>
+          <div style="color:#a67c52;font-size:0.99rem;letter-spacing:0.5px;">{{ review.created_at|date:'M d, Y H:i' }}</div>
+        </div>
       </div>
     {% empty %}
-      <div style="color:#888;">No reviews yet.</div>
+      <div style="color:#888;text-align:center;">No reviews yet.</div>
     {% endfor %}
   </div>
 </div>

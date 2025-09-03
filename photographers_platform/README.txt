@@ -1,0 +1,1 @@
+This folder is a placeholder for the photographers_platform project root as described in the structure. If you want to move your config/ folder here and rename it, you can do so to match the structure exactly.

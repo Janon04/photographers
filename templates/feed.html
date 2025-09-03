@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Feed | PhotoRw{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/feed.css' %}">
+{% endblock %}
+{% block content %}
+<div class="navbar">
+  <div class="logo">PhotoRw</div>
+  <div class="nav-links">
+    <a href="/feed/">Home</a>
+    <a href="/explore/">Explore</a>
+    <a href="/users/profile/">Profile</a>
+    <a href="/users/logout/" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Logout</a>
+    <form id="logout-form" method="post" action="/users/logout/" style="display:none;">{% csrf_token %}</form>
+  </div>
+</div>
+<div class="feed-container">
+  <div class="stories-bar">
+    {% for story in stories %}
+      <div class="story-avatar" title="{{ story.photographer.username }}">
+        <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ story.photographer.username }}">
+      </div>
+      <div class="story-label">{{ story.photographer.username }}</div>
+    {% empty %}
+      <div style="color:#888;">No stories yet.</div>
+    {% endfor %}
+    {% if user.is_authenticated and user.role == 'photographer' %}
+      <div class="story-avatar" style="border:2px dashed var(--choco-dark);cursor:pointer;" onclick="window.location='/stories/upload/'">
+        <span style="font-size:2.5rem;color:var(--choco-dark);">+</span>
+      </div>
+      <div class="story-label">Add Story</div>
+    {% endif %}
+  </div>
+  {% for post in posts %}
+    <div class="feed-post">
+      <div class="post-header">
+        <div class="post-avatar">
+          <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ post.photographer.username }}">
+        </div>
+        <div class="post-username">{{ post.photographer.username }}</div>
+      </div>
+      <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+      <div style="margin:0.5rem 0 0.2rem 0;font-weight:bold;">{{ post.title }}</div>
+      <div style="color:#444;">{{ post.description }}</div>
+      <div class="post-actions">
+        <button title="Like">&#9829;</button>
+        <button title="Comment">💬</button>
+      </div>
+    </div>
+  {% empty %}
+    <div style="text-align:center;color:#888;">No posts yet.</div>
+  {% endfor %}
+</div>
+{% endblock %}

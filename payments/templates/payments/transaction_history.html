@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Transaction History</h2>
+<ul>
+  {% for transaction in transactions %}
+    <li>
+      Booking: {{ transaction.booking.id }}<br>
+      Amount: {{ transaction.amount }}<br>
+      Status: {{ transaction.status }}<br>
+      Date: {{ transaction.created_at }}
+    </li>
+  {% empty %}
+    <li>No transactions found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

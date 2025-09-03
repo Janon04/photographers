@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>All Photos</h2>
+<ul>
+  {% for photo in photos %}
+    <li>
+      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
+      <strong>{{ photo.title }}</strong> by {{ photo.photographer.username }}<br>
+      Category: {{ photo.category }}
+    </li>
+  {% endfor %}
+</ul>
+<h3>Categories</h3>
+<ul>
+  {% for category in categories %}
+    <li><a href="{% url 'category_photos' category.id %}">{{ category.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

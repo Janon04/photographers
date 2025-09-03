@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Photographer Dashboard{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-logo">PhotoRw</div>
+        <div class="dashboard-user">Welcome, {{ user.username }}</div>
+    </div>
+    <div class="dashboard-main">
+        <div class="dashboard-sidebar">
+            <ul>
+                <li><a href="{% url 'photographer_dashboard' %}" class="active">Dashboard Home</a></li>
+                <li><a href="{% url 'upload_photo' %}">Upload Photo</a></li>
+                <li><a href="{% url 'upload_story' %}">Upload Story</a></li>
+                <li><a href="{% url 'photographer_detail' user.pk %}">My Portfolio</a></li>
+                <li><a href="{% url 'photo_list' %}">All Photos</a></li>
+                <li><a href="/users/profile/">Edit Profile</a></li>
+                <li><form method="post" action="/users/logout/">{% csrf_token %}<button type="submit" class="logout-btn">Log Out</button></form></li>
+            </ul>
+        </div>
+        <div class="dashboard-content">
+            <h2>Dashboard Overview</h2>
+            <div class="dashboard-widgets">
+                <div class="widget">
+                    <div class="widget-title">My Photos</div>
+                    <div class="widget-value">{{ user.photos.count }}</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title">My Stories (24h)</div>
+                    <div class="widget-value">{{ user.stories.count }}</div>
+                </div>
+                <!-- Add more widgets for bookings, payments, etc. -->
+            </div>
+            <div class="dashboard-section">
+                <h3>Recent Photos</h3>
+                <div class="dashboard-photos">
+                    {% for photo in user.photos.all|slice:':4' %}
+                        <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
+                    {% empty %}
+                        <div>No photos uploaded yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="dashboard-section">
+                <h3>Recent Stories</h3>
+                <div class="dashboard-stories">
+                    {% for story in user.stories.all|slice:':4' %}
+                        <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
+                    {% empty %}
+                        <div>No stories uploaded yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

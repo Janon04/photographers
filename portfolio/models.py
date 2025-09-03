@@ -1,0 +1,39 @@
+
+from django.db import models
+from users.models import User
+from django.utils import timezone
+
+class Category(models.Model):
+	name = models.CharField(max_length=100, unique=True)
+
+	def __str__(self):
+		return self.name
+
+class Photo(models.Model):
+	photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='photos')
+	image = models.ImageField(upload_to='portfolio_photos/')
+	title = models.CharField(max_length=255)
+	description = models.TextField(blank=True)
+	category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='photos')
+	uploaded_at = models.DateTimeField(default=timezone.now)
+
+	def __str__(self):
+		return f"{self.title} by {self.photographer.email}"
+
+	class Meta:
+		ordering = ['-uploaded_at']
+
+
+# Story model for photographers
+from datetime import timedelta
+class Story(models.Model):
+	photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stories')
+	image = models.ImageField(upload_to='stories/')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def is_active(self):
+		from django.utils import timezone
+		return self.created_at >= timezone.now() - timedelta(hours=24)
+
+	def __str__(self):
+		return f"Story by {self.photographer.username} at {self.created_at}"

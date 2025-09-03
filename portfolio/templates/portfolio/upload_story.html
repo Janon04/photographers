@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Add Story | PhotoRw{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/feed.css' %}">
+{% endblock %}
+{% block content %}
+<div class="feed-container" style="max-width:400px;margin-top:3rem;">
+  <h2 style="text-align:center;color:#c19a6b;">Add a Story</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="width:100%;background:#c19a6b;color:#fff;padding:0.75rem;border:none;border-radius:0.5rem;font-size:1.1rem;font-weight:bold;">Upload Story</button>
+  </form>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a href="/portfolio/feed/" style="color:#c19a6b;">Back to Feed</a>
+  </div>
+</div>
+{% endblock %}

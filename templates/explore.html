@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Explore Photographers & Photos{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/explore.css' %}">
+{% endblock %}
+{% block content %}
+<div class="explore-container">
+    <h2>Explore Photographers & Photos</h2>
+    <form method="get" class="explore-search-form" style="margin-bottom:2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or photo title" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;min-width:220px;">
+        <select name="category" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="location" value="{{ location }}" placeholder="Photographer location" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;min-width:180px;">
+        <button type="submit" style="background:#c7a17a;color:#fff;padding:0.7rem 2rem;border:none;border-radius:0.7rem;font-weight:bold;">Search</button>
+    </form>
+    <div class="explore-grid">
+        {% for photographer in photographers %}
+        <div class="explore-card">
+            <a href="{% url 'photographer_detail' photographer.pk %}">
+                {% if photographer.profile_picture %}
+                    <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.username }}" class="explore-avatar">
+                {% else %}
+                    <div class="explore-avatar explore-avatar-placeholder">{{ photographer.username|first|upper }}</div>
+                {% endif %}
+                <div class="explore-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
+            </a>
+        </div>
+        {% empty %}
+        <div>No photographers found.</div>
+        {% endfor %}
+    </div>
+    <h2 style="margin-top:3rem;">Explore Photos</h2>
+    <div class="explore-photo-grid">
+        {% for photo in photos %}
+        <div class="explore-photo-card">
+            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="explore-photo-img">
+            <div class="explore-photo-title">{{ photo.title }}</div>
+            <div class="explore-photo-photographer">by <a href="{% url 'photographer_detail' photo.photographer.pk %}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
+        </div>
+        {% empty %}
+        <div>No photos found.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

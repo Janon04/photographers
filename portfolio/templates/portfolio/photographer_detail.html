@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ photographer.first_name }} {{ photographer.last_name }}'s Portfolio</h2>
+<p>{{ photographer.bio }}</p>
+<p>Location: {{ photographer.location }}</p>
+<p>Contact: {{ photographer.contact_info }}</p>
+<p>Role: {{ photographer.get_role_display }}</p>
+<p>Email: {{ photographer.email }}</p>
+{% if photographer.profile_picture %}
+  <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" width="150" />
+{% endif %}
+<h3>Photos</h3>
+<ul>
+  {% for photo in photos %}
+    <li>
+      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
+      <strong>{{ photo.title }}</strong> - {{ photo.category }}<br>
+      {{ photo.description }}
+    </li>
+  {% empty %}
+    <li>No photos yet.</li>
+  {% endfor %}
+</ul>
+  {% if user.is_authenticated and user.role == 'client' %}
+    <a href="{% url 'create_booking' %}?photographer={{ photographer.pk }}" class="book-btn" style="display:inline-block;margin-top:2rem;background:#c7a17a;color:#fff;padding:0.75rem 2rem;border-radius:1rem;font-weight:bold;text-decoration:none;">Book this Photographer</a>
+  {% endif %}
+{% endblock %}

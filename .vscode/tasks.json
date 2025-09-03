@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Django: Start Project",
+			"type": "shell",
+			"command": "django-admin startproject config . && python manage.py startapp users && python manage.py startapp portfolio && python manage.py startapp bookings && python manage.py startapp payments && python manage.py startapp reviews && python manage.py startapp community",
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

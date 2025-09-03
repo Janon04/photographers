@@ -1,0 +1,81 @@
+/* Explore page styles - chocolate, white, black */
+.explore-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+}
+.explore-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.explore-card {
+    background: #f8f6f3;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    width: 180px;
+    transition: box-shadow 0.2s;
+}
+.explore-card:hover {
+    box-shadow: 0 4px 16px rgba(199,161,122,0.18);
+}
+.explore-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.7rem;
+    background: #c7a17a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+.explore-avatar-placeholder {
+    background: #c7a17a;
+}
+.explore-name {
+    color: #2d2013;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.explore-photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+.explore-photo-card {
+    background: #f8f6f3;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1rem;
+    width: 220px;
+    text-align: center;
+}
+.explore-photo-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 0.7rem;
+    margin-bottom: 0.5rem;
+}
+.explore-photo-title {
+    color: #2d2013;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+}
+.explore-photo-photographer {
+    color: #c7a17a;
+    font-size: 0.95rem;
+}
+@media (max-width: 900px) {
+    .explore-grid, .explore-photo-grid { flex-direction: column; align-items: center; }
+}

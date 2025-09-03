@@ -1,0 +1,104 @@
+/* Photographer Dashboard Styles - chocolate, white, black */
+body {
+    background: #f8f6f3;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+.dashboard-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    overflow: hidden;
+}
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #c7a17a;
+    color: #fff;
+    padding: 1.5rem 2.5rem;
+    font-size: 1.2rem;
+}
+.dashboard-logo {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+.dashboard-main {
+    display: flex;
+}
+.dashboard-sidebar {
+    background: #2d2013;
+    color: #fff;
+    min-width: 220px;
+    padding: 2rem 1rem;
+    min-height: 500px;
+}
+.dashboard-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.dashboard-sidebar li {
+    margin-bottom: 1.2rem;
+}
+.dashboard-sidebar a, .logout-btn {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.dashboard-sidebar a.active, .dashboard-sidebar a:hover, .logout-btn:hover {
+    color: #c7a17a;
+}
+.dashboard-content {
+    flex: 1;
+    padding: 2.5rem 2rem;
+}
+.dashboard-widgets {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.widget {
+    background: #f8f6f3;
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    min-width: 160px;
+    text-align: center;
+}
+.widget-title {
+    color: #2d2013;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.widget-value {
+    color: #c7a17a;
+    font-size: 2rem;
+    font-weight: bold;
+}
+.dashboard-section {
+    margin-bottom: 2rem;
+}
+.dashboard-photos, .dashboard-stories {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.dashboard-photo-thumb, .dashboard-story-thumb {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 2px solid #c7a17a;
+    background: #fff;
+}
+@media (max-width: 900px) {
+    .dashboard-main { flex-direction: column; }
+    .dashboard-sidebar { min-width: 100%; text-align: center; }
+}

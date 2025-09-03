@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Story | PhotoRw{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/feed.css' %}">
+{% endblock %}
+{% block content %}
+<div class="feed-container" style="max-width:400px;margin-top:3rem;text-align:center;">
+  <div style="margin-bottom:1rem;">
+    <div class="post-avatar" style="display:inline-block;vertical-align:middle;">
+      <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ story.photographer.username }}">
+    </div>
+    <span style="font-weight:bold;color:#c19a6b;font-size:1.1rem;margin-left:0.5rem;">{{ story.photographer.username }}</span>
+  </div>
+  <img src="{{ story.image.url }}" alt="Story" style="width:100%;border-radius:1rem;max-height:400px;object-fit:cover;">
+  <div style="margin-top:1.5rem;">
+    <a href="/portfolio/feed/" style="color:#c19a6b;">Back to Feed</a>
+  </div>
+</div>
+{% endblock %}

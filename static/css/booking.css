@@ -1,0 +1,40 @@
+/* Booking form styles - chocolate, white, black */
+.booking-container {
+    max-width: 500px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    padding: 2.5rem 2rem;
+}
+.booking-container h2 {
+    color: #2d2013;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.booking-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+.booking-container input, .booking-container select {
+    padding: 0.75rem;
+    border: 1px solid #c7a17a;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+.booking-btn {
+    background: #c7a17a;
+    color: #fff;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.booking-btn:hover {
+    background: #2d2013;
+    color: #fff;
+}

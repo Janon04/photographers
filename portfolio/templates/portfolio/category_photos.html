@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Photos in {{ category.name }}</h2>
+<ul>
+  {% for photo in photos %}
+    <li>
+      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
+      <strong>{{ photo.title }}</strong> by {{ photo.photographer.username }}<br>
+      {{ photo.description }}
+    </li>
+  {% empty %}
+    <li>No photos in this category.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

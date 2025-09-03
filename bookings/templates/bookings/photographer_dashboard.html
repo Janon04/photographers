@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Photographer Dashboard</h2>
+<ul>
+  {% for booking in bookings %}
+    <li>
+      Client: {{ booking.client.username }}<br>
+      Service: {{ booking.service_type }}<br>
+      Date: {{ booking.date }} {{ booking.time }}<br>
+      Location: {{ booking.location }}<br>
+      Status: {{ booking.status }} | Payment: {{ booking.payment_status }}
+    </li>
+  {% empty %}
+    <li>No bookings yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

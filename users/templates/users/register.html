@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Register</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div>{{ form.first_name.label_tag }} {{ form.first_name }}</div>
+  <div>{{ form.last_name.label_tag }} {{ form.last_name }}</div>
+  <div>{{ form.email.label_tag }} {{ form.email }}</div>
+  <div>{{ form.password.label_tag }} {{ form.password }}</div>
+  <div>{{ form.bio.label_tag }} {{ form.bio }}</div>
+  <div>{{ form.profile_picture.label_tag }} {{ form.profile_picture }}</div>
+  <div>{{ form.location.label_tag }} {{ form.location }}</div>
+  <div>{{ form.contact_info.label_tag }} {{ form.contact_info }}</div>
+  <div>{{ form.role.label_tag }} {{ form.role }}</div>
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}

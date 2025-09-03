@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Book a Photographer{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
+{% block content %}
+<div class="booking-container">
+    <h2>Book a Photographer</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="booking-btn">Book Now</button>
+    </form>
+</div>
+{% endblock %}

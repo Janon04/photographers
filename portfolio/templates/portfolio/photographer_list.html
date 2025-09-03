@@ -1,11 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Photographers</h2>
-<ul>
-  {% for photographer in photographers %}
-    <li>
-      <a href="{% url 'photographer_detail' photographer.pk %}">{{ photographer.username }} ({{ photographer.email }})</a>
-    </li>
-  {% endfor %}
-</ul>
+<div style="max-width:1100px;margin:2.5rem auto 0 auto;">
+  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:2rem;">Photographers</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
+    {% for photographer in photographers %}
+      <div style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;text-align:center;display:flex;flex-direction:column;align-items:center;">
+        {% if photographer.profile_picture %}
+          <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #ffd700;box-shadow:0 2px 8px rgba(199,161,122,0.10);margin-bottom:1rem;">
+        {% else %}
+          <div style="width:90px;height:90px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:3px solid #ffd700;font-size:2rem;color:#a67c52;margin-bottom:1rem;">{{ photographer.first_name|first|default:photographer.username|first|upper }}</div>
+        {% endif %}
+        <a href="{% url 'photographer_detail' photographer.pk %}" style="font-size:1.2rem;font-weight:700;color:#2d2013;text-decoration:none;margin-bottom:0.3rem;">{{ photographer.first_name }} {{ photographer.last_name }}</a>
+        <div style="color:#a67c52;font-size:1rem;margin-bottom:0.2rem;">{{ photographer.get_role_display }}</div>
+        <div style="color:#6b6b6b;font-size:0.98rem;">{{ photographer.location }}</div>
+      </div>
+    {% empty %}
+      <div style="color:#888;">No photographers found.</div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

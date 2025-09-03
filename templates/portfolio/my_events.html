@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}My Upcoming Events{% endblock %}
+{% block content %}
+<div class="container" style="max-width:700px;margin:2rem auto;">
+  <h2>My Upcoming Events</h2>
+  <a href="{% url 'create_event' %}" style="float:right;margin-bottom:1rem;" class="btn btn-primary">+ Add Event</a>
+  <table class="table" style="width:100%;margin-top:2rem;">
+    <thead>
+      <tr><th>Title</th><th>Date</th><th>Location</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.title }}</td>
+        <td>{{ event.date }}</td>
+        <td>{{ event.location }}</td>
+        <td>{{ event.description|truncatewords:12 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No upcoming events.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

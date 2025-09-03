@@ -1,27 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ photographer.first_name }} {{ photographer.last_name }}'s Portfolio</h2>
-<p>{{ photographer.bio }}</p>
-<p>Location: {{ photographer.location }}</p>
-<p>Contact: {{ photographer.contact_info }}</p>
-<p>Role: {{ photographer.get_role_display }}</p>
-<p>Email: {{ photographer.email }}</p>
-{% if photographer.profile_picture %}
-  <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" width="150" />
-{% endif %}
-<h3>Photos</h3>
-<ul>
-  {% for photo in photos %}
-    <li>
-      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
-      <strong>{{ photo.title }}</strong> - {{ photo.category }}<br>
-      {{ photo.description }}
-    </li>
-  {% empty %}
-    <li>No photos yet.</li>
-  {% endfor %}
-</ul>
-  {% if user.is_authenticated and user.role == 'client' %}
-    <a href="{% url 'create_booking' %}?photographer={{ photographer.pk }}" class="book-btn" style="display:inline-block;margin-top:2rem;background:#c7a17a;color:#fff;padding:0.75rem 2rem;border-radius:1rem;font-weight:bold;text-decoration:none;">Book this Photographer</a>
-  {% endif %}
+<div class="profile-hero" style="background:linear-gradient(120deg,#fffbe6 0%,#f8f6f3 100%);padding:2.5rem 0 1.5rem 0;">
+  <div class="profile-card" style="max-width:900px;margin:0 auto;background:#fff;border-radius:2rem;box-shadow:0 8px 32px rgba(199,161,122,0.10);padding:2.5rem 2.5rem 2rem 2.5rem;display:flex;gap:2.5rem;align-items:center;">
+    <div style="flex:0 0 180px;text-align:center;">
+      {% if photographer.profile_picture %}
+        <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" style="width:150px;height:150px;object-fit:cover;border-radius:50%;border:4px solid #ffd700;box-shadow:0 2px 12px rgba(199,161,122,0.12);">
+      {% else %}
+        <div style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:4px solid #ffd700;font-size:3rem;color:#a67c52;">{{ photographer.first_name|first|default:photographer.username|first|upper }}</div>
+      {% endif %}
+      <div style="margin-top:1rem;font-size:1.1rem;color:#a67c52;font-weight:600;">{{ photographer.get_role_display }}</div>
+    </div>
+    <div style="flex:1;">
+      <h2 style="font-size:2.2rem;font-weight:800;color:#2d2013;margin-bottom:0.5rem;">{{ photographer.first_name }} {{ photographer.last_name }}</h2>
+      <div style="color:#6b6b6b;font-size:1.1rem;margin-bottom:1.2rem;">{{ photographer.bio }}</div>
+      <div style="margin-bottom:0.7rem;"><strong style="color:#a67c52;">Location:</strong> {{ photographer.location }}</div>
+      <div style="margin-bottom:0.7rem;"><strong style="color:#a67c52;">Contact:</strong> {{ photographer.contact_info }}</div>
+      <div style="margin-bottom:0.7rem;"><strong style="color:#a67c52;">Email:</strong> {{ photographer.email }}</div>
+      {% if user.is_authenticated and user.role == 'client' %}
+        <a href="{% url 'create_booking' %}?photographer={{ photographer.pk }}" class="book-btn" style="display:inline-block;margin-top:1.2rem;background:linear-gradient(90deg,#ffd700 0%,#c7a17a 100%);color:#2d2013;padding:0.75rem 2rem;border-radius:1rem;font-weight:bold;text-decoration:none;box-shadow:0 2px 8px rgba(199,161,122,0.10);">Book this Photographer</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div style="max-width:900px;margin:2.5rem auto 0 auto;">
+  <h3 style="font-size:1.5rem;color:#c7a17a;font-weight:700;margin-bottom:1.2rem;">Upcoming Events</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:1.5rem;">
+    {% for event in events %}
+      <div style="background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);padding:1.2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;">
+        <div style="font-weight:700;color:#2d2013;font-size:1.1rem;">{{ event.title }}</div>
+        <div style="color:#a67c52;font-size:1rem;margin-bottom:0.3rem;">{{ event.date }}</div>
+        <div style="color:#6b6b6b;font-size:0.98rem;margin-bottom:0.3rem;">{{ event.location }}</div>
+        <div style="color:#444;font-size:0.97rem;">{{ event.description|truncatewords:18 }}</div>
+      </div>
+    {% empty %}
+      <div style="color:#888;">No upcoming events.</div>
+    {% endfor %}
+  </div>
+
+  <h3 style="font-size:1.5rem;color:#c7a17a;font-weight:700;margin:2.5rem 0 1.2rem 0;">Portfolio Photos</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:1.5rem;">
+    {% for photo in photos %}
+      <div style="background:#fff;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);padding:1.2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;text-align:center;">
+        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="width:100%;max-width:260px;height:180px;object-fit:cover;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
+        <div style="font-weight:700;color:#2d2013;font-size:1.1rem;">{{ photo.title }}</div>
+        <div style="color:#a67c52;font-size:1rem;margin-bottom:0.3rem;">{{ photo.category }}</div>
+        <div style="color:#444;font-size:0.97rem;">{{ photo.description|truncatewords:18 }}</div>
+      </div>
+    {% empty %}
+      <div style="color:#888;">No photos yet.</div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

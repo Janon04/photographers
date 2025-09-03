@@ -2,7 +2,9 @@
 from .models import Category
 def explore(request):
 	from users.models import User
-	from .models import Photo, Event
+	from .models import Photo, Event, Story
+	from community.models import Post
+	from django.utils import timezone
 	# Get filters/search
 	q = request.GET.get('q', '').strip()
 	category_id = request.GET.get('category')
@@ -11,6 +13,10 @@ def explore(request):
 	photographers = User.objects.filter(role='photographer')
 	photos = Photo.objects.all()
 	categories = Category.objects.all()
+	# Public feed context
+	time_threshold = timezone.now() - timezone.timedelta(hours=24)
+	stories = Story.objects.filter(created_at__gte=time_threshold).order_by('-created_at')
+	posts = Post.objects.all().order_by('-date')[:6]
 
 	if q:
 		photographers = photographers.filter(username__icontains=q)
@@ -27,14 +33,28 @@ def explore(request):
 	today = timezone.now().date()
 	events = Event.objects.filter(date__gte=today).order_by('date')
 
+	# Prepare photos for JSON serialization for gallery modal
+	photos_json = [
+		{
+			'image': photo.image.url,
+			'title': photo.title,
+			'photographer_first_name': photo.photographer.first_name,
+			'photographer_last_name': photo.photographer.last_name,
+			'photographer': photo.photographer.pk,
+		}
+		for photo in photos
+	]
 	return render(request, 'explore.html', {
 		'photographers': photographers,
 		'photos': photos,
+		'photos_json': photos_json,
 		'categories': categories,
 		'q': q,
 		'selected_category': category_id,
 		'location': location,
 		'events': events,
+		'stories': stories,
+		'posts': posts,
 	})
 
 from django.utils import timezone
@@ -119,10 +139,13 @@ def photographer_detail(request, pk):
 	from django.utils import timezone
 	today = timezone.now().date()
 	events = photographer.events.filter(date__gte=today).order_by('date')
+	# Get active stories (last 24h)
+	stories = photographer.stories.filter(created_at__gte=timezone.now()-timezone.timedelta(hours=24)).order_by('-created_at')
 	return render(request, 'portfolio/photographer_detail.html', {
 		'photographer': photographer,
 		'photos': photos,
 		'events': events,
+		'stories': stories,
 	})
 
 def photo_list(request):

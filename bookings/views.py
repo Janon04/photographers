@@ -11,14 +11,14 @@ from django.core.mail import send_mail
 from django.conf import settings
 # Utility: send booking notification email
 def send_booking_email(subject, message, recipient):
-	if recipient:
-		send_mail(
-			subject,
-			message,
-			settings.DEFAULT_FROM_EMAIL,
-			[recipient],
-			fail_silently=True,
-		)
+    if recipient and recipient.strip():
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient],
+            fail_silently=True,
+        )
 # Client cancels their booking
 @login_required
 @require_POST
@@ -88,38 +88,52 @@ from django import forms
 from django.contrib import messages
 
 class BookingForm(forms.ModelForm):
-	class Meta:
-		model = Booking
-		fields = ['photographer', 'service_type', 'date', 'time', 'location']
+    email = forms.EmailField(required=False, help_text='Enter your email so the photographer can contact you.')
+    class Meta:
+        model = Booking
+        fields = ['photographer', 'service_type', 'date', 'time', 'location']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        }
 
 @login_required
 def create_booking(request):
-	initial = {}
-	photographer_id = request.GET.get('photographer')
-	if photographer_id:
-		try:
-			initial['photographer'] = User.objects.get(pk=photographer_id, role='photographer')
-		except User.DoesNotExist:
-			pass
-	if request.method == 'POST':
-		form = BookingForm(request.POST)
-		if form.is_valid():
-						booking = form.save(commit=False)
-						booking.client = request.user
-						booking.save()
-						# Email notification to photographer
-						subject = 'New Booking Request on PhotoRw'
-						client_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
-						message = f"You have a new booking request from {client_name} for {booking.date} at {booking.time}."
-						if booking.photographer.email:
-							send_booking_email(subject, message, booking.photographer.email)
-							messages.success(request, 'Booking request sent!')
-						else:
-							messages.warning(request, 'Booking created, but photographer has no email set. Please contact them directly.')
-						return redirect('client_dashboard')
-	else:
-		form = BookingForm(initial=initial)
-	return render(request, 'bookings/create_booking.html', {'form': form})
+    initial = {}
+    photographer_id = request.GET.get('photographer')
+    if photographer_id:
+        try:
+            initial['photographer'] = User.objects.get(pk=photographer_id, role='photographer')
+        except User.DoesNotExist:
+            pass
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.client = request.user
+            # Use form email if user has no email
+            client_email = request.user.email or form.cleaned_data.get('email')
+            if not client_email:
+                messages.error(request, 'You must provide an email address to make a booking.')
+                return render(request, 'bookings/create_booking.html', {'form': form})
+            # Require photographer email
+            if not booking.photographer.email:
+                messages.error(request, 'This photographer does not have an email address set. Please choose another photographer or contact support.')
+                return redirect('client_dashboard')
+            booking.save()
+            # Email notification to photographer
+            subject = 'New Booking Request on PhotoRw'
+            client_name = f"{request.user.first_name} {request.user.last_name}".strip() or client_email
+            message = f"You have a new booking request from {client_name} for {booking.date} at {booking.time}. Contact: {client_email}"
+            if booking.photographer.email and booking.photographer.email.strip():
+                send_booking_email(subject, message, booking.photographer.email)
+                messages.success(request, 'Booking request sent!')
+            else:
+                messages.error(request, 'Booking created, but photographer has no valid email. Please contact them directly.')
+            return redirect('client_dashboard')
+    else:
+        form = BookingForm(initial=initial)
+    return render(request, 'bookings/create_booking.html', {'form': form})
 
 @login_required
 def client_dashboard(request):

@@ -1,9 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Request a Booking</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Book</button>
-</form>
+<div class="booking-form-container" style="max-width:480px;margin:3.5rem auto 0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 8px 32px rgba(199,161,122,0.13);padding:2.5rem 2rem;">
+  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:1.5rem;text-align:center;letter-spacing:1px;">Request a Booking</h2>
+  <form method="post" style="display:flex;flex-direction:column;gap:1.2rem;">
+    {% csrf_token %}
+    <div style="display:flex;flex-direction:column;gap:0.7rem;">
+      {{ form.non_field_errors }}
+      {% for field in form.visible_fields %}
+        <div style="display:flex;flex-direction:column;gap:0.2rem;">
+          <label for="{{ field.id_for_label }}" style="font-weight:600;color:#a67c52;font-size:1.05rem;">{{ field.label }}{% if field.field.required %} <span style="color:#d9534f;">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<small style="color:#888;">{{ field.help_text }}</small>{% endif %}
+          {% for error in field.errors %}<div style="color:#d9534f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      {% if not user.email %}
+        <div style="display:flex;flex-direction:column;gap:0.2rem;">
+          <label for="id_email" style="font-weight:600;color:#a67c52;font-size:1.05rem;">Your Email <span style="color:#d9534f;">*</span></label>
+          <input type="email" name="email" id="id_email" class="form-control" required placeholder="Enter your email" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;">
+        </div>
+      {% endif %}
+    </div>
+    <button type="submit" style="background:linear-gradient(90deg,#ffd700 0%,#c7a17a 100%);color:#2d2013;font-weight:700;padding:1rem 0;border-radius:1rem;font-size:1.15rem;box-shadow:0 4px 15px rgba(199,161,122,0.18);border:none;transition:all 0.2s;cursor:pointer;margin-top:1.2rem;">Book Now</button>
+  </form>
+</div>
 {% endblock %}

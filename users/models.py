@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -8,7 +7,7 @@ class User(AbstractUser):
 		PHOTOGRAPHER = 'photographer', _('Photographer')
 		CLIENT = 'client', _('Client')
 
-	email = models.EmailField(_('email address'), unique=True)
+	email = models.EmailField(_('email address'), unique=True, blank=False, null=False, help_text=_('Required. Enter a valid email address.'))
 	bio = models.TextField(_('bio'), blank=True)
 	profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 	location = models.CharField(max_length=255, blank=True)

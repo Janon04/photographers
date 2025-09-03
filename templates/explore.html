@@ -1,64 +1,843 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Explore Photographers & Photos{% endblock %}
+{% block title %}Explore Photographers & Photos | PhotoRw{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/explore.css' %}">
+    <style>
+        :root {
+            --primary-dark: #2D2013;
+            --primary: #3A2A1B;
+            --accent: #A67C52;
+            --accent-light: #C7A17A;
+            --surface: #FFFFFF;
+            --surface-alt: #F8F6F3;
+            --text-main: #2D2013;
+            --text-light: #6B6B6B;
+            --gold: #C7A17A;
+            --border-radius: 12px;
+            --shadow: 0 5px 15px rgba(45, 32, 19, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        .explore-section {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-family: 'Playfair Display', Georgia, serif;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        
+        .explore-feed-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 3.5rem;
+        }
+        
+        .explore-feed-col {
+            flex: 1;
+            min-width: 280px;
+            max-width: 380px;
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(166, 124, 82, 0.1);
+        }
+        
+        .feed-col-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--accent-light);
+        }
+        
+        /* Stories Section */
+        .stories-container {
+            display: flex;
+            gap: 1.2rem;
+            overflow-x: auto;
+            padding: 0.5rem 0.2rem 1.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .story-item {
+            flex: 0 0 90px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .story-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .story-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            overflow: hidden;
+            margin: 0 auto 0.7rem;
+            background: var(--surface-alt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(199, 161, 122, 0.2);
+        }
+        
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .story-username {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Recent Photos Section */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.2rem;
+        }
+        
+        .photo-card {
+            background: var(--surface-alt);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(199, 161, 122, 0.05);
+        }
+        
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(199, 161, 122, 0.15);
+        }
+        
+        .photo-img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 6px rgba(45, 32, 19, 0.1);
+        }
+        
+        .photo-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .photo-photographer {
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+        
+        .photo-photographer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .photo-photographer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Community Highlights */
+        .community-posts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        
+        .post-card {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            transition: var(--transition);
+            border-left: 3px solid var(--accent-light);
+        }
+        
+        .post-card:hover {
+            box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
+        }
+        
+        .post-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-category {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .post-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .post-read-more {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .post-read-more:hover {
+            color: var(--primary-dark);
+        }
+        
+        /* Search Form */
+        .explore-search-form {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-input, .search-select {
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(166, 124, 82, 0.3);
+            min-width: 200px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+        }
+        
+        .search-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.9rem 2.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Photographers Grid */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .photographer-card {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+        
+        .photographer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(45, 32, 19, 0.12);
+        }
+        
+        .photographer-avatar {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 12px rgba(199, 161, 122, 0.2);
+        }
+        
+        .avatar-placeholder {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-alt);
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin: 0 auto 1rem;
+        }
+        
+        .photographer-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .photographer-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Events Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .event-card {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--accent);
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(45, 32, 19, 0.1);
+        }
+        
+        .event-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .event-date {
+            color: var(--accent);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .event-location {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .event-description {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .event-photographer {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+        
+        .event-photographer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .event-photographer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Photos Grid */
+        .photos-explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .photo-explore-card {
+            background: var(--surface-alt);
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 3px 10px rgba(45, 32, 19, 0.05);
+        }
+        
+        .photo-explore-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(45, 32, 19, 0.1);
+        }
+        
+        .photo-explore-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 8px rgba(45, 32, 19, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-light);
+            padding: 2rem;
+            font-style: italic;
+        }
+        
+        @media (max-width: 900px) {
+            .explore-feed-col {
+                min-width: 100%;
+            }
+            
+            .explore-grid,
+            .events-grid,
+            .photos-explore-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .explore-search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input, .search-select, .search-btn {
+                width: 100%;
+            }
+            
+            .explore-grid,
+            .events-grid,
+            .photos-explore-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 {% endblock %}
 {% block content %}
-<div class="explore-container">
-    <h2>Explore Photographers & Photos</h2>
-    <form method="get" class="explore-search-form" style="margin-bottom:2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
-        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or photo title" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;min-width:220px;">
-        <select name="category" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;">
+
+<section class="explore-section">
+    <h2 class="section-title">Discover Rwanda's Creative Community</h2>
+    
+    <div class="explore-feed-row">
+        <!-- Stories Bar -->
+        <div class="explore-feed-col">
+            <h3 class="feed-col-title">Stories</h3>
+            <div class="stories-container">
+                {% for story in stories %}
+                    <div class="story-item">
+                        <div class="story-avatar">
+                            <img src="{{ story.image.url }}" alt="Story">
+                        </div>
+                        <div class="story-username">Story</div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No stories yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Recent Photos -->
+        <div class="explore-feed-col">
+            <h3 class="feed-col-title">Recent Photos</h3>
+            <div class="photos-grid">
+                {% for photo in photos %}
+                    <div class="photo-card">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-img">
+                        <div class="photo-title">{{ photo.title }}</div>
+                        <div class="photo-photographer">by <a href="/portfolio/photographer/{{ photo.photographer.pk }}/">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No photos yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Community Highlights -->
+        <div class="explore-feed-col">
+            <h3 class="feed-col-title">Community Highlights</h3>
+            <div class="community-posts">
+                {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-title">{{ post.title }}</div>
+                        <div class="post-category">{{ post.category.name }}</div>
+                        <div class="post-description">{{ post.description|truncatewords:18 }}</div>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="Post Image" style="width:100%;max-width:120px;height:70px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.8rem;">
+                        {% endif %}
+                        <a href="/community/post/{{ post.pk }}/" class="post-read-more">Read More</a>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">No community posts yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="explore-section">
+    <h2 class="section-title">Find Photographers & Photos</h2>
+    
+    <form method="get" class="explore-search-form">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or photo title" class="search-input">
+        <select name="category" class="search-select">
             <option value="">All Categories</option>
             {% for cat in categories %}
                 <option value="{{ cat.id }}" {% if selected_category|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
             {% endfor %}
         </select>
-        <input type="text" name="location" value="{{ location }}" placeholder="Photographer location" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;min-width:180px;">
-        <button type="submit" style="background:#c7a17a;color:#fff;padding:0.7rem 2rem;border:none;border-radius:0.7rem;font-weight:bold;">Search</button>
+        <input type="text" name="location" value="{{ location }}" placeholder="Photographer location" class="search-input">
+        <button type="submit" class="search-btn">Search</button>
     </form>
+    
     <div class="explore-grid">
         {% for photographer in photographers %}
-        <div class="explore-card">
-            <a href="{% url 'photographer_detail' photographer.pk %}">
+        <div class="photographer-card">
+            <a href="{% url 'photographer_detail' photographer.pk %}" class="photographer-link">
                 {% if photographer.profile_picture %}
-                    <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.username }}" class="explore-avatar">
+                    <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.username }}" class="photographer-avatar">
                 {% else %}
-                    <div class="explore-avatar explore-avatar-placeholder">{{ photographer.username|first|upper }}</div>
+                    <div class="avatar-placeholder">{{ photographer.username|first|upper }}</div>
                 {% endif %}
-                <div class="explore-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
+                <div class="photographer-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
             </a>
         </div>
         {% empty %}
-        <div>No photographers found.</div>
+        <div class="empty-state">No photographers found.</div>
         {% endfor %}
     </div>
 
-    <h2 style="margin-top:3rem;">Upcoming Events</h2>
-    <div class="explore-events-grid">
+    <h2 class="section-title">Upcoming Events</h2>
+    <div class="events-grid">
         {% for event in events %}
-        <div class="explore-event-card">
-            <strong>{{ event.title }}</strong> <span style="color:#a67c52;">({{ event.date }})</span><br>
-            <span style="font-size:0.95em;">{{ event.location }}</span><br>
-            <span style="font-size:0.95em;">{{ event.description|truncatewords:15 }}</span><br>
-            <span style="font-size:0.95em;">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></span>
+        <div class="event-card">
+            <div class="event-title">{{ event.title }}</div>
+            <div class="event-date">{{ event.date }}</div>
+            <div class="event-location">{{ event.location }}</div>
+            <div class="event-description">{{ event.description|truncatewords:15 }}</div>
+            <div class="event-photographer">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></div>
         </div>
         {% empty %}
-        <div>No upcoming events found.</div>
+        <div class="empty-state">No upcoming events found.</div>
         {% endfor %}
     </div>
-    <h2 style="margin-top:3rem;">Explore Photos</h2>
-    <div class="explore-photo-grid">
-        {% for photo in photos %}
-        <div class="explore-photo-card">
-            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="explore-photo-img">
-            <div class="explore-photo-title">{{ photo.title }}</div>
-            <div class="explore-photo-photographer">by <a href="{% url 'photographer_detail' photo.photographer.pk %}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
-        </div>
-        {% empty %}
-        <div>No photos found.</div>
-        {% endfor %}
-    </div>
+    
+
+                <h2 class="section-title">Explore Photos</h2>
+                <div id="gallery-grid" class="gallery-grid-pro">
+                        {% for photo in photos %}
+                        <div class="gallery-card-pro" onclick="openGalleryModal({{ forloop.counter0 }})">
+                                <div class="gallery-img-wrapper">
+                                        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="gallery-img-pro">
+                                        <div class="gallery-hover-overlay">
+                                                <span class="gallery-zoom-icon">&#128269;</span>
+                                        </div>
+                                </div>
+                                <div class="gallery-info-pro">
+                                        <div class="gallery-title-pro">{{ photo.title }}</div>
+                                        <div class="gallery-photographer-pro">by <a href="{% url 'photographer_detail' photo.photographer.pk %}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
+                                </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state">No photos found.</div>
+                        {% endfor %}
+                </div>
+
+                <!-- Fullscreen Modal Gallery -->
+                <div id="galleryModal" class="gallery-modal-pro" style="display:none;">
+                    <span class="gallery-close-pro" onclick="closeGalleryModal()">&times;</span>
+                    <div class="gallery-modal-content-pro">
+                        <img id="galleryModalImg" class="gallery-modal-img-pro" src="" alt="">
+                        <div class="gallery-modal-caption-pro" id="galleryModalCaption"></div>
+                        <div class="gallery-modal-controls-pro">
+                            <button class="gallery-nav-pro gallery-prev-pro" onclick="galleryPrev()">&#10094;</button>
+                            <button class="gallery-nav-pro gallery-next-pro" onclick="galleryNext()">&#10095;</button>
+                            <button class="gallery-zoom-pro" onclick="toggleZoom()">&#128269;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                .gallery-grid-pro {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 2.5rem;
+                    margin: 2.5rem 0 3rem 0;
+                }
+                .gallery-card-pro {
+                    background: #fff;
+                    border-radius: 1.2rem;
+                    box-shadow: 0 4px 18px rgba(199,161,122,0.10);
+                    overflow: hidden;
+                    cursor: pointer;
+                    transition: box-shadow 0.2s, transform 0.2s;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                .gallery-card-pro:hover {
+                    box-shadow: 0 8px 32px rgba(199,161,122,0.18);
+                    transform: translateY(-6px) scale(1.02);
+                }
+                .gallery-img-wrapper {
+                    position: relative;
+                    width: 100%;
+                    aspect-ratio: 4/3;
+                    background: #f8f6f3;
+                    overflow: hidden;
+                }
+                .gallery-img-pro {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.3s;
+                }
+                .gallery-card-pro:hover .gallery-img-pro {
+                    transform: scale(1.04);
+                }
+                .gallery-hover-overlay {
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(39, 29, 19, 0.18);
+                    opacity: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity 0.2s;
+                }
+                .gallery-card-pro:hover .gallery-hover-overlay {
+                    opacity: 1;
+                }
+                .gallery-zoom-icon {
+                    font-size: 2.5rem;
+                    color: #ffd700;
+                    text-shadow: 0 2px 8px #fffbe6;
+                }
+                .gallery-info-pro {
+                    padding: 1.1rem 1rem 0.7rem 1rem;
+                    text-align: left;
+                }
+                .gallery-title-pro {
+                    font-size: 1.15rem;
+                    font-weight: 700;
+                    color: #2d2013;
+                    margin-bottom: 0.3rem;
+                }
+                .gallery-photographer-pro {
+                    color: #a67c52;
+                    font-size: 0.98rem;
+                }
+                .gallery-modal-pro {
+                    position: fixed;
+                    top: 0; left: 0; width: 100vw; height: 100vh;
+                    background: rgba(45,32,19,0.92);
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                }
+                .gallery-modal-content-pro {
+                    position: relative;
+                    background: #fff;
+                    border-radius: 1.2rem;
+                    box-shadow: 0 8px 32px rgba(199,161,122,0.18);
+                    padding: 2rem 2rem 1.5rem 2rem;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                }
+                .gallery-modal-img-pro {
+                    max-width: 80vw;
+                    max-height: 60vh;
+                    border-radius: 1rem;
+                    box-shadow: 0 2px 12px #fffbe6;
+                    background: #f8f6f3;
+                    transition: transform 0.3s;
+                }
+                .gallery-modal-img-pro-zoomed {
+                    max-width: none;
+                    max-height: none;
+                    width: 100vw;
+                    height: 100vh;
+                    object-fit: contain;
+                    z-index: 10001;
+                }
+                .gallery-modal-caption-pro {
+                    margin-top: 1.2rem;
+                    color: #2d2013;
+                    font-size: 1.15rem;
+                    text-align: center;
+                }
+                .gallery-modal-controls-pro {
+                    margin-top: 1.2rem;
+                    display: flex;
+                    gap: 1.2rem;
+                    justify-content: center;
+                }
+                .gallery-nav-pro {
+                    background: #ffd700;
+                    color: #2d2013;
+                    border: none;
+                    border-radius: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 2px 8px #fffbe6;
+                    transition: background 0.2s;
+                }
+                .gallery-nav-pro:hover {
+                    background: #fffbe6;
+                }
+                .gallery-zoom-pro {
+                    background: #fffbe6;
+                    color: #a67c52;
+                    border: none;
+                    border-radius: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 2px 8px #ffd700;
+                    transition: background 0.2s;
+                }
+                .gallery-zoom-pro:hover {
+                    background: #ffd700;
+                    color: #fff;
+                }
+                .gallery-close-pro {
+                    position: absolute;
+                    top: 1.2rem;
+                    right: 2rem;
+                    font-size: 2.5rem;
+                    color: #ffd700;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    z-index: 10002;
+                    text-shadow: 0 2px 8px #fffbe6;
+                }
+                @media (max-width: 900px) {
+                    .gallery-grid-pro { grid-template-columns: 1fr; }
+                    .gallery-modal-content-pro { padding: 1rem; }
+                }
+                </style>
+
+                {% comment %} Safer JS array using JSON for galleryPhotos {% endcomment %}
+                <script id="gallery-photos-data" type="application/json">{{ photos_json|safe }}</script>
+                <script>
+                // Parse photo data from JSON
+                const galleryPhotosRaw = JSON.parse(document.getElementById('gallery-photos-data').textContent);
+                const galleryPhotos = galleryPhotosRaw.map(photo => ({
+                    url: photo.image,
+                    title: photo.title,
+                    photographer: photo.photographer_first_name + ' ' + photo.photographer_last_name,
+                    photographerUrl: `/portfolio/photographer/${photo.photographer}`
+                }));
+                let currentPhotoIndex = 0;
+                let zoomed = false;
+                function openGalleryModal(idx) {
+                    currentPhotoIndex = idx;
+                    showGalleryPhoto();
+                    document.getElementById('galleryModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeGalleryModal() {
+                    document.getElementById('galleryModal').style.display = 'none';
+                    document.body.style.overflow = '';
+                    zoomed = false;
+                    document.getElementById('galleryModalImg').classList.remove('zoomed');
+                }
+                function showGalleryPhoto() {
+                    const photo = galleryPhotos[currentPhotoIndex];
+                    const img = document.getElementById('galleryModalImg');
+                    img.src = photo.url;
+                    img.alt = photo.title;
+                    document.getElementById('galleryModalCaption').innerHTML = `<strong>${photo.title}</strong><br>by <a href="${photo.photographerUrl}" style="color:#ffd700;">${photo.photographer}</a>`;
+                }
+                function galleryPrev() {
+                    currentPhotoIndex = (currentPhotoIndex - 1 + galleryPhotos.length) % galleryPhotos.length;
+                    showGalleryPhoto();
+                }
+                function galleryNext() {
+                    currentPhotoIndex = (currentPhotoIndex + 1) % galleryPhotos.length;
+                    showGalleryPhoto();
+                }
+                function toggleZoom() {
+                    zoomed = !zoomed;
+                    const img = document.getElementById('galleryModalImg');
+                    if (zoomed) {
+                        img.classList.add('zoomed');
+                    } else {
+                        img.classList.remove('zoomed');
+                    }
+                }
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeGalleryModal();
+                    if (e.key === 'ArrowLeft') galleryPrev();
+                    if (e.key === 'ArrowRight') galleryNext();
+                });
+                </script>
 </div>
 {% endblock %}

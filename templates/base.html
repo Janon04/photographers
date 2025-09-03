@@ -3,9 +3,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Photographers Platform{% endblock %}</title>
-    {% block head %}{% endblock %}
+        <meta charset="UTF-8">
+        <title>{% block title %}Photographers Platform{% endblock %}</title>
+        <style>
+            :root {
+                --primary-dark: #2d2013;
+                --primary: #3a2a1b;
+                --primary-light: #c7a17a;
+                --accent: #a67c52;
+                --accent-light: #ffd700;
+                --background: #f8f6f3;
+                --surface: #fff;
+                --text-main: #2d2013;
+                --text-light: #6b6b6b;
+                --success: #43a047;
+                --danger: #e53935;
+                --border: #e0e4ef;
+            }
+            body { background: var(--background); color: var(--text-main); font-family: 'Segoe UI', Arial, sans-serif; }
+            a { color: var(--accent-light); }
+            nav { background: var(--primary-dark); }
+            nav a, nav button { color: #fff !important; }
+            .quick-links-bar a { color: var(--primary); }
+        </style>
+        {% block head %}{% endblock %}
 </head>
 <body>
     <nav style="background:#2d2013;padding:1rem 0 0.5rem 0;">
@@ -25,6 +46,19 @@
             </div>
         </div>
     </nav>
+    {% if user.is_authenticated %}
+    <div style="background:#f5eee6;padding:0.5rem 0;">
+        <div style="max-width:1200px;margin:0 auto;display:flex;gap:2rem;align-items:center;justify-content:center;">
+            <a href="/feed/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Feed</a>
+            <a href="/explore/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Explore</a>
+            <a href="/bookings/photographer/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Bookings</a>
+            <a href="/portfolio/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Portfolio</a>
+            <a href="/community/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Community</a>
+            <a href="/payments/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Payments</a>
+            <a href="/reviews/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Reviews</a>
+        </div>
+    </div>
+    {% endif %}
     {% block content %}{% endblock %}
 </body>
 </html>

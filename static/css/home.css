@@ -1,6 +1,6 @@
 /* Custom Instagram-like homepage styles for PhotoRw */
 body {
-    background: #f8fafc;
+    background: #f8f6f3;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 .main-container {
@@ -8,7 +8,7 @@ body {
     min-height: 100vh;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(90deg, #f8fafc 60%, #e0e7ef 100%);
+    background: linear-gradient(90deg, #f8f6f3 60%, #c7a17a 100%);
 }
 .left-section {
     flex: 1;
@@ -32,18 +32,18 @@ body {
 .logo {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #1e293b;
+    color: #c7a17a;
     margin-bottom: 1.5rem;
     letter-spacing: 2px;
 }
 .form-box {
     background: #fff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #c7a17a;
     border-radius: 1rem;
     padding: 2rem 2.5rem;
     margin-bottom: 1.5rem;
     width: 100%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(199,161,122,0.08);
 }
 .form-box input {
     width: 100%;
@@ -55,8 +55,8 @@ body {
 }
 .form-box button {
     width: 100%;
-    background: #0ea5e9;
-    color: #fff;
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
     border: none;
     padding: 0.75rem;
     border-radius: 0.5rem;
@@ -66,12 +66,13 @@ body {
     transition: background 0.2s;
 }
 .form-box button:hover {
-    background: #0369a1;
+    background: #fff;
+    color: #c7a17a;
 }
 .signup-link {
     text-align: center;
     margin-top: 1rem;
-    color: #64748b;
+    color: #a67c52;
 }
 @media (max-width: 900px) {
     .main-container { flex-direction: column; }

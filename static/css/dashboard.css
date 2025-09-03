@@ -15,8 +15,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #c7a17a;
-    color: #fff;
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
     padding: 1.5rem 2.5rem;
     font-size: 1.2rem;
 }
@@ -53,7 +53,7 @@ body {
     transition: color 0.2s;
 }
 .dashboard-sidebar a.active, .dashboard-sidebar a:hover, .logout-btn:hover {
-    color: #c7a17a;
+    color: #ffd700;
 }
 .dashboard-content {
     flex: 1;
@@ -78,7 +78,7 @@ body {
     margin-bottom: 0.5rem;
 }
 .widget-value {
-    color: #c7a17a;
+    color: #ffd700;
     font-size: 2rem;
     font-weight: bold;
 }
@@ -95,7 +95,7 @@ body {
     height: 70px;
     object-fit: cover;
     border-radius: 1rem;
-    border: 2px solid #c7a17a;
+    border: 2px solid #ffd700;
     background: #fff;
 }
 @media (max-width: 900px) {

@@ -1,147 +1,291 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}PhotoRw | Home{% endblock %}
+{% block title %}PhotoRw | Professional Photography Platform{% endblock %}
 {% block head %}
-	<link rel="stylesheet" href="{% static 'css/home.css' %}">
-	<style>
-		body { background: #fff; }
-		.hero-bg {
-			background: linear-gradient(120deg, #c7a17a 0%, #fff 100%);
-			min-height: 100vh;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-		.hero-card {
-			background: #fff;
-			border-radius: 2rem;
-			box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-			display: flex;
-			overflow: hidden;
-			max-width: 900px;
-			width: 100%;
-		}
-		.hero-img {
-			background: #c7a17a;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			flex: 1.2;
-			min-width: 320px;
-		}
-		.hero-img img {
-			width: 100%;
-			max-width: 350px;
-			border-radius: 2rem 0 0 2rem;
-			box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-		}
-		.hero-content {
-			flex: 1;
-			padding: 3rem 2.5rem;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-		}
-		.logo {
-			font-size: 2.7rem;
-			font-weight: bold;
-			color: #2d2013;
-			margin-bottom: 1.2rem;
-			letter-spacing: 2px;
-			font-family: 'Segoe UI', Arial, sans-serif;
-		}
-		.subtitle {
-			color: #c7a17a;
-			font-size: 1.1rem;
-			margin-bottom: 2.2rem;
-			text-align: center;
-		}
-		.form-box {
-			background: #fff;
-			border: 1px solid #e5e7eb;
-			border-radius: 1rem;
-			padding: 2rem 2.5rem;
-			margin-bottom: 1.5rem;
-			width: 100%;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-		}
-		.form-box input {
-			width: 100%;
-			margin-bottom: 1rem;
-			padding: 0.75rem;
-			border: 1px solid #c7a17a;
-			border-radius: 0.5rem;
-			font-size: 1rem;
-		}
-		.form-box button {
-			width: 100%;
-			background: #2d2013;
-			color: #fff;
-			border: none;
-			padding: 0.75rem;
-			border-radius: 0.5rem;
-			font-size: 1rem;
-			font-weight: bold;
-			cursor: pointer;
-			transition: background 0.2s;
-		}
-		.form-box button:hover {
-			background: #c7a17a;
-			color: #2d2013;
-		}
-		.signup-link {
-			text-align: center;
-			margin-top: 1rem;
-			color: #2d2013;
-		}
-		.signup-link a {
-			color: #c7a17a;
-			font-weight: bold;
-		}
-		.welcome-box {
-			text-align: center;
-		}
-		.welcome-box a {
-			color: #c7a17a;
-			font-weight: bold;
-		}
-		@media (max-width: 900px) {
-			.hero-card { flex-direction: column; border-radius: 2rem; }
-			.hero-img img { border-radius: 2rem 2rem 0 0; }
-			.hero-img { min-width: 100%; justify-content: center; }
-		}
-	</style>
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+:root {
+    --primary-dark: #2D2013;
+    --primary: #3A2A1B;
+    --accent: #A67C52;
+    --accent-light: #C7A17A;
+    --surface: #FFFFFF;
+    --text-main: #2D2013;
+    --text-light: #6B6B6B;
+}
+
+.hero-section {
+	position: relative;
+	min-height: 85vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4rem 2rem;
+	background: url('/media/profile_pics/Mize.jpg') center center/cover no-repeat;
+	overflow: hidden;
+	border-radius: 0 0 2rem 2rem;
+}
+
+.hero-content-pro {
+	position: relative;
+	z-index: 2;
+	max-width: 700px;
+	background: rgba(30, 22, 10, 0.72);
+	border-radius: 1.5rem;
+	box-shadow: 0 15px 35px rgba(45,32,19,0.18);
+	padding: 3.5rem 3rem;
+	text-align: center;
+	backdrop-filter: blur(6px);
+	border: 1.5px solid rgba(199,161,122,0.25);
+}
+
+.hero-title {
+	font-size: 3.2rem;
+	font-weight: 800;
+	color: #ffd700;
+	margin-bottom: 1.2rem;
+	letter-spacing: 2px;
+	font-family: 'Playfair Display', Georgia, serif;
+	text-transform: uppercase;
+	text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+
+.hero-subtitle {
+	color: #fff;
+	font-size: 1.25rem;
+	line-height: 1.7;
+	margin-bottom: 2.5rem;
+	font-weight: 400;
+	text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.cta-btns {
+	margin: 2.5rem 0 1.8rem 0;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 1rem;
+}
+
+.cta-btns a {
+	display: inline-block;
+	background: var(--accent);
+	color: white;
+	font-weight: 600;
+	padding: 1rem 2.5rem;
+	border-radius: 2rem;
+	text-decoration: none;
+	font-size: 1.1rem;
+	box-shadow: 0 4px 15px rgba(166, 124, 82, 0.3);
+	transition: all 0.3s ease;
+	border: 2px solid var(--accent);
+}
+
+.cta-btns a:hover {
+	background: transparent;
+	color: var(--accent);
+	transform: translateY(-3px);
+	box-shadow: 0 8px 20px rgba(166, 124, 82, 0.4);
+}
+
+.cta-btns a:first-child {
+	background: var(--primary-dark);
+	border-color: var(--primary-dark);
+}
+
+.cta-btns a:first-child:hover {
+	background: transparent;
+	color: var(--primary-dark);
+}
+
+.secondary-links {
+	margin-top: 2rem;
+	font-size: 1rem;
+	color: var(--text-main);
+}
+
+.secondary-links a {
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: 600;
+	margin: 0 1rem;
+	padding-bottom: 2px;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+}
+
+.secondary-links a:hover {
+	border-bottom: 2px solid var(--accent);
+}
+
+.secondary-links form {
+	display: inline;
+}
+
+.secondary-links button {
+	background: none;
+	border: none;
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: 600;
+	margin: 0 1rem;
+	padding-bottom: 2px;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	font-size: 1rem;
+	font-family: inherit;
+}
+
+.secondary-links button:hover {
+	border-bottom: 2px solid var(--accent);
+}
+
+.features-section {
+	max-width: 1200px;
+	margin: 5rem auto;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2.5rem;
+	justify-content: center;
+	padding: 0 2rem;
+}
+
+.feature-card {
+	background: var(--surface);
+	border-radius: 1.2rem;
+	box-shadow: 0 5px 25px rgba(45,32,19,0.08);
+	padding: 2.5rem 2rem;
+	flex: 1 1 280px;
+	min-width: 280px;
+	max-width: 350px;
+	text-align: center;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	border: 1px solid rgba(58,42,27,0.1);
+}
+
+.feature-card:hover {
+	transform: translateY(-10px);
+	box-shadow: 0 15px 35px rgba(45,32,19,0.12);
+}
+
+.feature-icon {
+	font-size: 3rem;
+	color: var(--accent);
+	margin-bottom: 1.5rem;
+	display: block;
+}
+
+.feature-title {
+	font-size: 1.4rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: var(--primary-dark);
+	font-family: 'Playfair Display', Georgia, serif;
+}
+
+.feature-desc {
+	color: var(--text-light);
+	font-size: 1.05rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+	.hero-section { 
+		min-height: 75vh;
+		padding: 2rem 1rem; 
+	}
+	
+	.hero-content-pro {
+		padding: 2.5rem 2rem;
+	}
+	
+	.cta-btns a {
+		display: inline-block;
+		background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+		color: #2d2013;
+		font-weight: 700;
+		padding: 1rem 2.5rem;
+		border-radius: 2rem;
+		text-decoration: none;
+		font-size: 1.1rem;
+		box-shadow: 0 4px 15px rgba(199,161,122,0.18);
+		transition: all 0.3s cubic-bezier(.4,2,.3,1);
+		border: none;
+		margin-bottom: 0.5rem;
+	}
+	.cta-btns a:hover {
+		background: #fff;
+		color: #c7a17a;
+		transform: translateY(-2px) scale(1.04);
+		box-shadow: 0 8px 24px rgba(199,161,122,0.28);
+	}
+	
+	.cta-btns a {
+		width: 100%;
+		max-width: 280px;
+		text-align: center;
+	}
+	
+	.secondary-links {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+	}
+	
+	.secondary-links a, .secondary-links form {
+		margin: 0;
+	}
+}
+</style>
 {% endblock %}
 {% block content %}
-<div class="hero-bg">
-	<div class="hero-card">
-		<div class="hero-img">
-			<img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" alt="App Mockup">
+<div class="hero-section">
+	<div class="hero-content-pro">
+		<div class="hero-title">PhotoRw</div>
+		<div class="hero-subtitle">
+			Discover, book, and connect with Rwanda's premier photographers.<br>
+			<span style="color:#ffd700;font-weight:600;">Showcase your portfolio</span>, grow your business, and capture life's most precious moments.
 		</div>
-		<div class="hero-content">
-			<div class="logo">PhotoRw</div>
-			<div class="subtitle">Connecting Rwandan photographers & clients</div>
+		<div class="cta-btns">
+			<a href="/explore/">Explore Photos</a>
+			<a href="/portfolio/photographers/">Find Photographers</a>
+			<a href="/reviews/">Read Reviews</a>
+		</div>
+		<div class="secondary-links">
 			{% if not user.is_authenticated %}
-			<div class="form-box">
-				<form method="post" action="/users/login/">
-					{% csrf_token %}
-					<input type="text" name="username" placeholder="Email or Username" required>
-					<input type="password" name="password" placeholder="Password" required>
-					<button type="submit">Log In</button>
-				</form>
-			</div>
-			<div class="form-box signup-link">
-				Don't have an account? <a href="/users/register/">Sign up</a>
-			</div>
+				<a href="/users/login/" style="color:#fff;background:rgba(199,161,122,0.18);padding:0.5rem 1.5rem;border-radius:1.2rem;margin-right:0.5rem;font-weight:700;backdrop-filter:blur(2px);">Log In</a>
+				<a href="/users/register/" style="color:#2d2013;background:linear-gradient(90deg,#ffd700 0%,#c7a17a 100%);padding:0.5rem 1.5rem;border-radius:1.2rem;font-weight:700;box-shadow:0 2px 8px rgba(199,161,122,0.18);">Sign Up</a>
 			{% else %}
-			<div class="form-box welcome-box">
-				<div style="font-size:1.2rem;">Welcome, {{ user.username }}!</div>
-				<a href="/users/profile/" style="display:block;margin:1rem 0;">Go to Profile</a>
-				<form method="post" action="/users/logout/">{% csrf_token %}<button type="submit">Log Out</button></form>
-			</div>
+				<a href="/users/profile/" style="color:#fff;background:rgba(199,161,122,0.18);padding:0.5rem 1.5rem;border-radius:1.2rem;margin-right:0.5rem;font-weight:700;backdrop-filter:blur(2px);">Go to Profile</a>
+				<form method="post" action="/users/logout/" style="display:inline;">
+					{% csrf_token %}
+					<button type="submit" style="background:linear-gradient(90deg,#ffd700 0%,#c7a17a 100%);color:#2d2013;border:none;padding:0.5rem 1.5rem;border-radius:1.2rem;font-weight:700;box-shadow:0 2px 8px rgba(199,161,122,0.18);cursor:pointer;">Log Out</button>
+				</form>
 			{% endif %}
 		</div>
+	</div>
+</div>
+<div class="features-section">
+	<div class="feature-card">
+		<span class="feature-icon">📸</span>
+		<h3 class="feature-title">Showcase Portfolios</h3>
+		<p class="feature-desc">Photographers can display their best work in elegant, professional galleries that highlight their unique style and expertise.</p>
+	</div>
+	<div class="feature-card">
+		<span class="feature-icon">🤝</span>
+		<h3 class="feature-title">Seamless Booking</h3>
+		<p class="feature-desc">Clients can effortlessly search, compare, and book the perfect photographer for any occasion with our intuitive platform.</p>
+	</div>
+	<div class="feature-card">
+		<span class="feature-icon">⭐</span>
+		<h3 class="feature-title">Verified Reviews</h3>
+		<p class="feature-desc">Make informed decisions with authentic feedback and ratings from previous clients, ensuring quality and reliability.</p>
+	</div>
+	<div class="feature-card">
+		<span class="feature-icon">💬</span>
+		<h3 class="feature-title">Creative Community</h3>
+		<p class="feature-desc">Connect with fellow photographers, share insights, and stay inspired within Rwanda's growing photography network.</p>
 	</div>
 </div>
 {% endblock %}

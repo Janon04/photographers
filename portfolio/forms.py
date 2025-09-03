@@ -1,7 +1,13 @@
 # Portfolio forms
 
 from django import forms
-from .models import Photo, Category, Story
+from .models import Photo, Category, Story, Event
+
+# Form for creating/updating an event
+class EventForm(forms.ModelForm):
+	class Meta:
+		model = Event
+		fields = ['title', 'description', 'date', 'location']
 
 class PhotoForm(forms.ModelForm):
 	class Meta:

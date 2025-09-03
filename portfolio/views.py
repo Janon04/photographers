@@ -2,7 +2,7 @@
 from .models import Category
 def explore(request):
 	from users.models import User
-	from .models import Photo
+	from .models import Photo, Event
 	# Get filters/search
 	q = request.GET.get('q', '').strip()
 	category_id = request.GET.get('category')
@@ -22,6 +22,11 @@ def explore(request):
 
 	photos = photos.order_by('-uploaded_at')[:24]
 
+	# Gather all upcoming events for all photographers
+	from django.utils import timezone
+	today = timezone.now().date()
+	events = Event.objects.filter(date__gte=today).order_by('date')
+
 	return render(request, 'explore.html', {
 		'photographers': photographers,
 		'photos': photos,
@@ -29,6 +34,7 @@ def explore(request):
 		'q': q,
 		'selected_category': category_id,
 		'location': location,
+		'events': events,
 	})
 
 from django.utils import timezone
@@ -36,7 +42,30 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Photo, Category, Story
 from users.models import User
 from django.contrib.auth.decorators import login_required
-from .forms import PhotoForm, CategoryForm, StoryForm
+from .forms import PhotoForm, CategoryForm, StoryForm, EventForm
+# List all upcoming events for the logged-in photographer
+@login_required
+def my_events(request):
+	if request.user.role != 'photographer':
+		return redirect('home')
+	events = request.user.events.order_by('date')
+	return render(request, 'portfolio/my_events.html', {'events': events})
+
+# Create a new event
+@login_required
+def create_event(request):
+	if request.user.role != 'photographer':
+		return redirect('home')
+	if request.method == 'POST':
+		form = EventForm(request.POST)
+		if form.is_valid():
+			event = form.save(commit=False)
+			event.photographer = request.user
+			event.save()
+			return redirect('my_events')
+	else:
+		form = EventForm()
+	return render(request, 'portfolio/create_event.html', {'form': form})
 
 # Photographer dashboard view
 @login_required
@@ -86,7 +115,15 @@ def photographer_list(request):
 def photographer_detail(request, pk):
 	photographer = get_object_or_404(User, pk=pk, role='photographer')
 	photos = photographer.photos.all()
-	return render(request, 'portfolio/photographer_detail.html', {'photographer': photographer, 'photos': photos})
+	# Show only upcoming events (today or future)
+	from django.utils import timezone
+	today = timezone.now().date()
+	events = photographer.events.filter(date__gte=today).order_by('date')
+	return render(request, 'portfolio/photographer_detail.html', {
+		'photographer': photographer,
+		'photos': photos,
+		'events': events,
+	})
 
 def photo_list(request):
 	photos = Photo.objects.all()

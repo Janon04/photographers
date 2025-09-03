@@ -1,4 +1,5 @@
 
+
 from django.db import models
 from users.models import User
 from django.utils import timezone
@@ -37,3 +38,15 @@ class Story(models.Model):
 
 	def __str__(self):
 		return f"Story by {self.photographer.username} at {self.created_at}"
+	
+	# Upcoming Event model for photographers
+class Event(models.Model):
+	photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
+	title = models.CharField(max_length=200)
+	description = models.TextField(blank=True)
+	date = models.DateField()
+	location = models.CharField(max_length=255)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.title} by {self.photographer.get_full_name()} on {self.date}"

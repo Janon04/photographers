@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -12,4 +13,7 @@ urlpatterns = [
     path('category/<int:category_id>/', views.category_photos, name='category_photos'),
     path('upload/', views.upload_photo, name='upload_photo'),
     path('add-category/', views.add_category, name='add_category'),
+    # Event URLs
+    path('events/', views.my_events, name='my_events'),
+    path('events/create/', views.create_event, name='create_event'),
 ]

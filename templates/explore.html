@@ -34,6 +34,20 @@
         <div>No photographers found.</div>
         {% endfor %}
     </div>
+
+    <h2 style="margin-top:3rem;">Upcoming Events</h2>
+    <div class="explore-events-grid">
+        {% for event in events %}
+        <div class="explore-event-card">
+            <strong>{{ event.title }}</strong> <span style="color:#a67c52;">({{ event.date }})</span><br>
+            <span style="font-size:0.95em;">{{ event.location }}</span><br>
+            <span style="font-size:0.95em;">{{ event.description|truncatewords:15 }}</span><br>
+            <span style="font-size:0.95em;">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></span>
+        </div>
+        {% empty %}
+        <div>No upcoming events found.</div>
+        {% endfor %}
+    </div>
     <h2 style="margin-top:3rem;">Explore Photos</h2>
     <div class="explore-photo-grid">
         {% for photo in photos %}

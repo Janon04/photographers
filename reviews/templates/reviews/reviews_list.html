@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>All Reviews</h2>
-<ul>
-  {% for review in reviews %}
-    <li>
-      <strong>{{ review.rating }} stars</strong> by {{ review.client.username }} for {{ review.photographer.username }}<br>
-      {{ review.comment }}<br>
-      <small>{{ review.created_at }}</small>
-    </li>
-  {% empty %}
-    <li>No reviews yet.</li>
-  {% endfor %}
-</ul>
+<div style="max-width:900px;margin:2.5rem auto 0 auto;">
+  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:2rem;">All Reviews</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
+    {% for review in reviews %}
+      <div style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:340px;">
+        <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.7rem;">
+          <span style="font-size:1.3rem;color:#ffd700;font-weight:700;">&#9733; {{ review.rating }}</span>
+          <span style="color:#6b6b6b;font-size:1rem;">by <strong style="color:#a67c52;">{{ review.reviewer.first_name }} {{ review.reviewer.last_name }}</strong></span>
+        </div>
+        <div style="color:#2d2013;font-size:1.08rem;margin-bottom:0.5rem;">for <a href="{% url 'photographer_detail' review.photographer.pk %}" style="color:#2d2013;font-weight:700;text-decoration:none;">{{ review.photographer.first_name }} {{ review.photographer.last_name }}</a></div>
+        <div style="color:#444;font-size:1.05rem;margin-bottom:0.7rem;">{{ review.comment }}</div>
+        <div style="color:#a67c52;font-size:0.97rem;">{{ review.created_at|date:'M d, Y H:i' }}</div>
+      </div>
+    {% empty %}
+      <div style="color:#888;">No reviews yet.</div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

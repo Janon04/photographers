@@ -1,17 +1,86 @@
 {% extends 'base.html' %}
+{% block head %}
+<style>
+.register-hero {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg, var(--primary-light) 0%, var(--background) 100%);
+}
+.register-card {
+  background: var(--surface);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(26,35,126,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+.register-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 1.2rem;
+  letter-spacing: 1px;
+}
+.register-form label {
+  display: block;
+  text-align: left;
+  color: var(--text-main);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.register-form input, .register-form select, .register-form textarea {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: #f8fafc;
+}
+.register-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.9rem;
+  border-radius: 0.7rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.register-btn:hover {
+  background: var(--primary);
+}
+.register-links {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+.register-links a {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: bold;
+  margin-right: 1.5rem;
+}
+</style>
+{% endblock %}
 {% block content %}
-<h2>Register</h2>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div>{{ form.first_name.label_tag }} {{ form.first_name }}</div>
-  <div>{{ form.last_name.label_tag }} {{ form.last_name }}</div>
-  <div>{{ form.email.label_tag }} {{ form.email }}</div>
-  <div>{{ form.password.label_tag }} {{ form.password }}</div>
-  <div>{{ form.bio.label_tag }} {{ form.bio }}</div>
-  <div>{{ form.profile_picture.label_tag }} {{ form.profile_picture }}</div>
-  <div>{{ form.location.label_tag }} {{ form.location }}</div>
-  <div>{{ form.contact_info.label_tag }} {{ form.contact_info }}</div>
-  <div>{{ form.role.label_tag }} {{ form.role }}</div>
-  <button type="submit" class="btn btn-primary">Register</button>
-</form>
+<div class="register-hero">
+  <div class="register-card">
+    <div class="register-title">Create Your Account</div>
+    <form method="post" enctype="multipart/form-data" class="register-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="register-btn">Register</button>
+    </form>
+    <div class="register-links">
+      <span>Already have an account?</span> <a href="/users/login/">Log In</a>
+      <a href="/">Back to Home</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

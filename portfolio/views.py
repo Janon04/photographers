@@ -56,7 +56,6 @@ def feed(request):
 	return render(request, 'feed.html', {'stories': stories, 'photos': photos})
 
 # View a single story
-@login_required
 def view_story(request, story_id):
 	story = Story.objects.get(id=story_id)
 	# Only allow viewing if story is active

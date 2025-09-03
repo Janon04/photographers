@@ -1,9 +1,10 @@
 /* Instagram-like feed and story UI for PhotoRw, using chocolate, white, and black */
 :root {
-  --choco: #c19a6b;
+  --choco: #c7a17a;
   --choco-dark: #a67c52;
   --white: #fff;
-  --black: #181818;
+  --black: #2d2013;
+  --gold: #ffd700;
 }
 body {
   background: var(--white);
@@ -12,8 +13,8 @@ body {
   margin: 0;
 }
 .navbar {
-  background: var(--choco);
-  color: var(--white);
+  background: linear-gradient(90deg, var(--gold) 0%, var(--choco) 100%);
+  color: var(--black);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,18 +25,19 @@ body {
   font-size: 2rem;
   font-weight: bold;
   letter-spacing: 2px;
-  color: var(--white);
+  color: var(--gold);
+  text-shadow: 0 2px 8px rgba(45,32,19,0.18);
 }
 .navbar .nav-links a {
-  color: var(--white);
+  color: var(--black);
   text-decoration: none;
   margin-left: 2rem;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 700;
   transition: color 0.2s;
 }
 .navbar .nav-links a:hover {
-  color: var(--black);
+  color: var(--gold);
 }
 .feed-container {
   max-width: 700px;
@@ -58,7 +60,7 @@ body {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  border: 3px solid var(--choco-dark);
+  border: 3px solid var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +70,7 @@ body {
   transition: border 0.2s;
 }
 .story-avatar:hover {
-  border: 3px solid var(--black);
+  border: 3px solid var(--choco-dark);
 }
 .story-avatar img {
   width: 100%;

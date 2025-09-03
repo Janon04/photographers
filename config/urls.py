@@ -36,7 +36,8 @@ urlpatterns = [
     path('accounts/login/', RedirectView.as_view(url='/users/login/', permanent=True)),
     path('feed/', RedirectView.as_view(url='/portfolio/feed/', permanent=False)),
     path('explore/', __import__('portfolio.views').views.explore, name='explore'),
-]
+        path('stories/upload/', RedirectView.as_view(url='/portfolio/stories/upload/', permanent=False)),
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

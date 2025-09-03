@@ -4,11 +4,11 @@
     margin: 3rem auto;
     background: #fff;
     border-radius: 1.5rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    box-shadow: 0 8px 32px rgba(199,161,122,0.10);
     padding: 2.5rem 2rem;
 }
 .booking-container h2 {
-    color: #2d2013;
+    color: #c7a17a;
     text-align: center;
     margin-bottom: 2rem;
 }
@@ -19,13 +19,13 @@
 }
 .booking-container input, .booking-container select {
     padding: 0.75rem;
-    border: 1px solid #c7a17a;
+    border: 1px solid #ffd700;
     border-radius: 0.5rem;
     font-size: 1rem;
 }
 .booking-btn {
-    background: #c7a17a;
-    color: #fff;
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
     border: none;
     padding: 0.75rem;
     border-radius: 0.5rem;
@@ -35,6 +35,6 @@
     transition: background 0.2s;
 }
 .booking-btn:hover {
-    background: #2d2013;
-    color: #fff;
+    background: #fff;
+    color: #c7a17a;
 }

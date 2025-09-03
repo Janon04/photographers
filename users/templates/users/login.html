@@ -1,9 +1,86 @@
 {% extends 'base.html' %}
+{% block head %}
+<style>
+.login-hero {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg, var(--primary-light) 0%, var(--background) 100%);
+}
+.login-card {
+  background: var(--surface);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(26,35,126,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+.login-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 1.2rem;
+  letter-spacing: 1px;
+}
+.login-form label {
+  display: block;
+  text-align: left;
+  color: var(--text-main);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.login-form input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: #f8fafc;
+}
+.login-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.9rem;
+  border-radius: 0.7rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.login-btn:hover {
+  background: var(--primary);
+}
+.login-links {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+.login-links a {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: bold;
+  margin-right: 1.5rem;
+}
+</style>
+{% endblock %}
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Login</button>
-</form>
+<div class="login-hero">
+  <div class="login-card">
+    <div class="login-title">Sign In to PhotoRw</div>
+    <form method="post" class="login-form">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+    <div class="login-links">
+      <span>Don't have an account?</span> <a href="/users/register/">Sign Up</a>
+      <a href="/">Back to Home</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

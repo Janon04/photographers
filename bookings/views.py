@@ -11,13 +11,14 @@ from django.core.mail import send_mail
 from django.conf import settings
 # Utility: send booking notification email
 def send_booking_email(subject, message, recipient):
-	send_mail(
-		subject,
-		message,
-		settings.DEFAULT_FROM_EMAIL,
-		[recipient],
-		fail_silently=True,
-	)
+	if recipient:
+		send_mail(
+			subject,
+			message,
+			settings.DEFAULT_FROM_EMAIL,
+			[recipient],
+			fail_silently=True,
+		)
 # Client cancels their booking
 @login_required
 @require_POST
@@ -47,10 +48,15 @@ def confirm_booking(request, booking_id):
 		booking.save()
 		# Email notification to client
 		subject = 'Your Booking Has Been Confirmed'
-	photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-	message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} has been confirmed."
-	send_booking_email(subject, message, booking.client.email)
-	messages.success(request, 'Booking confirmed!')
+		photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
+		message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} has been confirmed."
+		if booking.client.email:
+			send_booking_email(subject, message, booking.client.email)
+		else:
+			messages.warning(request, 'Booking confirmed, but client email is missing. No email sent.')
+		messages.success(request, 'Booking confirmed!')
+	else:
+		messages.info(request, 'Booking was not pending.')
 	return redirect(request.META.get('HTTP_REFERER', reverse('photographer_dashboard')))
 
 # Photographer marks booking as complete
@@ -63,10 +69,15 @@ def complete_booking(request, booking_id):
 		booking.save()
 		# Email notification to client
 		subject = 'Your Booking is Completed'
-	photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-	message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} is now marked as completed."
-	send_booking_email(subject, message, booking.client.email)
-	messages.success(request, 'Booking marked as completed!')
+		photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
+		message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} is now marked as completed."
+		if booking.client.email:
+			send_booking_email(subject, message, booking.client.email)
+		else:
+			messages.warning(request, 'Booking completed, but client email is missing. No email sent.')
+		messages.success(request, 'Booking marked as completed!')
+	else:
+		messages.info(request, 'Booking was not confirmed.')
 	return redirect(request.META.get('HTTP_REFERER', reverse('photographer_dashboard')))
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -93,16 +104,19 @@ def create_booking(request):
 	if request.method == 'POST':
 		form = BookingForm(request.POST)
 		if form.is_valid():
-			booking = form.save(commit=False)
-			booking.client = request.user
-			booking.save()
-			# Email notification to photographer
-			subject = 'New Booking Request on PhotoRw'
-			client_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
-			message = f"You have a new booking request from {client_name} for {booking.date} at {booking.time}."
-			send_booking_email(subject, message, booking.photographer.email)
-			messages.success(request, 'Booking request sent!')
-			return redirect('client_dashboard')
+						booking = form.save(commit=False)
+						booking.client = request.user
+						booking.save()
+						# Email notification to photographer
+						subject = 'New Booking Request on PhotoRw'
+						client_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+						message = f"You have a new booking request from {client_name} for {booking.date} at {booking.time}."
+						if booking.photographer.email:
+							send_booking_email(subject, message, booking.photographer.email)
+							messages.success(request, 'Booking request sent!')
+						else:
+							messages.warning(request, 'Booking created, but photographer has no email set. Please contact them directly.')
+						return redirect('client_dashboard')
 	else:
 		form = BookingForm(initial=initial)
 	return render(request, 'bookings/create_booking.html', {'form': form})

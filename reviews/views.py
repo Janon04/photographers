@@ -24,5 +24,5 @@ def add_review(request):
 	return render(request, 'reviews/add_review.html', {'form': form})
 
 def reviews_list(request):
-	reviews = Review.objects.all().select_related('client', 'photographer')
+	reviews = Review.objects.all().select_related('reviewer', 'photographer')
 	return render(request, 'reviews/reviews_list.html', {'reviews': reviews})

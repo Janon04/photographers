@@ -1,3 +1,4 @@
+from PIL import Image
 
 
 from django.db import models
@@ -10,6 +11,7 @@ class Category(models.Model):
 	def __str__(self):
 		return self.name
 
+
 class Photo(models.Model):
 	photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='photos')
 	image = models.ImageField(upload_to='portfolio_photos/')
@@ -17,7 +19,15 @@ class Photo(models.Model):
 	description = models.TextField(blank=True)
 	category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='photos')
 	uploaded_at = models.DateTimeField(default=timezone.now)
+	is_approved = models.BooleanField(default=False, help_text='Admin must approve before public display.')
 
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		if self.image:
+			img = Image.open(self.image.path)
+			max_size = (1280, 1280)
+			img.thumbnail(max_size, Image.LANCZOS)
+			img.save(self.image.path, optimize=True, quality=80)
 	def __str__(self):
 		return f"{self.title} by {self.photographer.email}"
 
@@ -32,6 +42,13 @@ class Story(models.Model):
 	image = models.ImageField(upload_to='stories/')
 	created_at = models.DateTimeField(auto_now_add=True)
 
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		if self.image:
+			img = Image.open(self.image.path)
+			max_size = (800, 800)
+			img.thumbnail(max_size, Image.LANCZOS)
+			img.save(self.image.path, optimize=True, quality=80)
 	def is_active(self):
 		from django.utils import timezone
 		return self.created_at >= timezone.now() - timedelta(hours=24)

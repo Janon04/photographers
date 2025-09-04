@@ -499,7 +499,7 @@
             <div class="photos-grid">
                 {% for photo in photos %}
                     <div class="photo-card">
-                        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-img">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.title }} by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}" class="photo-img">
                         <div class="photo-title">{{ photo.title }}</div>
                         <div class="photo-photographer">by <a href="/portfolio/photographer/{{ photo.photographer.pk }}/">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
                     </div>
@@ -551,7 +551,7 @@
         <div class="photographer-card">
             <a href="{% url 'photographer_detail' photographer.pk %}" class="photographer-link">
                 {% if photographer.profile_picture %}
-                    <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.username }}" class="photographer-avatar">
+                    <img src="{{ photographer.profile_picture.url }}" alt="Profile picture of {{ photographer.first_name }} {{ photographer.last_name }}" class="photographer-avatar">
                 {% else %}
                     <div class="avatar-placeholder">{{ photographer.username|first|upper }}</div>
                 {% endif %}
@@ -584,10 +584,8 @@
                         {% for photo in photos %}
                         <div class="gallery-card-pro" onclick="openGalleryModal({{ forloop.counter0 }})">
                                 <div class="gallery-img-wrapper">
-                                        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="gallery-img-pro">
-                                        <div class="gallery-hover-overlay">
-                                                <span class="gallery-zoom-icon">&#128269;</span>
-                                        </div>
+                                        <img src="{{ photo.image.url }}" alt="{{ photo.title }} by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}" class="gallery-img-pro">
+                                        <div class="gallery-hover-overlay"></div>
                                 </div>
                                 <div class="gallery-info-pro">
                                         <div class="gallery-title-pro">{{ photo.title }}</div>
@@ -600,15 +598,14 @@
                 </div>
 
                 <!-- Fullscreen Modal Gallery -->
-                <div id="galleryModal" class="gallery-modal-pro" style="display:none;">
+                <div id="galleryModal" class="gallery-modal-pro" style="display:none;" onclick="onGalleryOverlayClick(event)">
                     <span class="gallery-close-pro" onclick="closeGalleryModal()">&times;</span>
-                    <div class="gallery-modal-content-pro">
-                        <img id="galleryModalImg" class="gallery-modal-img-pro" src="" alt="">
+                    <div class="gallery-modal-content-pro" onclick="event.stopPropagation()">
+                        <img id="galleryModalImg" class="gallery-modal-img-pro" src="" alt="" tabindex="0" aria-label="Fullscreen photo">
                         <div class="gallery-modal-caption-pro" id="galleryModalCaption"></div>
                         <div class="gallery-modal-controls-pro">
-                            <button class="gallery-nav-pro gallery-prev-pro" onclick="galleryPrev()">&#10094;</button>
-                            <button class="gallery-nav-pro gallery-next-pro" onclick="galleryNext()">&#10095;</button>
-                            <button class="gallery-zoom-pro" onclick="toggleZoom()">&#128269;</button>
+                            <button class="gallery-nav-pro gallery-prev-pro" onclick="galleryPrev()" aria-label="Previous photo">&#10094;</button>
+                            <button class="gallery-nav-pro gallery-next-pro" onclick="galleryNext()" aria-label="Next photo">&#10095;</button>
                         </div>
                     </div>
                 </div>
@@ -800,14 +797,21 @@
                 function openGalleryModal(idx) {
                     currentPhotoIndex = idx;
                     showGalleryPhoto();
-                    document.getElementById('galleryModal').style.display = 'flex';
+                    const modal = document.getElementById('galleryModal');
+                    modal.style.display = 'flex';
+                    setTimeout(() => { modal.classList.add('active'); }, 10);
                     document.body.style.overflow = 'hidden';
                 }
                 function closeGalleryModal() {
-                    document.getElementById('galleryModal').style.display = 'none';
+                    const modal = document.getElementById('galleryModal');
+                    modal.classList.remove('active');
+                    setTimeout(() => { modal.style.display = 'none'; }, 200);
                     document.body.style.overflow = '';
                     zoomed = false;
                     document.getElementById('galleryModalImg').classList.remove('zoomed');
+                }
+                function onGalleryOverlayClick(e) {
+                    if (e.target.id === 'galleryModal') closeGalleryModal();
                 }
                 function showGalleryPhoto() {
                     const photo = galleryPhotos[currentPhotoIndex];

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 class User(AbstractUser):
 	class Roles(models.TextChoices):
@@ -14,10 +15,27 @@ class User(AbstractUser):
 	contact_info = models.CharField(max_length=255, blank=True)
 	is_verified = models.BooleanField(default=False)
 	role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.CLIENT)
+	price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, help_text=_('Typical session price (optional)'))
 
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['username']
 
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		if self.profile_picture:
+			img = Image.open(self.profile_picture.path)
+			max_size = (400, 400)
+			img.thumbnail(max_size, Image.LANCZOS)
+			img.save(self.profile_picture.path, optimize=True, quality=80)
+
+	@property
+	def average_rating(self):
+		if self.role != self.Roles.PHOTOGRAPHER:
+			return None
+		reviews = self.reviews_received.filter(is_approved=True)
+		if reviews.exists():
+			return round(sum(r.rating for r in reviews) / reviews.count(), 2)
+		return None
 	def __str__(self):
 		if self.role == self.Roles.PHOTOGRAPHER:
 			full_name = f"{self.first_name} {self.last_name}".strip()

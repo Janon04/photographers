@@ -1,0 +1,12 @@
+Hello {{ user.first_name }},
+
+Thank you for registering at PhotoRw!
+
+Please activate your account by clicking the link below:
+
+{{ activation_link }}
+
+If you did not register, please ignore this email.
+
+Best regards,
+PhotoRw Team

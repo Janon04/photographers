@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width:500px;margin:3rem auto;background:#fff;border-radius:1.2rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 2rem 1.5rem 2rem;">
+  <h2 style="font-size:1.5rem;font-weight:800;color:#2d2013;margin-bottom:1.2rem;">Report Content</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="background:#ffd700;color:#2d2013;font-weight:700;padding:0.7rem 2rem;border-radius:1rem;border:none;">Submit Report</button>
+  </form>
+</div>
+{% endblock %}

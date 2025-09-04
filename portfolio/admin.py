@@ -14,6 +14,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
-	list_display = ('title', 'photographer', 'category', 'uploaded_at')
+	list_display = ('title', 'photographer', 'category', 'uploaded_at', 'is_approved')
 	search_fields = ('title', 'photographer__email')
-	list_filter = ('category',)
+	list_filter = ('category', 'is_approved')

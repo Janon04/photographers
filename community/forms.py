@@ -1,8 +1,11 @@
 # Community forms
 from django import forms
-from .models import BlogPost
-
-class BlogPostForm(forms.ModelForm):
+from .models import ContentReport
+class ContentReportForm(forms.ModelForm):
 	class Meta:
-		model = BlogPost
-		fields = ['title', 'content']
+		model = ContentReport
+		fields = ['reason']
+		widgets = {
+			'reason': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Why are you reporting this content? (optional)'}),
+		}
+

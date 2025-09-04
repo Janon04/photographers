@@ -19,7 +19,7 @@
   <div class="stories-bar">
     {% for story in stories %}
       <div class="story-avatar" title="{{ story.photographer.username }}">
-        <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ story.photographer.username }}">
+  <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Story by {{ story.photographer.username }}">
       </div>
       <div class="story-label">{{ story.photographer.username }}</div>
     {% empty %}
@@ -36,11 +36,11 @@
     <div class="feed-post">
       <div class="post-header">
         <div class="post-avatar">
-          <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ post.photographer.username }}">
+          <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Profile picture of {{ post.photographer.username }}">
         </div>
         <div class="post-username">{{ post.photographer.username }}</div>
       </div>
-      <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+  <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}">
       <div style="margin:0.5rem 0 0.2rem 0;font-weight:bold;">{{ post.title }}</div>
       <div style="color:#444;">{{ post.description }}</div>
       <div class="post-actions">

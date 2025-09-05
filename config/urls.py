@@ -36,7 +36,9 @@ urlpatterns = [
     path('accounts/login/', RedirectView.as_view(url='/users/login/', permanent=True)),
     path('feed/', RedirectView.as_view(url='/portfolio/feed/', permanent=False)),
     path('explore/', __import__('portfolio.views').views.explore, name='explore'),
-        path('stories/upload/', RedirectView.as_view(url='/portfolio/stories/upload/', permanent=False)),
+    path('stories/upload/', RedirectView.as_view(url='/portfolio/stories/upload/', permanent=False)),
+    # API endpoints for AJAX like/dislike
+    path('api/portfolio/', include('portfolio.api_urls')),
     ]
 
 if settings.DEBUG:

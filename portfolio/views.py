@@ -63,6 +63,37 @@ from .models import Photo, Category, Story
 from users.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import PhotoForm, CategoryForm, StoryForm, EventForm
+# Like/dislike endpoints for AJAX
+from django.http import JsonResponse
+from .models import PhotoLike
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+# Like a photo
+@login_required
+@require_POST
+def like_photo(request):
+	photo_id = request.POST.get('photo_id')
+	photo = get_object_or_404(Photo, id=photo_id)
+	like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
+	like.is_like = True
+	like.save()
+	likes_count = PhotoLike.objects.filter(photo=photo, is_like=True).count()
+	dislikes_count = PhotoLike.objects.filter(photo=photo, is_like=False).count()
+	return JsonResponse({'success': True, 'likes': likes_count, 'dislikes': dislikes_count})
+
+# Dislike a photo
+@login_required
+@require_POST
+def dislike_photo(request):
+	photo_id = request.POST.get('photo_id')
+	photo = get_object_or_404(Photo, id=photo_id)
+	like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
+	like.is_like = False
+	like.save()
+	likes_count = PhotoLike.objects.filter(photo=photo, is_like=True).count()
+	dislikes_count = PhotoLike.objects.filter(photo=photo, is_like=False).count()
+	return JsonResponse({'success': True, 'likes': likes_count, 'dislikes': dislikes_count})
 # List all upcoming events for the logged-in photographer
 @login_required
 def my_events(request):

@@ -1,9 +1,19 @@
-from PIL import Image
 
-
+# Like/dislike model for photos
 from django.db import models
+from django.conf import settings
 from users.models import User
 from django.utils import timezone
+from PIL import Image
+
+class PhotoLike(models.Model):
+	photo = models.ForeignKey('Photo', on_delete=models.CASCADE, related_name='likes')
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	is_like = models.BooleanField(default=True)  # True=like, False=dislike
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		unique_together = ('photo', 'user')
 
 class Category(models.Model):
 	name = models.CharField(max_length=100, unique=True)
@@ -30,6 +40,14 @@ class Photo(models.Model):
 			img.save(self.image.path, optimize=True, quality=80)
 	def __str__(self):
 		return f"{self.title} by {self.photographer.email}"
+
+	@property
+	def likes_count(self):
+		return self.likes.filter(is_like=True).count()
+
+	@property
+	def dislikes_count(self):
+		return self.likes.filter(is_like=False).count()
 
 	class Meta:
 		ordering = ['-uploaded_at']

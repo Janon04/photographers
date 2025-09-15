@@ -74,7 +74,16 @@
     <div class="register-title">Create Your Account</div>
     <form method="post" enctype="multipart/form-data" class="register-form">
       {% csrf_token %}
-      {{ form.as_p }}
+      {% for field in form %}
+        <div style="margin-bottom:1.2rem;">
+          <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:#e74c3c;">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<div style="font-size:0.95em;color:#888;margin-top:0.2rem;">{{ field.help_text }}</div>{% endif %}
+          {% for error in field.errors %}
+            <div style="color:#e74c3c;font-size:0.97em;margin-top:0.2rem;">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
       <button type="submit" class="register-btn">Register</button>
     </form>
     <div class="register-links">

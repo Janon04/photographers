@@ -24,4 +24,4 @@ class CategoryForm(forms.ModelForm):
 class StoryForm(forms.ModelForm):
 	class Meta:
 		model = Story
-		fields = ['image']
+		fields = ['image', 'video']

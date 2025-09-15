@@ -1,55 +1,795 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load tz %}
 {% block title %}Feed | PhotoRw{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/feed.css' %}">
+<style>
+    :root {
+        --primary-dark: #2D2013;
+        --primary: #3A2A1B;
+        --accent: #A67C52;
+        --accent-light: #C7A17A;
+        --gold: #FFD700;
+        --surface: #FFFFFF;
+        --surface-alt: #F8F6F3;
+        --text-main: #2D2013;
+        --text-light: #6B6B6B;
+        --border-radius: 12px;
+        --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+        --transition: all 0.3s ease;
+    }
+
+    /* Main Container */
+    .feed-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    /* Section Headers */
+    .section-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 0 1rem;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .section-subtitle {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Stories Section */
+    .stories-container {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow);
+    }
+
+    .stories-scroll {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+        scrollbar-width: thin;
+    }
+
+    .story-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: var(--transition);
+        flex: 0 0 auto;
+        text-decoration: none;
+    }
+
+    .story-item:hover {
+        transform: translateY(-3px);
+    }
+
+    .story-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid var(--gold);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface-alt);
+        margin-bottom: 0.8rem;
+        position: relative;
+    }
+
+    .story-avatar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px transparent;
+        transition: var(--transition);
+    }
+
+    .story-item:hover .story-avatar::after {
+        box-shadow: 0 0 0 2px var(--gold);
+    }
+
+    .story-avatar img,
+    .story-avatar video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .add-story .story-avatar {
+        border: 2px dashed var(--primary-dark);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .story-avatar .add-icon {
+        font-size: 2rem;
+        color: var(--primary-dark);
+    }
+
+    .story-label {
+        font-size: 0.9rem;
+        color: var(--text-main);
+        font-weight: 500;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    /* Posts Grid */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .post-card {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(45, 32, 19, 0.15);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem;
+        gap: 1rem;
+        border-bottom: 1px solid var(--surface-alt);
+    }
+
+    .post-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid var(--accent-light);
+    }
+
+    .post-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .post-user-info {
+        flex: 1;
+    }
+
+    .post-username {
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 0.2rem;
+    }
+
+    .post-time {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .post-image {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+    }
+
+    .post-content {
+        padding: 1.5rem;
+    }
+
+    .post-title {
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.8rem;
+        font-size: 1.2rem;
+    }
+
+    .post-description {
+        color: var(--text-main);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--surface-alt);
+    }
+
+    .action-btn {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 0.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+        background: var(--surface-alt);
+        transform: scale(1.1);
+    }
+
+    .like-btn {
+        color: #e74c3c;
+    }
+
+    .comment-btn {
+        color: #3498db;
+    }
+
+    .share-btn {
+        color: #2ecc71;
+    }
+
+    /* Empty States */
+    .empty-state {
+        text-align: center;
+        color: var(--text-light);
+        padding: 3rem;
+        font-style: italic;
+        grid-column: 1 / -1;
+    }
+
+    .empty-state a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .empty-state a:hover {
+        text-decoration: underline;
+    }
+
+    /* CTA Button */
+    .cta-container {
+        text-align: center;
+        margin: 3rem 0;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 2.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 1.1rem;
+        gap: 0.5rem;
+        border: 2px solid transparent;
+    }
+
+    .btn-accent {
+        background: var(--gold);
+        color: var(--primary-dark);
+        box-shadow: var(--shadow);
+    }
+
+    .btn-accent:hover {
+        background: var(--surface);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Story Modal */
+    .story-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .story-modal-content {
+        position: relative;
+        max-width: 450px;
+        width: 90vw;
+        background: #222;
+        padding: 2.5rem 1.5rem 1.5rem;
+        border-radius: var(--border-radius);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--surface);
+        font-size: 2rem;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .story-media-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+    }
+
+    .story-media {
+        max-width: 100%;
+        max-height: 60vh;
+        border-radius: 8px;
+    }
+
+    .story-username {
+        color: var(--gold);
+        font-weight: 600;
+        margin: 1.5rem 0;
+        font-size: 1.1rem;
+    }
+
+    .story-nav {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    .nav-btn {
+        background: none;
+        border: none;
+        color: var(--surface);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: var(--transition);
+    }
+
+    .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 900px) {
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .story-avatar {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .post-image {
+            height: 300px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .feed-page {
+            padding: 1.5rem 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+        }
+        
+        .stories-container {
+            padding: 1.5rem;
+        }
+        
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .post-header {
+            padding: 1rem;
+        }
+        
+        .post-content {
+            padding: 1.2rem;
+        }
+        
+        .post-actions {
+            padding: 1rem;
+        }
+    }
+</style>
 {% endblock %}
 {% block content %}
-<div class="navbar" style="background:linear-gradient(90deg,#2d2013 60%,#ffd700 100%);padding:1.2rem 0 1rem 0;border-radius:0 0 2rem 2rem;box-shadow:0 4px 24px rgba(199,161,122,0.10);">
-  <div class="logo" style="font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:900;color:#ffd700;letter-spacing:2px;text-shadow:0 2px 12px #c7a17a,0 1px 0 #fffbe6;line-height:1.1;">Photo<span style="color:#2d2013;">Rw</span></div>
-  <div class="nav-links">
-    <a href="/feed/">Home</a>
-    <a href="/explore/">Explore</a>
-    <a href="/users/profile/">Profile</a>
-    <a href="/users/logout/" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Logout</a>
-    <form id="logout-form" method="post" action="/users/logout/" style="display:none;">{% csrf_token %}</form>
-  </div>
-</div>
-<div class="feed-container">
-  <div class="stories-bar">
-    {% for story in stories %}
-      <div class="story-avatar" title="{{ story.photographer.username }}">
-  <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Story by {{ story.photographer.username }}">
-      </div>
-      <div class="story-label">{{ story.photographer.username }}</div>
-    {% empty %}
-      <div style="color:#888;">No stories yet.</div>
-    {% endfor %}
-    {% if user.is_authenticated and user.role == 'photographer' %}
-      <div class="story-avatar" style="border:2px dashed var(--choco-dark);cursor:pointer;" onclick="window.location='/stories/upload/'">
-        <span style="font-size:2.5rem;color:var(--choco-dark);">+</span>
-      </div>
-      <div class="story-label">Add Story</div>
-    {% endif %}
-  </div>
-  {% for post in posts %}
-    <div class="feed-post">
-      <div class="post-header">
-        <div class="post-avatar">
-          <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Profile picture of {{ post.photographer.username }}">
+
+<div class="feed-page">
+    <!-- Stories Section -->
+    <section class="stories-container">
+        <div class="section-header">
+            <h2 class="section-title">Recent Stories</h2>
+            <p class="section-subtitle">See what photographers in our community are sharing</p>
         </div>
-        <div class="post-username">{{ post.photographer.username }}</div>
-      </div>
-  <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}">
-      <div style="margin:0.5rem 0 0.2rem 0;font-weight:bold;">{{ post.title }}</div>
-      <div style="color:#444;">{{ post.description }}</div>
-      <div class="post-actions">
-        <button title="Like">&#9829;</button>
-        <button title="Comment">💬</button>
-      </div>
+        
+        <div class="stories-scroll">
+            {% for story in stories %}
+                <div class="story-item" data-story-index="{{ forloop.counter0 }}">
+                    <div class="story-avatar" title="{{ story.photographer.username }}">
+                        {% if story.video %}
+                            <video muted>
+                                <source src="{{ story.video.url }}" type="video/mp4">
+                            </video>
+                        {% elif story.image %}
+                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}">
+                        {% else %}
+                            <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Story by {{ story.photographer.username }}">
+                        {% endif %}
+                    </div>
+                    <div class="story-label">{{ story.photographer.username }}</div>
+                </div>
+            {% empty %}
+                <div class="empty-state">No stories yet. Be the first to share your story!</div>
+            {% endfor %}
+            
+            {% if user.is_authenticated and user.role == 'photographer' %}
+                <a href="/stories/upload/" class="story-item add-story">
+                    <div class="story-avatar">
+                        <span class="add-icon">+</span>
+                    </div>
+                    <div class="story-label">Add Story</div>
+                </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    {% if user.is_authenticated and user.role != 'photographer' %}
+    <div class="cta-container">
+        <a href="/bookings/create/" class="btn btn-accent">
+            <i class="fas fa-calendar-check"></i> Book a Photographer
+        </a>
     </div>
-  {% empty %}
-    <div style="text-align:center;color:#888;">No posts yet.</div>
-  {% endfor %}
+    {% endif %}
+
+    <!-- Posts Section -->
+    <section>
+        <div class="section-header">
+            <h2 class="section-title">Latest Posts</h2>
+            <p class="section-subtitle">Discover recent work from our photography community</p>
+        </div>
+        
+        <div class="posts-grid">
+            {% for post in posts %}
+                <article class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">
+                            <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Profile picture of {{ post.photographer.username }}">
+                        </div>
+                        <div class="post-user-info">
+                            <div class="post-username">{{ post.photographer.username }}</div>
+                            <div class="post-time">{{ post.uploaded_at|localtime|timesince }} ago</div>
+                        </div>
+                        {% if user.is_authenticated and user == post.photographer %}
+                        <form method="post" action="{% url 'delete_photo' post.id %}" style="margin-left:auto;">
+                            {% csrf_token %}
+                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if user.is_authenticated and user.is_superuser %}
+                        <form method="post" action="{% url 'delete_photo' post.id %}" style="margin-left:auto;">
+                            {% csrf_token %}
+                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}">
+                    
+                    <div class="post-content">
+                        <h3 class="post-title">{{ post.title }}</h3>
+                        <p class="post-description">{{ post.description }}</p>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <button class="action-btn like-btn" title="Like" data-photo-id="{{ post.id }}">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count">{{ post.likes_count }}</span>
+                        </button>
+                        <button class="action-btn dislike-btn" title="Dislike" data-photo-id="{{ post.id }}">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span class="dislike-count">{{ post.dislikes_count }}</span>
+                        </button>
+                        <button class="action-btn comment-btn" title="Comment" onclick="toggleCommentBox({{ post.id }})">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="action-btn share-btn" title="Share" data-photo-id="{{ post.id }}" onclick="copyPostLink({{ post.id }})">
+                            <i class="fas fa-share"></i>
+                            <span class="share-count">{{ post.share_count }}</span>
+                        </button>
+                    </div>
+                    <div class="comments-section" id="comments-{{ post.id }}" style="display:none;margin-top:1rem;">
+                        <div class="comments-list">
+                            {% for comment in post.comments.all|slice:':3' %}
+                                <div class="comment"><b>{{ comment.username|default:comment.user.username }}</b>: {{ comment.text }}</div>
+                            {% empty %}
+                                <div class="comment" style="color:#aaa;">No comments yet.</div>
+                            {% endfor %}
+                        </div>
+                        <form class="comment-form" data-photo-id="{{ post.id }}" onsubmit="return submitComment(event, {{ post.id }})" style="margin-top:0.7rem;display:flex;gap:0.5rem;">
+                            {% csrf_token %}
+                            <input type="text" name="text" placeholder="Add a comment..." style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid #ccc;">
+                            <button type="submit" style="background:#c7a17a;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:0.5rem;font-weight:600;">Post</button>
+                        </form>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    No posts yet. <a href="/explore/">Explore content</a> or follow photographers to see their posts here.
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
+
+<!-- Story Modal -->
+<div id="storyModal" class="story-modal">
+    <div class="story-modal-content">
+        <button class="close-modal" id="closeStoryModal">&times;</button>
+        <div class="story-media-container" id="storyModalMedia"></div>
+        <div class="story-username" id="storyModalUsername"></div>
+        <div class="story-nav">
+            <button class="nav-btn" id="prevStoryBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="nav-btn" id="nextStoryBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script id="stories-data" type="application/json">
+[
+{% for story in stories %}
+  {
+    "username": "{{ story.photographer.username|escapejs }}",
+    "image": "{% if story.image %}{{ story.image.url|escapejs }}{% else %}{% endif %}",
+    "video": "{% if story.video %}{{ story.video.url|escapejs }}{% else %}{% endif %}"
+  }{% if not forloop.last %},{% endif %}
+{% endfor %}
+]
+    document.querySelectorAll('.share-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            var photoId = btn.getAttribute('data-photo-id');
+            fetch('/portfolio/share_photo/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: 'photo_id=' + photoId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.querySelector('.share-count').textContent = data.share_count;
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stories = JSON.parse(document.getElementById('stories-data').textContent);
+    let currentStoryIndex = null;
+    const modal = document.getElementById('storyModal');
+    const mediaContainer = document.getElementById('storyModalMedia');
+    const usernameElement = document.getElementById('storyModalUsername');
+    
+    function showStoryModal(index) {
+        if (index < 0 || index >= stories.length) return;
+        currentStoryIndex = index;
+        const story = stories[index];
+        
+        // Clear previous media
+        mediaContainer.innerHTML = '';
+        usernameElement.textContent = story.username;
+        
+        // Create new media element
+        if (story.video) {
+            const video = document.createElement('video');
+            video.src = story.video;
+            video.controls = true;
+            video.autoplay = true;
+            video.classList.add('story-media');
+            mediaContainer.appendChild(video);
+        } else if (story.image) {
+            const img = document.createElement('img');
+            img.src = story.image;
+            img.classList.add('story-media');
+            mediaContainer.appendChild(img);
+        } else {
+            mediaContainer.innerHTML = '<div style="color:#fff;padding:2rem;">No media available</div>';
+        }
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Add click events to story items
+    document.querySelectorAll('.story-item').forEach(function(item, idx) {
+        if (!item.classList.contains('add-story')) {
+            item.addEventListener('click', function() {
+                showStoryModal(idx);
+            });
+        }
+    });
+    
+    // Modal controls
+    document.getElementById('closeStoryModal').addEventListener('click', function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        currentStoryIndex = null;
+    });
+    
+    document.getElementById('prevStoryBtn').addEventListener('click', function() {
+        if (currentStoryIndex !== null && currentStoryIndex > 0) {
+            showStoryModal(currentStoryIndex - 1);
+        }
+    });
+    
+    document.getElementById('nextStoryBtn').addEventListener('click', function() {
+        if (currentStoryIndex !== null && currentStoryIndex < stories.length - 1) {
+            showStoryModal(currentStoryIndex + 1);
+        }
+    });
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            currentStoryIndex = null;
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            currentStoryIndex = null;
+        }
+    });
+});
+</script>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.like-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var photoId = btn.getAttribute('data-photo-id');
+            fetch('/portfolio/like_photo/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: 'photo_id=' + photoId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.querySelector('.like-count').textContent = data.likes;
+                    btn.closest('.post-actions').querySelector('.dislike-count').textContent = data.dislikes;
+                }
+            });
+        });
+    });
+    document.querySelectorAll('.dislike-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var photoId = btn.getAttribute('data-photo-id');
+            fetch('/portfolio/dislike_photo/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: 'photo_id=' + photoId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.querySelector('.dislike-count').textContent = data.dislikes;
+                    btn.closest('.post-actions').querySelector('.like-count').textContent = data.likes;
+                }
+            });
+        });
+    });
+});
+</script>
+<script>
+function toggleCommentBox(photoId) {
+    var el = document.getElementById('comments-' + photoId);
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+function submitComment(event, photoId) {
+    event.preventDefault();
+    var form = event.target;
+    var text = form.text.value.trim();
+    if (!text) return false;
+    fetch('/portfolio/add_comment/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: 'photo_id=' + photoId + '&text=' + encodeURIComponent(text)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            var list = form.parentElement.querySelector('.comments-list');
+            var div = document.createElement('div');
+            div.className = 'comment';
+            div.innerHTML = '<b>' + data.username + '</b>: ' + data.text;
+            list.insertBefore(div, list.firstChild);
+            form.text.value = '';
+        }
+    });
+    return false;
+}
+function copyPostLink(photoId) {
+    var url = window.location.origin + '/portfolio/feed/#post-' + photoId;
+    navigator.clipboard.writeText(url).then(function() {
+        alert('Post link copied to clipboard!');
+    });
+}
+</script>
 {% endblock %}

@@ -4,7 +4,16 @@
 <ul>
   {% for booking in bookings %}
     <li>
-      Client: {{ booking.client.username }}<br>
+      Client: 
+      {% if booking.client %}
+        {{ booking.client.get_full_name|default:booking.client.email }}
+      {% elif booking.client_name %}
+        {{ booking.client_name }}
+      {% elif booking.client_email %}
+        {{ booking.client_email }}
+      {% else %}
+        Anonymous
+      {% endif %}<br>
       Service: {{ booking.service_type }}<br>
       Date: {{ booking.date }} {{ booking.time }}<br>
       Location: {{ booking.location }}<br>

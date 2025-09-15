@@ -3,6 +3,7 @@
 {% block title %}Explore Photographers & Photos | PhotoRw{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/explore.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-dark: #2D2013;
@@ -19,14 +20,116 @@
             --transition: all 0.3s ease;
         }
         
-        .explore-section {
-            max-width: 1200px;
-            margin: 2.5rem auto;
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: #fcfaf7;
+            line-height: 1.6;
+        }
+        
+        .explore-container {
+            max-width: 1280px;
+            margin: 0 auto;
             padding: 0 1.5rem;
         }
         
+        /* Hero Section */
+        .explore-hero {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .explore-hero h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .explore-hero p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        /* Search Section */
+        .search-section {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .search-title {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            align-items: end;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .search-input, .search-select {
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(166, 124, 82, 0.3);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--surface-alt);
+        }
+        
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+        }
+        
+        .search-btn {
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            height: fit-content;
+        }
+        
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Section Styles */
         .section-title {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: var(--primary-dark);
             font-weight: 700;
             text-align: center;
@@ -48,46 +151,21 @@
             border-radius: 3px;
         }
         
-        .explore-feed-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            justify-content: center;
+        /* Stories Section */
+        .stories-section {
             margin-bottom: 3.5rem;
         }
         
-        .explore-feed-col {
-            flex: 1;
-            min-width: 280px;
-            max-width: 380px;
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(166, 124, 82, 0.1);
-        }
-        
-        .feed-col-title {
-            font-size: 1.3rem;
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            padding-bottom: 0.8rem;
-            border-bottom: 2px solid var(--accent-light);
-        }
-        
-        /* Stories Section */
         .stories-container {
             display: flex;
-            gap: 1.2rem;
+            gap: 1.5rem;
             overflow-x: auto;
-            padding: 0.5rem 0.2rem 1.5rem;
+            padding: 1rem 0.5rem 2rem;
             scrollbar-width: thin;
         }
         
         .story-item {
-            flex: 0 0 90px;
+            flex: 0 0 100px;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
@@ -98,12 +176,12 @@
         }
         
         .story-avatar {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             border: 3px solid var(--gold);
             overflow: hidden;
-            margin: 0 auto 0.7rem;
+            margin: 0 auto 0.8rem;
             background: var(--surface-alt);
             display: flex;
             align-items: center;
@@ -126,192 +204,114 @@
             white-space: nowrap;
         }
         
-        /* Recent Photos Section */
-        .photos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1.2rem;
-        }
-        
-        .photo-card {
-            background: var(--surface-alt);
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            text-align: center;
-            transition: var(--transition);
-            box-shadow: 0 2px 8px rgba(199, 161, 122, 0.05);
-        }
-        
-        .photo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(199, 161, 122, 0.15);
-        }
-        
-        .photo-img {
-            width: 100%;
-            height: 110px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 0.8rem;
-            box-shadow: 0 2px 6px rgba(45, 32, 19, 0.1);
-        }
-        
-        .photo-title {
-            font-weight: 600;
-            color: var(--primary-dark);
-            font-size: 0.95rem;
-            margin-bottom: 0.3rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .photo-photographer {
-            color: var(--accent);
-            font-size: 0.85rem;
-        }
-        
-        .photo-photographer a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .photo-photographer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Community Highlights */
-        .community-posts {
+        /* Content Tabs */
+        .content-tabs {
             display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-        }
-        
-        .post-card {
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: 1.2rem;
-            transition: var(--transition);
-            border-left: 3px solid var(--accent-light);
-        }
-        
-        .post-card:hover {
-            box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
-        }
-        
-        .post-title {
-            font-weight: 600;
-            color: var(--primary-dark);
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .post-category {
-            color: var(--accent);
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .post-description {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 0.8rem;
-            line-height: 1.4;
-        }
-        
-        .post-read-more {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-        
-        .post-read-more:hover {
-            color: var(--primary-dark);
-        }
-        
-        /* Search Form */
-        .explore-search-form {
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 3rem;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: center;
             justify-content: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(166, 124, 82, 0.2);
         }
         
-        .search-input, .search-select {
-            padding: 0.9rem 1.2rem;
-            border-radius: 8px;
-            border: 1px solid rgba(166, 124, 82, 0.3);
-            min-width: 200px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        
-        .search-input:focus, .search-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
-        }
-        
-        .search-btn {
-            background: var(--accent);
-            color: white;
-            padding: 0.9rem 2.2rem;
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: transparent;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-light);
             cursor: pointer;
             transition: var(--transition);
+            position: relative;
         }
         
-        .search-btn:hover {
-            background: var(--primary-dark);
+        .tab-btn.active {
+            color: var(--accent);
+            font-weight: 600;
         }
         
-        /* Photographers Grid */
-        .explore-grid {
+        .tab-btn.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .tab-btn:hover {
+            color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Grid Layouts */
+        .photographers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 2rem;
             margin-bottom: 4rem;
         }
         
-        .photographer-card {
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        /* Card Styles */
+        .card {
             background: var(--surface);
             border-radius: var(--border-radius);
-            padding: 1.5rem;
-            text-align: center;
+            overflow: hidden;
             transition: var(--transition);
             box-shadow: var(--shadow);
         }
         
-        .photographer-card:hover {
-            transform: translateY(-8px);
+        .card:hover {
+            transform: translateY(-5px);
             box-shadow: 0 12px 25px rgba(45, 32, 19, 0.12);
         }
         
+        .photographer-card {
+            padding: 1.8rem;
+            text-align: center;
+        }
+        
         .photographer-avatar {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             object-fit: cover;
             border-radius: 50%;
             border: 3px solid var(--gold);
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.2rem;
             box-shadow: 0 4px 12px rgba(199, 161, 122, 0.2);
         }
         
         .avatar-placeholder {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -320,11 +320,11 @@
             border: 3px solid var(--gold);
             font-size: 2.5rem;
             color: var(--accent);
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.2rem;
         }
         
         .photographer-name {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--primary-dark);
             margin-bottom: 0.5rem;
@@ -333,34 +333,22 @@
         .photographer-link {
             text-decoration: none;
             color: inherit;
+            transition: var(--transition);
         }
         
-        /* Events Grid */
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 4rem;
+        .photographer-link:hover {
+            color: var(--accent);
         }
         
         .event-card {
-            background: var(--surface);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
+            padding: 1.8rem;
             border-top: 4px solid var(--accent);
-        }
-        
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(45, 32, 19, 0.1);
         }
         
         .event-title {
             font-weight: 600;
             color: var(--primary-dark);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin-bottom: 0.8rem;
         }
         
@@ -369,19 +357,25 @@
             font-size: 0.95rem;
             margin-bottom: 0.5rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .event-location {
             color: var(--text-light);
             font-size: 0.9rem;
             margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .event-description {
             color: var(--text-main);
             font-size: 0.95rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
         }
         
         .event-photographer {
@@ -392,79 +386,185 @@
         .event-photographer a {
             color: var(--accent);
             text-decoration: none;
+            transition: var(--transition);
         }
         
         .event-photographer a:hover {
             text-decoration: underline;
         }
         
-        /* Photos Grid */
-        .photos-explore-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+        .photo-card {
+            position: relative;
+            overflow: hidden;
         }
         
-        .photo-explore-card {
-            background: var(--surface-alt);
-            border-radius: var(--border-radius);
-            padding: 1.2rem;
-            text-align: center;
-            transition: var(--transition);
-            box-shadow: 0 3px 10px rgba(45, 32, 19, 0.05);
-        }
-        
-        .photo-explore-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(45, 32, 19, 0.1);
-        }
-        
-        .photo-explore-img {
+        .photo-img {
             width: 100%;
-            height: 150px;
+            height: 240px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .photo-card:hover .photo-img {
+            transform: scale(1.05);
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(45, 32, 19, 0.8));
+            padding: 1.5rem 1.2rem 1.2rem;
+            color: white;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-card:hover .photo-overlay {
+            transform: translateY(0);
+        }
+        
+        .photo-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .photo-photographer {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .photo-photographer a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .photo-photographer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Community Section */
+        .community-section {
+            margin-bottom: 4rem;
+        }
+        
+        .community-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .post-card {
+            padding: 1.8rem;
+            border-left: 4px solid var(--accent-light);
+            transition: var(--transition);
+        }
+        
+        .post-card:hover {
+            box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
+        }
+        
+        .post-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-category {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(166, 124, 82, 0.1);
+            border-radius: 20px;
+        }
+        
+        .post-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 180px;
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 1rem;
-            box-shadow: 0 3px 8px rgba(45, 32, 19, 0.1);
         }
         
+        .post-read-more {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .post-read-more:hover {
+            color: var(--primary-dark);
+            gap: 0.5rem;
+        }
+        
+        /* Empty State */
         .empty-state {
             text-align: center;
             color: var(--text-light);
-            padding: 2rem;
+            padding: 3rem;
             font-style: italic;
+            grid-column: 1 / -1;
         }
         
+        /* Responsive Design */
         @media (max-width: 900px) {
-            .explore-feed-col {
-                min-width: 100%;
+            .search-form {
+                grid-template-columns: 1fr;
             }
             
-            .explore-grid,
+            .photographers-grid,
             .events-grid,
-            .photos-explore-grid {
+            .photos-grid,
+            .community-posts {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
         }
         
         @media (max-width: 600px) {
+            .explore-hero h1 {
+                font-size: 2.2rem;
+            }
+            
             .section-title {
                 font-size: 1.8rem;
             }
             
-            .explore-search-form {
-                flex-direction: column;
-                align-items: stretch;
+            .search-section {
+                padding: 1.5rem;
             }
             
-            .search-input, .search-select, .search-btn {
-                width: 100%;
+            .content-tabs {
+                overflow-x: auto;
+                justify-content: flex-start;
             }
             
-            .explore-grid,
+            .tab-btn {
+                padding: 0.8rem 1.2rem;
+                white-space: nowrap;
+            }
+            
+            .photographers-grid,
             .events-grid,
-            .photos-explore-grid {
+            .photos-grid,
+            .community-posts {
                 grid-template-columns: 1fr;
             }
         }
@@ -472,376 +572,394 @@
 {% endblock %}
 {% block content %}
 
-<section class="explore-section">
-    <h2 class="section-title">Discover Rwanda's Creative Community</h2>
+<div style="display:flex;justify-content:flex-end;max-width:1280px;margin:2rem auto 0 auto;padding:0 1.5rem 0 1.5rem;">
+    <a href="/bookings/create/" style="background:#ffd700;color:#2d2013;padding:0.7rem 2rem;border-radius:1.2rem;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);transition:all 0.2s;">Book a Photographer</a>
+</div>
+<div class="explore-container">
+    <!-- Hero Section -->
+    <section class="explore-hero">
+        <h1>Discover Rwanda's Creative Community</h1>
+        <p>Explore talented photographers, stunning photos, and engaging community content from across Rwanda</p>
+    </section>
     
-    <div class="explore-feed-row">
-        <!-- Stories Bar -->
-        <div class="explore-feed-col">
-            <h3 class="feed-col-title">Stories</h3>
-            <div class="stories-container">
-                {% for story in stories %}
-                    <div class="story-item">
-                        <div class="story-avatar">
+    <!-- Search Section -->
+    <section class="search-section">
+        <h2 class="search-title">Find Photographers & Photos</h2>
+        <form method="get" class="search-form">
+            <div class="form-group">
+                <label for="search-input">Search by name or photo title</label>
+                <input type="text" id="search-input" name="q" value="{{ q }}" class="search-input" placeholder="Enter search terms">
+            </div>
+            
+            <div class="form-group">
+                <label for="category-select">Category</label>
+                <select id="category-select" name="category" class="search-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="location-input">Location</label>
+                <input type="text" id="location-input" name="location" value="{{ location }}" class="search-input" placeholder="Photographer location">
+            </div>
+            
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+    </section>
+    
+    <!-- Stories Section -->
+    <section class="stories-section">
+        <h2 class="section-title">Recent Stories</h2>
+        <div class="stories-container">
+            {% for story in stories %}
+                <div class="story-item" data-story-index="{{ forloop.counter0 }}">
+                    <div class="story-avatar">
+                        {% if story.video %}
+                            <video muted>
+                                <source src="{{ story.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% elif story.image %}
                             <img src="{{ story.image.url }}" alt="Story">
+                        {% else %}
+                            <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Story">
+                        {% endif %}
+                    </div>
+                    <div class="story-username">{{ story.photographer.username }}</div>
+                </div>
+            {% empty %}
+                <div class="empty-state">No stories yet.</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Story Modal Viewer -->
+    <div id="storyModal" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+        <div id="storyModalContent" style="position:relative;max-width:420px;width:90vw;background:#222;padding:2rem 1rem 1.5rem 1rem;border-radius:1.5rem;box-shadow:0 8px 32px rgba(0,0,0,0.25);display:flex;flex-direction:column;align-items:center;">
+            <button id="closeStoryModal" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;">&times;</button>
+            <div id="storyModalMedia"></div>
+            <div id="storyModalUsername" style="color:#ffd700;font-weight:700;margin-top:1rem;"></div>
+            <div style="margin-top:0.5rem;">
+                <button id="prevStoryBtn" style="background:none;border:none;color:#ffd700;font-size:1.5rem;margin-right:1.5rem;cursor:pointer;">&#8592; Prev</button>
+                <button id="nextStoryBtn" style="background:none;border:none;color:#ffd700;font-size:1.5rem;cursor:pointer;">Next &#8594;</button>
+            </div>
+        </div>
+    </div>
+    <script id="stories-data" type="application/json">
+    [
+    {% for story in stories %}
+      {
+        "username": "{{ story.photographer.username|escapejs }}",
+        "image": "{% if story.image %}{{ story.image.url|escapejs }}{% else %}{% endif %}",
+        "video": "{% if story.video %}{{ story.video.url|escapejs }}{% else %}{% endif %}"
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]
+    </script>
+    <script>
+    const stories = JSON.parse(document.getElementById('stories-data').textContent);
+    let currentStoryIndex = null;
+    function showStoryModal(index) {
+        if (index < 0 || index >= stories.length) return;
+        currentStoryIndex = index;
+        const story = stories[index];
+        const modal = document.getElementById('storyModal');
+        const mediaDiv = document.getElementById('storyModalMedia');
+        const usernameDiv = document.getElementById('storyModalUsername');
+        mediaDiv.innerHTML = '';
+        if (story.video) {
+            const video = document.createElement('video');
+            video.src = story.video;
+            video.controls = true;
+            video.autoplay = true;
+            video.style.maxWidth = '350px';
+            video.style.maxHeight = '60vh';
+            mediaDiv.appendChild(video);
+        } else if (story.image) {
+            const img = document.createElement('img');
+            img.src = story.image;
+            img.style.maxWidth = '350px';
+            img.style.maxHeight = '60vh';
+            img.style.borderRadius = '1rem';
+            mediaDiv.appendChild(img);
+        } else {
+            mediaDiv.innerHTML = '<div style="color:#fff;">No media available.</div>';
+        }
+        usernameDiv.textContent = story.username;
+        modal.style.display = 'flex';
+    }
+    document.querySelectorAll('.story-item').forEach(function(item, idx) {
+        item.addEventListener('click', function() {
+            showStoryModal(idx);
+        });
+    });
+    document.getElementById('closeStoryModal').onclick = function() {
+        document.getElementById('storyModal').style.display = 'none';
+        currentStoryIndex = null;
+    };
+    document.getElementById('prevStoryBtn').onclick = function() {
+        if (currentStoryIndex !== null && currentStoryIndex > 0) {
+            showStoryModal(currentStoryIndex - 1);
+        }
+    };
+    document.getElementById('nextStoryBtn').onclick = function() {
+        if (currentStoryIndex !== null && currentStoryIndex < stories.length - 1) {
+            showStoryModal(currentStoryIndex + 1);
+        }
+    };
+    document.getElementById('storyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+            currentStoryIndex = null;
+        }
+    });
+    </script>
+    
+    <!-- Content Tabs -->
+    <div class="content-tabs">
+        <button class="tab-btn active" data-tab="photographers">Photographers</button>
+        <button class="tab-btn" data-tab="photos">Photos</button>
+        <button class="tab-btn" data-tab="events">Events</button>
+        <button class="tab-btn" data-tab="community">Community</button>
+    </div>
+    
+    <!-- Photographers Tab -->
+    <div id="photographers" class="tab-content active">
+        <div class="photographers-grid">
+            {% for photographer in photographers %}
+            <div class="card photographer-card">
+                <a href="{% url 'photographer_detail' photographer.pk %}" class="photographer-link">
+                    {% if photographer.profile_picture %}
+                        <img src="{{ photographer.profile_picture.url }}" alt="Profile picture of {{ photographer.first_name }} {{ photographer.last_name }}" class="photographer-avatar">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ photographer.username|first|upper }}</div>
+                    {% endif %}
+                    <div class="photographer-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="empty-state">No photographers found.</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Photos Tab -->
+    <div id="photos" class="tab-content">
+        <div class="photos-grid">
+            {% for photo in photos %}
+            <div class="card photo-card">
+                <img src="{{ photo.image.url }}" alt="{{ photo.title }} by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}" class="photo-img">
+                <div class="photo-overlay">
+                    <div class="photo-title">{{ photo.title }}</div>
+                    <div class="photo-photographer">by <a href="/portfolio/photographer/{{ photo.photographer.pk }}/">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">No photos found.</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Events Tab -->
+    <div id="events" class="tab-content">
+                <div class="events-grid">
+                        {% for event in events %}
+                        <div class="card event-card">
+                                {% if event.image %}
+                                    <img src="{{ event.image.url }}" alt="{{ event.title }} cover" class="event-cover" style="width:100%;max-width:260px;height:140px;object-fit:cover;border-radius:0.8rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);cursor:pointer;" onclick="showEventModal('image', '{{ event.image.url }}', '{{ event.title|escapejs }}')">
+                                {% endif %}
+                                {% if event.video %}
+                                    <div style="position:relative;width:100%;max-width:260px;height:140px;margin-bottom:0.7rem;">
+                                        <video src="{{ event.video.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:0.8rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);cursor:pointer;" onclick="showEventModal('video', '{{ event.video.url }}', '{{ event.title|escapejs }}')" preload="metadata"></video>
+                                        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.2rem;color:#fff;background:rgba(0,0,0,0.4);border-radius:50%;padding:0.2em 0.4em;pointer-events:none;">&#9658;</span>
+                                    </div>
+                                {% endif %}
+                                <div class="event-title" style="text-align:center;font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">{{ event.title }}</div>
+                                <div class="event-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        {{ event.date }}
+                                </div>
+                                <div class="event-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ event.location }}
+                                </div>
+                                <div class="event-description">{{ event.description|truncatewords:20 }}
+                                    {% if event.description|length > 120 %}
+                                        <button onclick="showEventDescModal('{{ event.pk }}', '{{ event.title|escapejs }}', `{{ event.description|escapejs }}`, '{% if event.image %}{{ event.image.url }}{% else %}{% endif %}', '{% if event.video %}{{ event.video.url }}{% else %}{% endif %}')" style="background:none;border:none;color:#c7a17a;font-weight:600;cursor:pointer;margin-left:0.5em;">View more</button>
+                                    {% endif %}
+                                </div>
+                                <div class="event-photographer">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></div>
                         </div>
-                        <div class="story-username">Story</div>
-                    </div>
-                {% empty %}
-                    <div class="empty-state">No stories yet.</div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Recent Photos -->
-        <div class="explore-feed-col">
-            <h3 class="feed-col-title">Recent Photos</h3>
-            <div class="photos-grid">
-                {% for photo in photos %}
-                    <div class="photo-card">
-                        <img src="{{ photo.image.url }}" alt="{{ photo.title }} by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}" class="photo-img">
-                        <div class="photo-title">{{ photo.title }}</div>
-                        <div class="photo-photographer">by <a href="/portfolio/photographer/{{ photo.photographer.pk }}/">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
-                    </div>
-                {% empty %}
-                    <div class="empty-state">No photos yet.</div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Community Highlights -->
-        <div class="explore-feed-col">
-            <h3 class="feed-col-title">Community Highlights</h3>
+                        {% empty %}
+                        <div class="empty-state">No upcoming events found.</div>
+                        {% endfor %}
+                </div>
+    </div>
+    
+    <!-- Community Tab -->
+
+<!-- Event Media Modal (shared with photographer detail) -->
+<div id="eventModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <span onclick="closeEventModal()" style="position:absolute;top:30px;right:50px;font-size:2.5rem;color:#fff;cursor:pointer;font-weight:bold;">&times;</span>
+    <img id="eventModalImg" src="" alt="Event Cover" style="max-width:90vw;max-height:80vh;border-radius:1.2rem;box-shadow:0 4px 32px rgba(0,0,0,0.25);display:none;margin:0 auto;">
+    <video id="eventModalVideo" src="" controls style="max-width:90vw;max-height:80vh;border-radius:1.2rem;box-shadow:0 4px 32px rgba(0,0,0,0.25);display:none;margin:0 auto;background:#000;"></video>
+    <div id="eventModalTitle" style="color:#fff;text-align:center;font-size:1.5rem;margin-top:1.2rem;font-weight:700;"></div>
+</div>
+<!-- Event Description Modal (with cover and video) -->
+<div id="eventDescModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <span onclick="closeEventDescModal()" style="position:absolute;top:30px;right:50px;font-size:2.5rem;color:#fff;cursor:pointer;font-weight:bold;">&times;</span>
+    <div style="background:#fffbe6;padding:2.2rem 2.5rem;border-radius:1.2rem;max-width:90vw;width:100%;max-height:80vh;overflow-y:auto;margin:0 auto;box-shadow:0 4px 32px rgba(0,0,0,0.18);text-align:center;">
+        <img id="eventDescModalCover" src="" alt="Event Cover" style="max-width:100%;border-radius:1rem;margin-bottom:1.2rem;display:none;object-fit:cover;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
+        <video id="eventDescModalVideo" src="" controls style="max-width:100%;max-height:220px;border-radius:1rem;margin-bottom:1.2rem;display:none;background:#000;"></video>
+        <div id="eventDescModalTitle" style="color:#2d2013;text-align:center;font-size:1.7rem;margin:1.2rem 0 1.2rem 0;font-weight:800;letter-spacing:0.5px;"></div>
+        <div id="eventDescModalBody" style="color:#444;font-size:1.08rem;line-height:1.7;word-break:break-word;"></div>
+    </div>
+</div>
+<style>
+#eventDescModalCover {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 340px;
+    object-fit: cover !important;
+    border-radius: 1rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px rgba(199,161,122,0.10);
+    display: none;
+}
+</style>
+<script>
+function showEventModal(type, url, title) {
+    var modal = document.getElementById('eventModal');
+    var modalImg = document.getElementById('eventModalImg');
+    var modalVideo = document.getElementById('eventModalVideo');
+    var modalTitle = document.getElementById('eventModalTitle');
+    modal.style.display = 'flex';
+    if(type === 'image') {
+        modalImg.src = url;
+        modalImg.style.display = 'block';
+        modalVideo.style.display = 'none';
+        modalVideo.pause();
+        modalVideo.src = '';
+    } else if(type === 'video') {
+        modalVideo.src = url;
+        modalVideo.style.display = 'block';
+        modalImg.style.display = 'none';
+        modalImg.src = '';
+    }
+    modalTitle.textContent = title;
+    document.body.style.overflow = 'hidden';
+}
+function closeEventModal() {
+    var modal = document.getElementById('eventModal');
+    var modalVideo = document.getElementById('eventModalVideo');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    modalVideo.pause();
+    modalVideo.src = '';
+}
+function showEventDescModal(pk, title, desc, coverUrl, videoUrl) {
+    var modal = document.getElementById('eventDescModal');
+    var modalTitle = document.getElementById('eventDescModalTitle');
+    var modalBody = document.getElementById('eventDescModalBody');
+    var modalCover = document.getElementById('eventDescModalCover');
+    var modalVideo = document.getElementById('eventDescModalVideo');
+    modal.style.display = 'flex';
+    modalTitle.textContent = title;
+    modalBody.textContent = desc;
+    if(coverUrl) {
+        modalCover.src = coverUrl;
+        modalCover.style.display = 'block';
+    } else {
+        modalCover.style.display = 'none';
+        modalCover.src = '';
+    }
+    if(videoUrl) {
+        modalVideo.src = videoUrl;
+        modalVideo.style.display = 'block';
+    } else {
+        modalVideo.style.display = 'none';
+        modalVideo.src = '';
+    }
+    document.body.style.overflow = 'hidden';
+}
+function closeEventDescModal() {
+    var modal = document.getElementById('eventDescModal');
+    var modalVideo = document.getElementById('eventDescModalVideo');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    modalVideo.pause();
+    modalVideo.src = '';
+}
+window.onclick = function(event) {
+    var eventModal = document.getElementById('eventModal');
+    var eventDescModal = document.getElementById('eventDescModal');
+    if (event.target == eventModal) {
+        closeEventModal();
+    }
+    if (event.target == eventDescModal) {
+        closeEventDescModal();
+    }
+}
+</script>
+    <div id="community" class="tab-content">
+        <section class="community-section">
             <div class="community-posts">
                 {% for post in posts %}
-                    <div class="post-card">
+                    <div class="card post-card">
                         <div class="post-title">{{ post.title }}</div>
                         <div class="post-category">{{ post.category.name }}</div>
-                        <div class="post-description">{{ post.description|truncatewords:18 }}</div>
+                        <div class="post-description">{{ post.description|truncatewords:25 }}</div>
                         {% if post.image %}
-                            <img src="{{ post.image.url }}" alt="Post Image" style="width:100%;max-width:120px;height:70px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.8rem;">
+                            <img src="{{ post.image.url }}" alt="Post Image" class="post-image">
                         {% endif %}
-                        <a href="/community/post/{{ post.pk }}/" class="post-read-more">Read More</a>
+                        <a href="/community/post/{{ post.pk }}/" class="post-read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 {% empty %}
                     <div class="empty-state">No community posts yet.</div>
                 {% endfor %}
             </div>
-        </div>
+        </section>
     </div>
-</section>
-
-<div class="explore-section">
-    <h2 class="section-title">Find Photographers & Photos</h2>
-    
-    <form method="get" class="explore-search-form">
-        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or photo title" class="search-input">
-        <select name="category" class="search-select">
-            <option value="">All Categories</option>
-            {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if selected_category|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="text" name="location" value="{{ location }}" placeholder="Photographer location" class="search-input">
-        <button type="submit" class="search-btn">Search</button>
-    </form>
-    
-    <div class="explore-grid">
-        {% for photographer in photographers %}
-        <div class="photographer-card">
-            <a href="{% url 'photographer_detail' photographer.pk %}" class="photographer-link">
-                {% if photographer.profile_picture %}
-                    <img src="{{ photographer.profile_picture.url }}" alt="Profile picture of {{ photographer.first_name }} {{ photographer.last_name }}" class="photographer-avatar">
-                {% else %}
-                    <div class="avatar-placeholder">{{ photographer.username|first|upper }}</div>
-                {% endif %}
-                <div class="photographer-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
-            </a>
-        </div>
-        {% empty %}
-        <div class="empty-state">No photographers found.</div>
-        {% endfor %}
-    </div>
-
-    <h2 class="section-title">Upcoming Events</h2>
-    <div class="events-grid">
-        {% for event in events %}
-        <div class="event-card">
-            <div class="event-title">{{ event.title }}</div>
-            <div class="event-date">{{ event.date }}</div>
-            <div class="event-location">{{ event.location }}</div>
-            <div class="event-description">{{ event.description|truncatewords:15 }}</div>
-            <div class="event-photographer">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></div>
-        </div>
-        {% empty %}
-        <div class="empty-state">No upcoming events found.</div>
-        {% endfor %}
-    </div>
-    
-
-                <h2 class="section-title">Explore Photos</h2>
-                <div id="gallery-grid" class="gallery-grid-pro">
-                        {% for photo in photos %}
-                        <div class="gallery-card-pro" onclick="openGalleryModal({{ forloop.counter0 }})">
-                                <div class="gallery-img-wrapper">
-                                        <img src="{{ photo.image.url }}" alt="{{ photo.title }} by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}" class="gallery-img-pro">
-                                        <div class="gallery-hover-overlay"></div>
-                                </div>
-                                <div class="gallery-info-pro">
-                                        <div class="gallery-title-pro">{{ photo.title }}</div>
-                                        <div class="gallery-photographer-pro">by <a href="{% url 'photographer_detail' photo.photographer.pk %}">{{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</a></div>
-                                </div>
-                        </div>
-                        {% empty %}
-                        <div class="empty-state">No photos found.</div>
-                        {% endfor %}
-                </div>
-
-                <!-- Fullscreen Modal Gallery -->
-                <div id="galleryModal" class="gallery-modal-pro" style="display:none;" onclick="onGalleryOverlayClick(event)">
-                    <span class="gallery-close-pro" onclick="closeGalleryModal()">&times;</span>
-                    <div class="gallery-modal-content-pro" onclick="event.stopPropagation()">
-                        <img id="galleryModalImg" class="gallery-modal-img-pro" src="" alt="" tabindex="0" aria-label="Fullscreen photo">
-                        <div class="gallery-modal-caption-pro" id="galleryModalCaption"></div>
-                        <div class="gallery-modal-controls-pro">
-                            <button class="gallery-nav-pro gallery-prev-pro" onclick="galleryPrev()" aria-label="Previous photo">&#10094;</button>
-                            <button class="gallery-nav-pro gallery-next-pro" onclick="galleryNext()" aria-label="Next photo">&#10095;</button>
-                        </div>
-                    </div>
-                </div>
-
-                <style>
-                .gallery-grid-pro {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                    gap: 2.5rem;
-                    margin: 2.5rem 0 3rem 0;
-                }
-                .gallery-card-pro {
-                    background: #fff;
-                    border-radius: 1.2rem;
-                    box-shadow: 0 4px 18px rgba(199,161,122,0.10);
-                    overflow: hidden;
-                    cursor: pointer;
-                    transition: box-shadow 0.2s, transform 0.2s;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-                .gallery-card-pro:hover {
-                    box-shadow: 0 8px 32px rgba(199,161,122,0.18);
-                    transform: translateY(-6px) scale(1.02);
-                }
-                .gallery-img-wrapper {
-                    position: relative;
-                    width: 100%;
-                    aspect-ratio: 4/3;
-                    background: #f8f6f3;
-                    overflow: hidden;
-                }
-                .gallery-img-pro {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    transition: transform 0.3s;
-                }
-                .gallery-card-pro:hover .gallery-img-pro {
-                    transform: scale(1.04);
-                }
-                .gallery-hover-overlay {
-                    position: absolute;
-                    top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(39, 29, 19, 0.18);
-                    opacity: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: opacity 0.2s;
-                }
-                .gallery-card-pro:hover .gallery-hover-overlay {
-                    opacity: 1;
-                }
-                .gallery-zoom-icon {
-                    font-size: 2.5rem;
-                    color: #ffd700;
-                    text-shadow: 0 2px 8px #fffbe6;
-                }
-                .gallery-info-pro {
-                    padding: 1.1rem 1rem 0.7rem 1rem;
-                    text-align: left;
-                }
-                .gallery-title-pro {
-                    font-size: 1.15rem;
-                    font-weight: 700;
-                    color: #2d2013;
-                    margin-bottom: 0.3rem;
-                }
-                .gallery-photographer-pro {
-                    color: #a67c52;
-                    font-size: 0.98rem;
-                }
-                .gallery-modal-pro {
-                    position: fixed;
-                    top: 0; left: 0; width: 100vw; height: 100vh;
-                    background: rgba(45,32,19,0.92);
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                }
-                .gallery-modal-content-pro {
-                    position: relative;
-                    background: #fff;
-                    border-radius: 1.2rem;
-                    box-shadow: 0 8px 32px rgba(199,161,122,0.18);
-                    padding: 2rem 2rem 1.5rem 2rem;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    max-width: 90vw;
-                    max-height: 90vh;
-                }
-                .gallery-modal-img-pro {
-                    max-width: 80vw;
-                    max-height: 60vh;
-                    border-radius: 1rem;
-                    box-shadow: 0 2px 12px #fffbe6;
-                    background: #f8f6f3;
-                    transition: transform 0.3s;
-                }
-                .gallery-modal-img-pro-zoomed {
-                    max-width: none;
-                    max-height: none;
-                    width: 100vw;
-                    height: 100vh;
-                    object-fit: contain;
-                    z-index: 10001;
-                }
-                .gallery-modal-caption-pro {
-                    margin-top: 1.2rem;
-                    color: #2d2013;
-                    font-size: 1.15rem;
-                    text-align: center;
-                }
-                .gallery-modal-controls-pro {
-                    margin-top: 1.2rem;
-                    display: flex;
-                    gap: 1.2rem;
-                    justify-content: center;
-                }
-                .gallery-nav-pro {
-                    background: #ffd700;
-                    color: #2d2013;
-                    border: none;
-                    border-radius: 50%;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    font-size: 1.5rem;
-                    font-weight: bold;
-                    cursor: pointer;
-                    box-shadow: 0 2px 8px #fffbe6;
-                    transition: background 0.2s;
-                }
-                .gallery-nav-pro:hover {
-                    background: #fffbe6;
-                }
-                .gallery-zoom-pro {
-                    background: #fffbe6;
-                    color: #a67c52;
-                    border: none;
-                    border-radius: 50%;
-                    width: 2.5rem;
-                    height: 2.5rem;
-                    font-size: 1.5rem;
-                    font-weight: bold;
-                    cursor: pointer;
-                    box-shadow: 0 2px 8px #ffd700;
-                    transition: background 0.2s;
-                }
-                .gallery-zoom-pro:hover {
-                    background: #ffd700;
-                    color: #fff;
-                }
-                .gallery-close-pro {
-                    position: absolute;
-                    top: 1.2rem;
-                    right: 2rem;
-                    font-size: 2.5rem;
-                    color: #ffd700;
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    z-index: 10002;
-                    text-shadow: 0 2px 8px #fffbe6;
-                }
-                @media (max-width: 900px) {
-                    .gallery-grid-pro { grid-template-columns: 1fr; }
-                    .gallery-modal-content-pro { padding: 1rem; }
-                }
-                </style>
-
-                {% comment %} Safer JS array using JSON for galleryPhotos {% endcomment %}
-                <script id="gallery-photos-data" type="application/json">{{ photos_json|safe }}</script>
-                <script>
-                // Parse photo data from JSON
-                const galleryPhotosRaw = JSON.parse(document.getElementById('gallery-photos-data').textContent);
-                const galleryPhotos = galleryPhotosRaw.map(photo => ({
-                    url: photo.image,
-                    title: photo.title,
-                    photographer: photo.photographer_first_name + ' ' + photo.photographer_last_name,
-                    photographerUrl: `/portfolio/photographer/${photo.photographer}`
-                }));
-                let currentPhotoIndex = 0;
-                let zoomed = false;
-                function openGalleryModal(idx) {
-                    currentPhotoIndex = idx;
-                    showGalleryPhoto();
-                    const modal = document.getElementById('galleryModal');
-                    modal.style.display = 'flex';
-                    setTimeout(() => { modal.classList.add('active'); }, 10);
-                    document.body.style.overflow = 'hidden';
-                }
-                function closeGalleryModal() {
-                    const modal = document.getElementById('galleryModal');
-                    modal.classList.remove('active');
-                    setTimeout(() => { modal.style.display = 'none'; }, 200);
-                    document.body.style.overflow = '';
-                    zoomed = false;
-                    document.getElementById('galleryModalImg').classList.remove('zoomed');
-                }
-                function onGalleryOverlayClick(e) {
-                    if (e.target.id === 'galleryModal') closeGalleryModal();
-                }
-                function showGalleryPhoto() {
-                    const photo = galleryPhotos[currentPhotoIndex];
-                    const img = document.getElementById('galleryModalImg');
-                    img.src = photo.url;
-                    img.alt = photo.title;
-                    document.getElementById('galleryModalCaption').innerHTML = `<strong>${photo.title}</strong><br>by <a href="${photo.photographerUrl}" style="color:#ffd700;">${photo.photographer}</a>`;
-                }
-                function galleryPrev() {
-                    currentPhotoIndex = (currentPhotoIndex - 1 + galleryPhotos.length) % galleryPhotos.length;
-                    showGalleryPhoto();
-                }
-                function galleryNext() {
-                    currentPhotoIndex = (currentPhotoIndex + 1) % galleryPhotos.length;
-                    showGalleryPhoto();
-                }
-                function toggleZoom() {
-                    zoomed = !zoomed;
-                    const img = document.getElementById('galleryModalImg');
-                    if (zoomed) {
-                        img.classList.add('zoomed');
-                    } else {
-                        img.classList.remove('zoomed');
-                    }
-                }
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') closeGalleryModal();
-                    if (e.key === 'ArrowLeft') galleryPrev();
-                    if (e.key === 'ArrowRight') galleryNext();
-                });
-                </script>
 </div>
+
+<script>
+    // Tab functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Initialize image hover effects
+        const photoCards = document.querySelectorAll('.photo-card');
+        photoCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.querySelector('.photo-overlay').style.transform = 'translateY(0)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.querySelector('.photo-overlay').style.transform = 'translateY(100%)';
+            });
+        });
+    });
+</script>
+
 {% endblock %}

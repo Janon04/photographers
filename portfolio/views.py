@@ -1,3 +1,12 @@
+# Record a photo share event using share_count
+from django.views.decorators.http import require_POST
+@require_POST
+def share_photo(request):
+	photo_id = request.POST.get('photo_id')
+	photo = get_object_or_404(Photo, id=photo_id)
+	photo.share_count = (photo.share_count or 0) + 1
+	photo.save(update_fields=['share_count'])
+	return JsonResponse({'success': True, 'share_count': photo.share_count})
 # Explore page: show all photographers and photos
 from .models import Category
 def explore(request):
@@ -68,29 +77,47 @@ from django.http import JsonResponse
 from .models import PhotoLike
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
+from .models import PhotoComment
 
-# Like a photo
-@login_required
+# Like a photo (allow anonymous)
 @require_POST
 def like_photo(request):
 	photo_id = request.POST.get('photo_id')
 	photo = get_object_or_404(Photo, id=photo_id)
-	like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
-	like.is_like = True
-	like.save()
+	if request.user.is_authenticated:
+		like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
+		like.is_like = True
+		like.save()
+	else:
+		# Use session key for anonymous likes
+		session_key = request.session.session_key
+		if not session_key:
+			request.session.create()
+			session_key = request.session.session_key
+		# Remove any previous like/dislike by this session
+		PhotoLike.objects.filter(photo=photo, user=None, session_key=session_key).delete()
+		like = PhotoLike.objects.create(photo=photo, user=None, session_key=session_key, is_like=True)
 	likes_count = PhotoLike.objects.filter(photo=photo, is_like=True).count()
 	dislikes_count = PhotoLike.objects.filter(photo=photo, is_like=False).count()
 	return JsonResponse({'success': True, 'likes': likes_count, 'dislikes': dislikes_count})
 
-# Dislike a photo
-@login_required
+# Dislike a photo (allow anonymous)
 @require_POST
 def dislike_photo(request):
 	photo_id = request.POST.get('photo_id')
 	photo = get_object_or_404(Photo, id=photo_id)
-	like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
-	like.is_like = False
-	like.save()
+	if request.user.is_authenticated:
+		like, created = PhotoLike.objects.get_or_create(photo=photo, user=request.user)
+		like.is_like = False
+		like.save()
+	else:
+		session_key = request.session.session_key
+		if not session_key:
+			request.session.create()
+			session_key = request.session.session_key
+		PhotoLike.objects.filter(photo=photo, user=None, session_key=session_key).delete()
+		like = PhotoLike.objects.create(photo=photo, user=None, session_key=session_key, is_like=False)
 	likes_count = PhotoLike.objects.filter(photo=photo, is_like=True).count()
 	dislikes_count = PhotoLike.objects.filter(photo=photo, is_like=False).count()
 	return JsonResponse({'success': True, 'likes': likes_count, 'dislikes': dislikes_count})
@@ -132,8 +159,8 @@ def feed(request):
 	# Only show stories from the last 24 hours
 	time_threshold = timezone.now() - timezone.timedelta(hours=24)
 	stories = Story.objects.filter(created_at__gte=time_threshold).order_by('-created_at')
-	photos = Photo.objects.all().order_by('-uploaded_at')[:20]
-	return render(request, 'feed.html', {'stories': stories, 'photos': photos})
+	posts = Photo.objects.all().order_by('-uploaded_at')[:20]  # Latest posts for the feed
+	return render(request, 'feed.html', {'stories': stories, 'posts': posts})
 
 # View a single story
 def view_story(request, story_id):
@@ -219,3 +246,51 @@ def add_category(request):
 	else:
 		form = CategoryForm()
 	return render(request, 'portfolio/add_category.html', {'form': form})
+
+# Delete a story (Photographer or admin only)
+@login_required
+def delete_story(request, story_id):
+    story = get_object_or_404(Story, id=story_id)
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if request.user == story.photographer or request.user.is_superuser:
+        if request.method == 'POST':
+            story.delete()
+            messages.success(request, 'Story deleted successfully.')
+            return redirect('feed')
+        return render(request, 'portfolio/confirm_delete_story.html', {'story': story})
+    else:
+        messages.error(request, 'You do not have permission to delete this story.')
+        return redirect('feed')
+
+def delete_photo(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id)
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if request.user == photo.photographer or request.user.is_superuser:
+        if request.method == 'POST':
+            photo.delete()
+            messages.success(request, 'Photo deleted successfully.')
+            return redirect('feed')
+        return render(request, 'portfolio/confirm_delete_photo.html', {'photo': photo})
+    else:
+        messages.error(request, 'You do not have permission to delete this photo.')
+        return redirect('feed')
+
+@require_POST
+def add_comment(request):
+	photo_id = request.POST.get('photo_id')
+	text = request.POST.get('text', '').strip()
+	if not text:
+		return JsonResponse({'success': False, 'error': 'Empty comment.'})
+	try:
+		photo = Photo.objects.get(id=photo_id)
+	except Photo.DoesNotExist:
+		return JsonResponse({'success': False, 'error': 'Photo not found.'})
+	if request.user.is_authenticated:
+		comment = PhotoComment.objects.create(photo=photo, user=request.user, text=text)
+		username = request.user.username
+	else:
+		comment = PhotoComment.objects.create(photo=photo, user=None, text=text)
+		username = 'Anonymous'
+	return JsonResponse({'success': True, 'username': username, 'text': comment.text, 'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M')})

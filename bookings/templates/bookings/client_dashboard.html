@@ -4,7 +4,13 @@
 <ul>
   {% for booking in bookings %}
     <li>
-      With: {{ booking.photographer.username }}<br>
+      With: {{ booking.photographer.get_full_name|default:booking.photographer.username }}<br>
+      Your Name: 
+      {% if booking.client %}
+        {{ booking.client.get_full_name|default:booking.client.email }}
+      {% else %}
+        {{ booking.client_name }}
+      {% endif %}<br>
       Service: {{ booking.service_type }}<br>
       Date: {{ booking.date }} {{ booking.time }}<br>
       Location: {{ booking.location }}<br>

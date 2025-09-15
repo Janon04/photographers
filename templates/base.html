@@ -1,64 +1,505 @@
 {% load static %}
-<!-- Base template for the project -->
 <!DOCTYPE html>
-<html lang="en" aria-label="PhotoRw site">
+<html lang="en" aria-label="PhotoRw - Rwanda's Premier Photography Platform">
 <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Photographers Platform{% endblock %}</title>
-        <style>
-            :root {
-                --primary-dark: #2d2013;
-                --primary: #3a2a1b;
-                --primary-light: #c7a17a;
-                --accent: #a67c52;
-                --accent-light: #ffd700;
-                --background: #f8f6f3;
-                --surface: #fff;
-                --text-main: #2d2013;
-                --text-light: #6b6b6b;
-                --success: #43a047;
-                --danger: #e53935;
-                --border: #e0e4ef;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PhotoRw - Connect with Rwanda's finest photographers, book sessions, and explore stunning photography">
+    <title>{% block title %}PhotoRw - Rwanda's Photography Community{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #2D2013;
+            --primary: #3A2A1B;
+            --accent: #A67C52;
+            --accent-light: #C7A17A;
+            --gold: #FFD700;
+            --surface: #FFFFFF;
+            --surface-alt: #F8F6F3;
+            --text-main: #2D2013;
+            --text-light: #6B6B6B;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --border: #e9e1d6;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--surface-alt);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation Styles */
+        .main-nav {
+            background: var(--primary-dark);
+            padding: 0;
+            box-shadow: 0 2px 15px rgba(45, 32, 19, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .logo span {
+            color: var(--surface);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--surface);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--gold);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--surface);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--surface);
+            border: 2px solid var(--accent-light);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-light);
+            color: var(--primary-dark);
+        }
+
+        /* Quick Links Bar */
+        .quick-links {
+            background: var(--surface);
+            padding: 0.8rem 0;
+            box-shadow: 0 2px 10px rgba(45, 32, 19, 0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quick-links-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .quick-link:hover {
+            color: var(--accent);
+        }
+
+        .quick-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+
+        .quick-link:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .content-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Footer */
+        .main-footer {
+            background: var(--primary-dark);
+            color: var(--surface);
+            padding: 3rem 0 1.5rem;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--gold);
+            margin-bottom: 1.2rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-links a {
+            color: var(--surface);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+            gap: 0.7rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--surface);
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            background: var(--gold);
+            color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent-light);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Navigation */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--surface);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .nav-actions {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--primary);
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 1rem;
+                box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
             }
-            body { background: var(--background); color: var(--text-main); font-family: 'Segoe UI', Arial, sans-serif; }
-            a { color: var(--accent-light); }
-            nav { background: var(--primary-dark); }
-            nav a, nav button { color: #fff !important; }
-            .quick-links-bar a { color: var(--primary); }
-        </style>
-        {% block head %}{% endblock %}
+
+            .nav-actions.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .quick-links-container {
+                gap: 1rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    {% block head %}{% endblock %}
 </head>
 <body>
-    <nav style="background:#2d2013;padding:1rem 0 0.5rem 0;">
-        <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
-            <a href="/" style="color:#c7a17a;font-size:1.5rem;font-weight:bold;text-decoration:none;letter-spacing:2px;">PhotoRw</a>
-            <div>
-                {% if user.is_authenticated and user.role == 'photographer' %}
-                    <a href="{% url 'photographer_dashboard' %}" style="color:#fff;background:#c7a17a;padding:0.5rem 1.2rem;border-radius:1rem;text-decoration:none;font-weight:bold;margin-right:1rem;">Dashboard</a>
-                {% endif %}
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                Photo<span>Rw</span>
+            </a>
+
+            <div class="nav-actions" id="navActions">
                 {% if user.is_authenticated %}
-                    <a href="/users/profile/" style="color:#fff;text-decoration:none;margin-right:1rem;">Profile</a>
-                    <form method="post" action="/users/logout/" style="display:inline;">{% csrf_token %}<button type="submit" style="background:#c7a17a;color:#2d2013;border:none;padding:0.5rem 1.2rem;border-radius:1rem;font-weight:bold;cursor:pointer;">Log Out</button></form>
+                    {% if user.role == 'photographer' %}
+                        <a href="{% url 'photographer_dashboard' %}" class="nav-link">
+                            <i class="fas fa-th-large"></i> Dashboard
+                        </a>
+                    {% endif %}
+                    <a href="/users/profile/" class="nav-link">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                    <form method="post" action="/users/logout/" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i> Log Out
+                        </button>
+                    </form>
                 {% else %}
-                    <a href="/users/login/" style="color:#fff;text-decoration:none;margin-right:1rem;">Log In</a>
-                    <a href="/users/register/" style="color:#c7a17a;text-decoration:none;font-weight:bold;">Sign Up</a>
+                    <a href="/users/login/" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Log In
+                    </a>
+                    <a href="/users/register/" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a>
                 {% endif %}
             </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Quick Links Bar (for authenticated users) -->
     {% if user.is_authenticated %}
-    <div style="background:#f5eee6;padding:0.5rem 0;">
-        <div style="max-width:1200px;margin:0 auto;display:flex;gap:2rem;align-items:center;justify-content:center;">
-            <a href="/feed/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Feed</a>
-            <a href="/explore/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Explore</a>
-            <a href="/bookings/photographer/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Bookings</a>
-            <a href="/portfolio/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Portfolio</a>
-            <a href="/community/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Community</a>
-            <a href="/payments/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Payments</a>
-            <a href="/reviews/" style="color:#2d2013;text-decoration:none;font-weight:bold;">Reviews</a>
+    <div class="quick-links">
+        <div class="quick-links-container">
+            <a href="/feed/" class="quick-link">
+                <i class="fas fa-home"></i> Feed
+            </a>
+            <a href="/explore/" class="quick-link">
+                <i class="fas fa-compass"></i> Explore
+            </a>
+            <a href="/bookings/photographer/" class="quick-link">
+                <i class="fas fa-calendar-check"></i> Bookings
+            </a>
+            <a href="/portfolio/" class="quick-link">
+                <i class="fas fa-briefcase"></i> Portfolio
+            </a>
+            <a href="/community/" class="quick-link">
+                <i class="fas fa-users"></i> Community
+            </a>
+            <a href="/payments/" class="quick-link">
+                <i class="fas fa-credit-card"></i> Payments
+            </a>
+            <a href="/reviews/" class="quick-link">
+                <i class="fas fa-star"></i> Reviews
+            </a>
         </div>
     </div>
     {% endif %}
-    {% block content %}{% endblock %}
+
+
+        <!-- Global Messages -->
+        {% if messages %}
+        <div style="max-width:600px;margin:2rem auto 0 auto;">
+            {% for message in messages %}
+                <div style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:1rem 1.2rem;border-radius:0.8rem;margin-bottom:1.2rem;font-size:1.08rem;box-shadow:0 2px 8px #ffeeba80;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <main class="main-content">
+                <div class="content-container">
+                        {% block content %}{% endblock %}
+                </div>
+        </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About PhotoRw</h3>
+                <p>Connecting Rwanda's photography community with clients seeking exceptional visual storytelling.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/feed/"><i class="fas fa-home"></i> Feed</a></li>
+                    <li><a href="/explore/"><i class="fas fa-compass"></i> Explore</a></li>
+                    <li><a href="/portfolio/"><i class="fas fa-briefcase"></i> Portfolio</a></li>
+                    <li><a href="/community/"><i class="fas fa-users"></i> Community</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="/help/"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                    <li><a href="/privacy/"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
+                    <li><a href="/terms/"><i class="fas fa-file-alt"></i> Terms of Service</a></li>
+                    <li><a href="/contact/"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2023 PhotoRw. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const navActions = document.getElementById('navActions');
+            navActions.classList.toggle('active');
+            
+            const icon = this.querySelector('i');
+            if (navActions.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navActions = document.getElementById('navActions');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (!navActions.contains(event.target) && !mobileMenuBtn.contains(event.target) && navActions.classList.contains('active')) {
+                navActions.classList.remove('active');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

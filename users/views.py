@@ -5,30 +5,28 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django import forms
+
+from .forms import CustomUserCreationForm
+
 from django.contrib.auth import logout
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-
-class UserRegistrationForm(forms.ModelForm):
-	password = forms.CharField(widget=forms.PasswordInput)
-	class Meta:
-		model = User
-		fields = ['first_name', 'last_name', 'email', 'password', 'bio', 'profile_picture', 'location', 'contact_info', 'role']
 
 def register(request):
 	if request.method == 'POST':
-		form = UserRegistrationForm(request.POST, request.FILES)
+		form = CustomUserCreationForm(request.POST, request.FILES)
 		if form.is_valid():
 			user = form.save(commit=False)
-			user.set_password(form.cleaned_data['password'])
 			user.is_verified = False
 			user.save()
 			# Send activation email
+			from django.utils.http import urlsafe_base64_encode
+			from django.utils.encoding import force_bytes
+			from django.template.loader import render_to_string
+			from django.core.mail import send_mail
+			from django.conf import settings
+			from django.contrib.auth.tokens import default_token_generator
 			uid = urlsafe_base64_encode(force_bytes(user.pk))
 			token = default_token_generator.make_token(user)
 			activation_link = request.build_absolute_uri(f"/users/activate/{uid}/{token}/")
@@ -38,7 +36,7 @@ def register(request):
 			messages.info(request, 'Please check your email to activate your account.')
 			return redirect('login')
 	else:
-		form = UserRegistrationForm()
+		form = CustomUserCreationForm()
 	return render(request, 'users/register.html', {'form': form})
 
 def activate(request, uidb64, token):

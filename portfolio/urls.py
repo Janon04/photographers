@@ -16,4 +16,10 @@ urlpatterns = [
     # Event URLs
     path('events/', views.my_events, name='my_events'),
     path('events/create/', views.create_event, name='create_event'),
+    path('story/<int:story_id>/delete/', views.delete_story, name='delete_story'),
+    path('photo/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
+    path('like_photo/', views.like_photo, name='like_photo'),
+    path('dislike_photo/', views.dislike_photo, name='dislike_photo'),
+    path('add_comment/', views.add_comment, name='add_comment'),
+    path('share_photo/', views.share_photo, name='share_photo'),
 ]

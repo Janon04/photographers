@@ -1,19 +1,20 @@
-
 # Like/dislike model for photos
 from django.db import models
 from django.conf import settings
 from users.models import User
 from django.utils import timezone
 from PIL import Image
+ # Removed import of PhotoComment to resolve circular import
 
 class PhotoLike(models.Model):
 	photo = models.ForeignKey('Photo', on_delete=models.CASCADE, related_name='likes')
-	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+	session_key = models.CharField(max_length=40, null=True, blank=True, db_index=True)
 	is_like = models.BooleanField(default=True)  # True=like, False=dislike
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
-		unique_together = ('photo', 'user')
+		unique_together = ('photo', 'user', 'session_key')
 
 class Category(models.Model):
 	name = models.CharField(max_length=100, unique=True)
@@ -30,6 +31,7 @@ class Photo(models.Model):
 	category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='photos')
 	uploaded_at = models.DateTimeField(default=timezone.now)
 	is_approved = models.BooleanField(default=False, help_text='Admin must approve before public display.')
+	share_count = models.PositiveIntegerField(default=0)
 
 	def save(self, *args, **kwargs):
 		super().save(*args, **kwargs)
@@ -51,18 +53,29 @@ class Photo(models.Model):
 
 	class Meta:
 		ordering = ['-uploaded_at']
+class PhotoComment(models.Model):
+	photo = models.ForeignKey('Photo', on_delete=models.CASCADE, related_name='comments')
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+	username = models.CharField(max_length=100, blank=True, default='Anonymous')
+	text = models.TextField(max_length=500)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.username}: {self.text[:30]}"
 
 
 # Story model for photographers
 from datetime import timedelta
 class Story(models.Model):
 	photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stories')
-	image = models.ImageField(upload_to='stories/')
+	image = models.ImageField(upload_to='stories/', blank=True, null=True)
+	video = models.FileField(upload_to='stories/videos/', blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def save(self, *args, **kwargs):
 		super().save(*args, **kwargs)
 		if self.image:
+			from PIL import Image
 			img = Image.open(self.image.path)
 			max_size = (800, 800)
 			img.thumbnail(max_size, Image.LANCZOS)
@@ -81,6 +94,8 @@ class Event(models.Model):
 	description = models.TextField(blank=True)
 	date = models.DateField()
 	location = models.CharField(max_length=255)
+	image = models.ImageField(upload_to='event_photos/', blank=True, null=True)
+	video = models.FileField(upload_to='event_videos/', blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):

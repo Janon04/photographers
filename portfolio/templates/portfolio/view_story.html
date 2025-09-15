@@ -5,6 +5,9 @@
 <link rel="stylesheet" href="{% static 'css/feed.css' %}">
 {% endblock %}
 {% block content %}
+<div style="display:flex;justify-content:flex-end;max-width:400px;margin:2rem auto 0 auto;padding:0 1rem 0 1rem;">
+  <a href="/bookings/create/" style="background:#ffd700;color:#2d2013;padding:0.7rem 2rem;border-radius:1.2rem;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);transition:all 0.2s;">Book a Photographer</a>
+</div>
 <div class="feed-container" style="max-width:400px;margin-top:3rem;text-align:center;">
   <div style="margin-bottom:1rem;">
     <div class="post-avatar" style="display:inline-block;vertical-align:middle;">
@@ -12,9 +15,24 @@
     </div>
     <span style="font-weight:bold;color:#c19a6b;font-size:1.1rem;margin-left:0.5rem;">{{ story.photographer.username }}</span>
   </div>
-  <img src="{{ story.image.url }}" alt="Story" style="width:100%;border-radius:1rem;max-height:400px;object-fit:cover;">
+  {% if story.video %}
+    <video controls style="width:100%;border-radius:1rem;max-height:400px;object-fit:cover;">
+      <source src="{{ story.video.url }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  {% elif story.image %}
+    <img src="{{ story.image.url }}" alt="Story" style="width:100%;border-radius:1rem;max-height:400px;object-fit:cover;">
+  {% else %}
+    <div style="color:#888;">No media available.</div>
+  {% endif %}
   <div style="margin-top:1.5rem;">
     <a href="/portfolio/feed/" style="color:#c19a6b;">Back to Feed</a>
+    {% if user.is_authenticated and (user == story.photographer or user.is_superuser) %}
+      <form method="post" action="{% url 'delete_story' story.id %}" style="display:inline;margin-left:1.5rem;">
+        {% csrf_token %}
+        <button type="submit" style="background:#e74c3c;color:#fff;padding:0.5rem 1.2rem;border:none;border-radius:0.7rem;font-weight:700;">Delete Story</button>
+      </form>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

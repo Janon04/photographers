@@ -1,59 +1,511 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Photographer Dashboard{% endblock %}
+{% block title %}Photographer Dashboard | PhotoRw{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #2D2013;
+            --primary: #3A2A1B;
+            --accent: #A67C52;
+            --accent-light: #C7A17A;
+            --surface: #FFFFFF;
+            --surface-alt: #F8F6F3;
+            --text-main: #2D2013;
+            --text-light: #6B6B6B;
+            --gold: #C7A17A;
+            --border-radius: 12px;
+            --shadow: 0 5px 15px rgba(45, 32, 19, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: #f5f2ed;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Header Styles */
+        .dashboard-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(45, 32, 19, 0.15);
+        }
+        
+        .dashboard-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-light);
+        }
+        
+        .dashboard-user {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Main Content Layout */
+        .dashboard-main {
+            display: flex;
+            flex: 1;
+        }
+        
+        /* Sidebar Styles */
+        .dashboard-sidebar {
+            width: 280px;
+            background: var(--surface);
+            padding: 2rem 0;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(166, 124, 82, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-welcome {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+        
+        .sidebar-username {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+        
+        .dashboard-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .dashboard-sidebar li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .dashboard-sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            gap: 0.8rem;
+        }
+        
+        .dashboard-sidebar a:hover {
+            background: var(--surface-alt);
+            color: var(--accent);
+        }
+        
+        .dashboard-sidebar a.active {
+            background: rgba(166, 124, 82, 0.1);
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .dashboard-sidebar a i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 500;
+            padding: 0.9rem 1.5rem;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: var(--transition);
+        }
+        
+        .logout-btn:hover {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        /* Content Area */
+        .dashboard-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 2rem;
+        }
+        
+        .content-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        
+        /* Widgets */
+        .dashboard-widgets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .widget {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--accent);
+        }
+        
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(45, 32, 19, 0.12);
+        }
+        
+        .widget-title {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .widget-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        
+        .widget-change {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .widget-change.positive {
+            color: #27ae60;
+        }
+        
+        .widget-change.negative {
+            color: #e74c3c;
+        }
+        
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .view-all-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: var(--transition);
+        }
+        
+        .view-all-link:hover {
+            gap: 0.5rem;
+        }
+        
+        /* Thumbnail Grids */
+        .dashboard-photos, .dashboard-stories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.2rem;
+        }
+        
+        .dashboard-photo-thumb, .dashboard-story-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: 0 3px 8px rgba(45, 32, 19, 0.1);
+        }
+        
+        .dashboard-photo-thumb:hover, .dashboard-story-thumb:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(45, 32, 19, 0.15);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-light);
+            padding: 2rem;
+            font-style: italic;
+            grid-column: 1 / -1;
+        }
+        
+        /* Activity Feed */
+        .activity-feed {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(166, 124, 82, 0.1);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface-alt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .dashboard-main {
+                flex-direction: column;
+            }
+            
+            .dashboard-sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .dashboard-content {
+                order: 1;
+            }
+            
+            .dashboard-widgets {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .dashboard-header {
+                padding: 1rem;
+            }
+            
+            .dashboard-content {
+                padding: 1.5rem;
+            }
+            
+            .dashboard-widgets {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-photos, .dashboard-stories {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .dashboard-photo-thumb, .dashboard-story-thumb {
+                height: 100px;
+            }
+        }
+    </style>
 {% endblock %}
 {% block content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-    <div class="dashboard-logo">PhotoRw</div>
-        <div class="dashboard-user">Welcome, {{ user.username }}</div>
+        <div class="dashboard-logo">PhotoRw</div>
+        <div class="dashboard-user">
+            <div class="user-avatar">{{ user.username|first|upper }}</div>
+            <div>Welcome, {{ user.username }}</div>
+        </div>
     </div>
     <div class="dashboard-main">
         <div class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-welcome">Welcome back</div>
+                <div class="sidebar-username">{{ user.first_name }} {{ user.last_name }}</div>
+            </div>
             <ul>
-                <li><a href="{% url 'photographer_dashboard' %}" class="active">Dashboard Home</a></li>
-                <li><a href="{% url 'upload_photo' %}">Upload Photo</a></li>
-                <li><a href="{% url 'upload_story' %}">Upload Story</a></li>
-                <li><a href="{% url 'photographer_detail' user.pk %}">My Portfolio</a></li>
-                <li><a href="{% url 'photo_list' %}">All Photos</a></li>
-                <li><a href="/users/profile/">Edit Profile</a></li>
-                <li><form method="post" action="/users/logout/">{% csrf_token %}<button type="submit" class="logout-btn">Log Out</button></form></li>
+                <li><a href="{% url 'photographer_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard Home</a></li>
+                <li><a href="{% url 'upload_photo' %}"><i class="fas fa-upload"></i> Upload Photo</a></li>
+                <li><a href="{% url 'upload_story' %}"><i class="fas fa-history"></i> Upload Story</a></li>
+                <li><a href="{% url 'photographer_detail' user.pk %}"><i class="fas fa-briefcase"></i> My Portfolio</a></li>
+                <li><a href="{% url 'photo_list' %}"><i class="fas fa-images"></i> All Photos</a></li>
+                <li><a href="/users/profile/"><i class="fas fa-user-edit"></i> Edit Profile</a></li>
             </ul>
+            <form method="post" action="/users/logout/">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+            </form>
         </div>
         <div class="dashboard-content">
-            <h2>Dashboard Overview</h2>
+            <div class="content-header">
+                <h2>Dashboard Overview</h2>
+                <p class="content-subtitle">Here's what's happening with your portfolio today</p>
+            </div>
+            
             <div class="dashboard-widgets">
                 <div class="widget">
-                    <div class="widget-title">My Photos</div>
+                    <div class="widget-title"><i class="fas fa-images"></i> My Photos</div>
                     <div class="widget-value">{{ user.photos.count }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</div>
                 </div>
                 <div class="widget">
-                    <div class="widget-title">My Stories (24h)</div>
+                    <div class="widget-title"><i class="fas fa-history"></i> My Stories (24h)</div>
                     <div class="widget-value">{{ user.stories.count }}</div>
+                    <div class="widget-change negative"><i class="fas fa-arrow-down"></i> 3% from yesterday</div>
                 </div>
-                <!-- Add more widgets for bookings, payments, etc. -->
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-eye"></i> Profile Views</div>
+                    <div class="widget-value">1,243</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> 24% from last week</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-heart"></i> Total Likes</div>
+                    <div class="widget-value">568</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> 8% from last week</div>
+                </div>
             </div>
+            
             <div class="dashboard-section">
-                <h3>Recent Photos</h3>
+                <div class="section-header">
+                    <h3>Recent Photos</h3>
+                    <a href="{% url 'photo_list' %}" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
+                </div>
                 <div class="dashboard-photos">
-                    {% for photo in user.photos.all|slice:':4' %}
+                    {% for photo in user.photos.all|slice:':6' %}
                         <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
                     {% empty %}
-                        <div>No photos uploaded yet.</div>
+                        <div class="empty-state">No photos uploaded yet. <a href="{% url 'upload_photo' %}">Upload your first photo</a></div>
                     {% endfor %}
                 </div>
             </div>
+            
             <div class="dashboard-section">
-                <h3>Recent Stories</h3>
+                <div class="section-header">
+                    <h3>Recent Stories</h3>
+                    <a href="#" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
+                </div>
                 <div class="dashboard-stories">
-                    {% for story in user.stories.all|slice:':4' %}
+                    {% for story in user.stories.all|slice:':6' %}
                         <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
                     {% empty %}
-                        <div>No stories uploaded yet.</div>
+                        <div class="empty-state">No stories uploaded yet. <a href="{% url 'upload_story' %}">Share your first story</a></div>
                     {% endfor %}
                 </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3>Recent Activity</h3>
+                </div>
+                <ul class="activity-feed">
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-heart"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">Your photo "Sunset Over Kigali" received 12 likes</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">You gained 5 new followers</div>
+                            <div class="activity-time">Yesterday</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-comment"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-title">James T. commented on your photo "Mountain Gorillas"</div>
+                            <div class="activity-time">2 days ago</div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

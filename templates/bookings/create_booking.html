@@ -9,7 +9,15 @@
     <h2>Book a Photographer</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+        {% for field in form.visible_fields %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:#d9534f;">*</span>{% endif %}</label>
+                {{ field }}
+                {% if field.help_text %}<small style="color:#888;">{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<div style="color:#d9534f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
+            </div>
+        {% endfor %}
         <button type="submit" class="booking-btn">Book Now</button>
     </form>
 </div>

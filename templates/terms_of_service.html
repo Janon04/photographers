@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="tos-container" style="max-width:800px;margin:2rem auto;padding:2rem;background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
+  <h1>Terms of Service</h1>
+  {% if terms %}
+    <div>{{ terms.content|safe }}</div>
+    <p style="font-size:0.9em;color:#888;">Last updated: {{ terms.updated_at|date:"F d, Y" }}</p>
+  {% else %}
+    <p>No terms of service content available.</p>
+  {% endif %}
+</div>
+{% endblock %}

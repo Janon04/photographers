@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="contact-container" style="max-width:600px;margin:2rem auto;padding:2rem;background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
+  <h1>Contact Us</h1>
+  <form method="post" action="">
+    {% csrf_token %}
+    <div style="margin-bottom:1.2rem;">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" required style="width:100%;padding:0.7em;border-radius:0.5em;border:1px solid #c7a17a;">
+    </div>
+    <div style="margin-bottom:1.2rem;">
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" required style="width:100%;padding:0.7em;border-radius:0.5em;border:1px solid #c7a17a;">
+    </div>
+    <div style="margin-bottom:1.2rem;">
+      <label for="message">Message:</label><br>
+      <textarea id="message" name="message" rows="5" required style="width:100%;padding:0.7em;border-radius:0.5em;border:1px solid #c7a17a;"></textarea>
+    </div>
+    <button type="submit" style="background:#a67c52;color:#fff;padding:0.7em 2em;border:none;border-radius:0.7em;font-weight:600;cursor:pointer;">Send</button>
+  </form>
+  {% if success %}
+    <div style="color:green;margin-top:1.2rem;">Thank you for contacting us! We will get back to you soon.</div>
+  {% endif %}
+</div>
+{% endblock %}

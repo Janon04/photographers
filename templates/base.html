@@ -435,39 +435,39 @@
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h3>About PhotoRw</h3>
-                <p>Connecting Rwanda's photography community with clients seeking exceptional visual storytelling.</p>
+                <h3 class="footer-title">About PhotoRw</h3>
+                <p class="footer-description">Connecting Rwanda's photography community with clients seeking exceptional visual storytelling.</p>
                 <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
 
             <div class="footer-section">
-                <h3>Quick Links</h3>
+                <h3 class="footer-title">Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="/feed/"><i class="fas fa-home"></i> Feed</a></li>
-                    <li><a href="/explore/"><i class="fas fa-compass"></i> Explore</a></li>
-                    <li><a href="/portfolio/"><i class="fas fa-briefcase"></i> Portfolio</a></li>
-                    <li><a href="/community/"><i class="fas fa-users"></i> Community</a></li>
+                    <li><a href="/feed/" class="footer-link"><i class="fas fa-home"></i> Feed</a></li>
+                    <li><a href="/explore/" class="footer-link"><i class="fas fa-compass"></i> Explore</a></li>
+                    <li><a href="/portfolio/" class="footer-link"><i class="fas fa-briefcase"></i> Portfolio</a></li>
+                    <li><a href="/community/" class="footer-link"><i class="fas fa-users"></i> Community</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
-                <h3>Resources</h3>
+                <h3 class="footer-title">Resources</h3>
                 <ul class="footer-links">
-                    <li><a href="/help/"><i class="fas fa-question-circle"></i> Help Center</a></li>
-                    <li><a href="/privacy/"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
-                    <li><a href="/terms/"><i class="fas fa-file-alt"></i> Terms of Service</a></li>
-                    <li><a href="/contact/"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                    <li><a href="/help/" class="footer-link"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                    <li><a href="{% url 'contact_us' %}" class="footer-link"><i class="fas fa-envelope"></i> Contact Us</a></li>
                 </ul>
             </div>
         </div>
 
         <div class="copyright">
-            &copy; 2023 PhotoRw. All rights reserved.
+            &copy; 2025 PhotoRw. All rights reserved. |
+            <a href="{% url 'privacy_policy' %}" style="color:#a67c52;text-decoration:underline;">Privacy Policy</a> |
+            <a href="{% url 'terms_of_service' %}" style="color:#a67c52;text-decoration:underline;">Terms of Service</a> |
         </div>
     </footer>
 

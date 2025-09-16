@@ -1,7 +1,8 @@
 /* Photographer Dashboard Styles - chocolate, white, black */
 body {
     background: #f8f6f3;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
+    color: #000;
 }
 .dashboard-container {
     max-width: 1200px;
@@ -20,10 +21,10 @@ body {
     padding: 1.5rem 2.5rem;
     font-size: 1.2rem;
 }
-.dashboard-logo {
     font-size: 2rem;
     font-weight: bold;
     letter-spacing: 2px;
+    color: #000;
 }
 .dashboard-main {
     display: flex;

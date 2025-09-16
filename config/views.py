@@ -24,3 +24,36 @@ def home(request):
         'posts': posts,
         'featured_photos': featured_photos,
     })
+    
+from portfolio.models import PrivacyPolicy, TermsOfService
+
+def privacy_policy(request):
+    policy = PrivacyPolicy.objects.order_by('-updated_at').first()
+    return render(request, 'privacy_policy.html', {'policy': policy})
+
+def terms_of_service(request):
+    terms = TermsOfService.objects.order_by('-updated_at').first()
+    return render(request, 'terms_of_service.html', {'terms': terms})
+
+from django.core.mail import send_mail
+from django.conf import settings
+
+def contact_us(request):
+    success = False
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        # Save to database
+        from portfolio.models_contact import ContactMessage
+        ContactMessage.objects.create(name=name, email=email, message=message)
+        # Send email (customize recipient as needed)
+        send_mail(
+            subject=f"Contact Us Message from {name}",
+            message=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.DEFAULT_FROM_EMAIL],
+            fail_silently=True,
+        )
+        success = True
+    return render(request, 'contact_us.html', {'success': success})

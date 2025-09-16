@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="helpcenter-container" style="max-width:800px;margin:2rem auto;padding:2rem;background:#e6f7ff;border-radius:1.2rem;box-shadow:0 2px 8px rgba(122,199,199,0.07);">
+  <h1 style="font-size:2rem;font-weight:700;color:#2b7bb7;margin-bottom:0.5rem;">{{ category.name }}</h1>
+  <p style="font-size:1.1rem;color:#555;margin-bottom:1.5rem;">{{ category.description }}</p>
+  <h2 style="font-size:1.3rem;color:#2d2d2d;margin-bottom:1rem;">Articles</h2>
+  <ul style="list-style:none;padding:0;">
+    {% for article in articles %}
+      <li style="margin-bottom:0.75rem;"><a href="{% url 'helpcenter_article' article.id %}" style="color:#2b7bb7;font-weight:500;text-decoration:none;">{{ article.title }}</a></li>
+    {% empty %}
+      <li style="color:#888;">No articles in this category yet.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'helpcenter_home' %}" style="display:inline-block;margin-top:2rem;color:#b77b2b;font-weight:500;text-decoration:none;">&larr; Back to Help Center</a>
+</div>
+{% endblock %}

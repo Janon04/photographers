@@ -1,3 +1,4 @@
+from ckeditor.widgets import CKEditorWidget
 
 
 from django.contrib import admin
@@ -27,6 +28,9 @@ class UserAdmin(BaseUserAdmin):
 	search_fields = ('email', 'first_name', 'last_name', 'role')
 	ordering = ('email',)
 	readonly_fields = ('username',)
+	formfield_overrides = {
+		User.bio.field: {'widget': CKEditorWidget},
+	}
 
 	def save_model(self, request, obj, form, change):
 		# Auto-generate username if not set

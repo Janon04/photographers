@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="helpcenter-container" style="max-width:900px;margin:2rem auto;padding:2.5rem;background:#f8f9fa;border-radius:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.07);">
+  <h1 style="font-size:2.5rem;font-weight:700;color:#2d2d2d;margin-bottom:0.5rem;">Help Center</h1>
+  <p style="font-size:1.2rem;color:#555;margin-bottom:2rem;">Find answers, guides, and support below.</p>
+  <form method="get" style="margin-bottom:2rem;max-width:500px;">
+    <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search FAQs..." style="width:80%;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
+    <button type="submit" style="padding:0.7rem 1.5rem;border-radius:0.7rem;background:#b77b2b;color:#fff;border:none;font-weight:600;">Search</button>
+  </form>
+
+  <div style="margin-bottom:2.5rem;max-width:500px;">
+    <h2 style="font-size:1.3rem;color:#2d2d2d;margin-bottom:0.5rem;">Ask a Question</h2>
+    {% if question_success %}
+      <div style="background:#e6ffe6;color:#2d7b2d;padding:1rem;border-radius:0.7rem;margin-bottom:1rem;">Thank you! Your question has been submitted.</div>
+    {% endif %}
+    <form method="post" style="background:#fffbe6;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
+      {% csrf_token %}
+      <label for="question_name" style="font-weight:500;">Provide your full names</label><br>
+  <input type="text" id="question_name" name="name" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
+  <label for="question_email" style="font-weight:500;">Provide your Email:</label><br>
+  <input type="email" id="question_email" name="email" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
+  <label for="question_text" style="font-weight:500;">Provide your Question:</label><br>
+  <textarea id="question_text" name="question" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;min-height:80px;"></textarea>
+      <button type="submit" style="padding:0.7rem 1.5rem;border-radius:0.7rem;background:#2b7bb7;color:#fff;border:none;font-weight:600;">Submit Question</button>
+    </form>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
+    <div style="flex:1 1 350px;background:#fffbe6;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
+      <h2 style="font-size:1.5rem;color:#b77b2b;margin-bottom:1rem;">Frequently Asked Questions</h2>
+      {% for group in faq_categories %}
+        <h3 style="font-size:1.1rem;color:#b77b2b;margin-bottom:0.5rem;">{{ group.category.name }}</h3>
+        <ul style="list-style:none;padding:0;margin-bottom:1.5rem;">
+          {% for faq in group.faqs %}
+            <li style="margin-bottom:0.75rem;">
+              <button class="faq-toggle" style="background:none;border:none;color:#b77b2b;font-weight:500;text-align:left;cursor:pointer;padding:0;font-size:1rem;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block';">{{ faq.title }}</button>
+              <div class="faq-answer" style="display:none;margin-top:0.5rem;color:#333;background:#fff;padding:0.75rem 1rem;border-radius:0.5rem;box-shadow:0 1px 4px rgba(199,161,122,0.07);">{{ faq.content|linebreaks }}</div>
+            </li>
+          {% empty %}
+            <li style="color:#888;">No FAQs available yet.</li>
+          {% endfor %}
+        </ul>
+      {% empty %}
+        <p style="color:#888;">No FAQs available yet.</p>
+      {% endfor %}
+    </div>
+    <div style="flex:1 1 350px;background:#e6f7ff;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(122,199,199,0.07);">
+      <h2 style="font-size:1.5rem;color:#2b7bb7;margin-bottom:1rem;">Help Categories</h2>
+      <ul style="list-style:none;padding:0;">
+        {% for category in categories %}
+          <li style="margin-bottom:0.75rem;"><a href="{% url 'helpcenter_category' category.id %}" style="color:#2b7bb7;font-weight:500;text-decoration:none;">{{ category.name }}</a> <span style="color:#555;">- {{ category.description }}</span></li>
+        {% empty %}
+          <li style="color:#888;">No help categories available yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

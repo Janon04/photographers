@@ -1,10 +1,11 @@
+
 # Like/dislike model for photos
 from django.db import models
 from django.conf import settings
 from users.models import User
 from django.utils import timezone
 from PIL import Image
- # Removed import of PhotoComment to resolve circular import
+# Removed import of PhotoComment to resolve circular import
 
 class PhotoLike(models.Model):
 	photo = models.ForeignKey('Photo', on_delete=models.CASCADE, related_name='likes')
@@ -100,3 +101,33 @@ class Event(models.Model):
 
 	def __str__(self):
 		return f"{self.title} by {self.photographer.get_full_name()} on {self.date}"
+	
+	
+
+
+# Contact Us message model
+class ContactMessage(models.Model):
+	name = models.CharField(max_length=100)
+	email = models.EmailField()
+	message = models.TextField()
+	submitted_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.name} ({self.email}) - {self.submitted_at:%Y-%m-%d %H:%M}"
+
+# Editable legal content models
+class PrivacyPolicy(models.Model):
+	from ckeditor.fields import RichTextField
+	content = RichTextField()
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"Privacy Policy (updated {self.updated_at:%Y-%m-%d})"
+
+class TermsOfService(models.Model):
+	from ckeditor.fields import RichTextField
+	content = RichTextField()
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f"Terms of Service (updated {self.updated_at:%Y-%m-%d})"

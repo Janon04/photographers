@@ -13,10 +13,13 @@
     border-bottom: 1px solid #eee;
     text-align: left;
 }
-.booking-table th {
     background: #c7a17a;
-    color: #fff;
+    color: #000;
     font-weight: bold;
+body {
+    font-family: 'Times New Roman', Times, serif;
+    color: #000;
+}
 }
 .booking-table tr:last-child td {
     border-bottom: none;

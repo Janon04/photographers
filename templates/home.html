@@ -492,22 +492,19 @@
     
     <div class="stats-grid">
         <div class="stat-item">
-            <div class="stat-number">500+</div>
+            <div class="stat-number counter" data-target="500" data-suffix="+">0</div>
             <div class="stat-label">Professional Photographers</div>
         </div>
-        
         <div class="stat-item">
-            <div class="stat-number">2,000+</div>
+            <div class="stat-number counter" data-target="2000" data-suffix="+">0</div>
             <div class="stat-label">Completed Bookings</div>
         </div>
-        
         <div class="stat-item">
-            <div class="stat-number">4.8/5</div>
+            <div class="stat-number counter" data-target="4.8" data-decimals="1" data-suffix="/5">0</div>
             <div class="stat-label">Average Rating</div>
         </div>
-        
         <div class="stat-item">
-            <div class="stat-number">98%</div>
+            <div class="stat-number counter" data-target="98" data-suffix="%">0</div>
             <div class="stat-label">Client Satisfaction</div>
         </div>
     </div>
@@ -515,6 +512,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Like/dislike logic
     function updateLikeDislike(btn, likes, dislikes) {
         const card = btn.closest('.photo-card');
         if (card) {
@@ -522,7 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
             card.querySelector('.dislike-count').textContent = dislikes;
         }
     }
-    
     document.querySelectorAll('.like-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const photoId = btn.getAttribute('data-photo-id');
@@ -542,7 +539,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    
     document.querySelectorAll('.dislike-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const photoId = btn.getAttribute('data-photo-id');
@@ -562,6 +558,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Stats animation
+    function animateCounter(el, target, decimals = 0, duration = 1800) {
+        let start = 0;
+        let startTime = null;
+        target = parseFloat(target);
+        let suffix = el.getAttribute('data-suffix') || '';
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            let progress = Math.min((timestamp - startTime) / duration, 1);
+            let value = start + (target - start) * progress;
+            el.textContent = decimals ? value.toFixed(decimals) : Math.floor(value);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                el.textContent = decimals ? target.toFixed(decimals) : target;
+                if (suffix) el.textContent += suffix;
+            }
+        }
+        window.requestAnimationFrame(step);
+    }
+    function runStatsAnimation() {
+        document.querySelectorAll('.counter').forEach(function(el) {
+            let target = el.getAttribute('data-target');
+            let decimals = el.getAttribute('data-decimals') || 0;
+            el.textContent = '0';
+            animateCounter(el, target, decimals);
+        });
+    }
+    runStatsAnimation();
+    setInterval(runStatsAnimation, 60000);
 });
 </script>
 

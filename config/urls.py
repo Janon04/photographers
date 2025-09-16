@@ -33,12 +33,16 @@ urlpatterns = [
     path('payments/', include('payments.urls')),
     path('reviews/', include('reviews.urls')),
     path('community/', include('community.urls')),
+    path('help/', include('helpcenter.urls')),
     path('accounts/login/', RedirectView.as_view(url='/users/login/', permanent=True)),
     path('feed/', RedirectView.as_view(url='/portfolio/feed/', permanent=False)),
     path('explore/', __import__('portfolio.views').views.explore, name='explore'),
     path('stories/upload/', RedirectView.as_view(url='/portfolio/stories/upload/', permanent=False)),
     # API endpoints for AJAX like/dislike
     path('api/portfolio/', include('portfolio.api_urls')),
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
+    path('terms/', views.terms_of_service, name='terms_of_service'),
+    path('contact/', views.contact_us, name='contact_us'),
     ]
 
 if settings.DEBUG:

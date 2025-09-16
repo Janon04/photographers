@@ -1,7 +1,8 @@
 /* Custom Instagram-like homepage styles for PhotoRw */
 body {
     background: #f8f6f3;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
+    color: #000;
 }
 .main-container {
     display: flex;
@@ -29,10 +30,9 @@ body {
     align-items: center;
     justify-content: center;
 }
-.logo {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #c7a17a;
+    color: #000;
     margin-bottom: 1.5rem;
     letter-spacing: 2px;
 }

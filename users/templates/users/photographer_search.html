@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Find Photographers</h2>
+  <form method="get" class="mb-4">
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+  <hr>
+  <h4>Results:</h4>
+  <div class="row">
+    {% for photographer in photographers %}
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          {% if photographer.profile_picture %}
+            <img src="{{ photographer.profile_picture.url }}" class="card-img-top" alt="Profile Picture">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ photographer.first_name }} {{ photographer.last_name }}</h5>
+            <p class="card-text">
+              <strong>Location:</strong> {{ photographer.location|default:'-' }}<br>
+              <strong>Price:</strong> ${{ photographer.price|default:'-' }}<br>
+              <strong>Rating:</strong> {{ photographer.average_rating|default:'-' }}<br>
+              <strong>Role:</strong> {{ photographer.get_role_display }}
+            </p>
+            <a href="/users/profile/{{ photographer.id }}/" class="btn btn-outline-secondary">View Profile</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No photographers found matching your criteria.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

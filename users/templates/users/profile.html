@@ -138,6 +138,10 @@
       <p><strong>Bio:</strong> {{ user.bio|default:'-' }}</p>
       <p><strong>Location:</strong> {{ user.location|default:'-' }}</p>
       <p><strong>Contact Info:</strong> {{ user.contact_info|default:'-' }}</p>
+      {% if user.badges %}<p><strong>Badges:</strong> {{ user.badges }}</p>{% endif %}
+      {% if user.certifications %}<p><strong>Certifications:</strong> {{ user.certifications }}</p>{% endif %}
+      {% if user.awards %}<p><strong>Awards:</strong> {{ user.awards }}</p>{% endif %}
+      {% if user.social_proof %}<p><strong>Social Proof:</strong> <a href="{{ user.social_proof }}" target="_blank">View</a></p>{% endif %}
     </div>
     <form method="post" action="" class="profile-form">
       {% csrf_token %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Inbox</h2>
+  <a href="/users/send_message/" class="btn btn-primary mb-3">Send Message</a>
+  <ul class="list-group">
+    {% for message in messages %}
+      <li class="list-group-item{% if not message.is_read %} list-group-item-warning{% endif %}">
+        <strong>From:</strong> {{ message.sender }}<br>
+        <strong>Sent:</strong> {{ message.timestamp|date:'Y-m-d H:i' }}<br>
+        <strong>Message:</strong> {{ message.content }}
+      </li>
+    {% empty %}
+      <li class="list-group-item">No messages.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

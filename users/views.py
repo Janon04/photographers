@@ -1,14 +1,12 @@
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .models import User
+from .models import User, Message
+from .forms import CustomUserCreationForm, PhotographerSearchForm, MessageForm
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import CustomUserCreationForm
-
-from django.contrib.auth import logout
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
@@ -32,7 +30,14 @@ def register(request):
 			activation_link = request.build_absolute_uri(f"/users/activate/{uid}/{token}/")
 			subject = 'Activate your PhotoRw account'
 			message = render_to_string('users/activation_email.txt', {'activation_link': activation_link, 'user': user})
-			send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=True)
+			html_message = f"""
+				<h2>Activate Your PhotoRw Account</h2>
+				<p>Hello {user.get_full_name() or user.username},</p>
+				<p>Thank you for registering on PhotoRw! Please click the link below to activate your account:</p>
+				<p><a href='{activation_link}'>{activation_link}</a></p>
+				<br><p>Welcome to the community,<br>PhotoRw Team</p>
+			"""
+			send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=True, html_message=html_message)
 			messages.info(request, 'Please check your email to activate your account.')
 			return redirect('login')
 	else:
@@ -76,13 +81,62 @@ def user_logout(request):
 	return render(request, 'users/logout.html')  # Optional: render a logout confirmation page
 
 @login_required
-def profile(request):
-	if request.method == 'POST' and 'email' in request.POST:
-		new_email = request.POST.get('email', '').strip()
-		if new_email and new_email != request.user.email:
-			request.user.email = new_email
-			request.user.save()
-			messages.success(request, 'Email updated successfully!')
-		else:
-			messages.info(request, 'No changes made to your email.')
-	return render(request, 'users/profile.html', {'user': request.user})
+def profile(request, user_id=None):
+    if user_id:
+        user = get_object_or_404(User, pk=user_id)
+    else:
+        user = request.user
+    if request.method == 'POST' and 'email' in request.POST and user == request.user:
+        new_email = request.POST.get('email', '').strip()
+        if new_email and new_email != request.user.email:
+            request.user.email = new_email
+            request.user.save()
+            messages.success(request, 'Email updated successfully!')
+        else:
+            messages.info(request, 'No changes made to your email.')
+    return render(request, 'users/profile.html', {'user': user})
+
+def photographer_search(request):
+    form = PhotographerSearchForm(request.GET or None)
+    photographers = User.objects.filter(role='photographer')
+
+    if form.is_valid():
+        location = form.cleaned_data.get('location')
+        min_price = form.cleaned_data.get('min_price')
+        max_price = form.cleaned_data.get('max_price')
+        min_rating = form.cleaned_data.get('min_rating')
+        role = form.cleaned_data.get('role')
+
+        if location:
+            photographers = photographers.filter(location__icontains=location)
+        if min_price is not None:
+            photographers = photographers.filter(price__gte=min_price)
+        if max_price is not None:
+            photographers = photographers.filter(price__lte=max_price)
+        if min_rating is not None:
+            photographers = photographers.filter(average_rating__gte=min_rating)
+        if role:
+            photographers = photographers.filter(role=role)
+
+    return render(request, 'users/photographer_search.html', {
+        'form': form,
+        'photographers': photographers
+    })
+
+@login_required
+def inbox(request):
+    messages = Message.objects.filter(receiver=request.user).order_by('-timestamp')
+    return render(request, 'users/inbox.html', {'messages': messages})
+
+@login_required
+def send_message(request):
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            message.save()
+            return redirect('inbox')
+    else:
+        form = MessageForm()
+    return render(request, 'users/send_message.html', {'form': form})

@@ -405,11 +405,17 @@
 
     @media (max-width: 600px) {
         .feed-page {
-            padding: 1.5rem 1rem;
+            padding: 0.5rem;
         }
-        
         .section-title {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
+        }
+        .section-header {
+            padding: 0 0.5rem;
+        }
+        .btn, .btn-primary {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
         }
         
         .stories-container {
@@ -536,10 +542,10 @@
                             <i class="fas fa-thumbs-down"></i>
                             <span class="dislike-count">{{ post.dislikes_count }}</span>
                         </button>
-                        <button class="action-btn comment-btn" title="Comment" onclick="toggleCommentBox({{ post.id }})">
+                        <button class="action-btn comment-btn" title="Comment" onclick="toggleCommentBox('{{ post.id }}')">
                             <i class="fas fa-comment"></i>
                         </button>
-                        <button class="action-btn share-btn" title="Share" data-photo-id="{{ post.id }}" onclick="copyPostLink({{ post.id }})">
+                        <button class="action-btn share-btn" title="Share" data-photo-id="{{ post.id }}" onclick="copyPostLink('{{ post.id }}')">
                             <i class="fas fa-share"></i>
                             <span class="share-count">{{ post.share_count }}</span>
                         </button>
@@ -552,7 +558,7 @@
                                 <div class="comment" style="color:#aaa;">No comments yet.</div>
                             {% endfor %}
                         </div>
-                        <form class="comment-form" data-photo-id="{{ post.id }}" onsubmit="return submitComment(event, {{ post.id }})" style="margin-top:0.7rem;display:flex;gap:0.5rem;">
+                        <form class="comment-form" data-photo-id="{{ post.id }}" onsubmit="return submitComment(event, '{{ post.id }}')" style="margin-top:0.7rem;display:flex;gap:0.5rem;">
                             {% csrf_token %}
                             <input type="text" name="text" placeholder="Add a comment..." style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid #ccc;">
                             <button type="submit" style="background:#c7a17a;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:0.5rem;font-weight:600;">Post</button>

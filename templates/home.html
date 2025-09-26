@@ -118,6 +118,17 @@
         transform: translateY(-3px);
     }
 
+    .btn-outline {
+        background: transparent;
+        color: var(--accent);
+        border: 2px solid var(--accent);
+    }
+
+    .btn-outline:hover {
+        background: var(--accent);
+        color: var(--surface);
+    }
+
     .auth-buttons {
         display: flex;
         gap: 1rem;
@@ -338,17 +349,19 @@
 
     @media (max-width: 600px) {
         .hero-section {
-            min-height: 75vh;
-            padding: 2rem 1rem;
+            min-height: 55vh;
+            padding: 2rem 0.5rem;
+            border-radius: 0 0 1rem 1rem;
         }
-        
         .hero-title {
-            font-size: 2.2rem;
+            font-size: 2rem;
         }
-        
-        .auth-buttons {
-            flex-direction: column;
-            align-items: center;
+        .hero-content {
+            padding: 0 0.5rem;
+        }
+        .btn, .btn-primary {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
         }
         
         .featured-grid,
@@ -398,6 +411,7 @@
             <a href="/bookings/create/" class="btn btn-accent">
                 <i class="fas fa-calendar-check"></i> Book a Session
             </a>
+            <a href="/blog/" class="btn btn-outline" style="margin-left:1rem;">Blogs</a>
         </div>
 
     <!-- Auth buttons removed; login/signup remain in header only -->

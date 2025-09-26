@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
+{% block head %}
+{{ block.super }}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+{% endblock %}
 {% block content %}
 <h2>My Bookings (Client)</h2>
+<div id='calendar'></div>
 <ul>
   {% for booking in bookings %}
     <li>
@@ -20,4 +26,38 @@
     <li>No bookings yet.</li>
   {% endfor %}
 </ul>
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script>
+var calendarEvents = [
+{% for booking in bookings %}
+  {
+    title: '{{ booking.service_type|escapejs }}',
+    start: '{{ booking.date }}T{{ booking.time }}',
+    description: 'Photographer: {{ booking.photographer.get_full_name|default:booking.photographer.username|escapejs }}\nLocation: {{ booking.location|escapejs }}\nStatus: {{ booking.status|escapejs }}',
+  }{% if not forloop.last %},{% endif %}
+{% endfor %}
+];
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events: calendarEvents,
+    eventClick: function(info) {
+      alert(info.event.title + "\n" + info.event.extendedProps.description);
+    }
+  });
+  calendar.render();
+});
+</script>
 {% endblock %}
+<style>
+#calendar {
+  min-height: 500px;
+  border: 2px solid #FFD700;
+  margin-bottom: 2rem;
+  background: #fffbe6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(199,161,122,0.13);
+}
+</style>

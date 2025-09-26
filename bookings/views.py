@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
 from django.conf import settings
 # Utility: send booking notification email
-def send_booking_email(subject, message, recipient):
+def send_booking_email(subject, message, recipient, html_message=None):
     if recipient and recipient.strip():
         send_mail(
             subject,
@@ -19,6 +19,7 @@ def send_booking_email(subject, message, recipient):
             settings.DEFAULT_FROM_EMAIL,
             [recipient],
             fail_silently=True,
+            html_message=html_message,
         )
 # Client cancels their booking
 @login_required
@@ -31,11 +32,21 @@ def cancel_booking(request, booking_id):
             booking.save()
             # Email notification to both parties
             subject = 'Booking Cancelled'
-            client_name = f"{booking.client.first_name} {booking.client.last_name}".strip() or booking.client.email
+            client_name = f"{booking.client.first_name} {booking.client.last_name}".strip() if booking.client else (booking.client_name or booking.client_email or 'Anonymous')
             photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-            message = f"Booking between {client_name} and {photographer_name} on {booking.date} at {booking.time} has been cancelled."
-            send_booking_email(subject, message, booking.client.email)
-            send_booking_email(subject, message, booking.photographer.email)
+            message = f"Hello,\n\nThe booking between {client_name} and {photographer_name} on {booking.date} at {booking.time} has been cancelled.\n\nService: {booking.service_type}\nLocation: {booking.location}\n\nIf you have questions, please contact support.\n\nThank you,\nPhotoRw Team"
+            html_message = f"""
+                <h2>Booking Cancelled</h2>
+                <p><strong>Client:</strong> {client_name}<br>
+                <strong>Photographer:</strong> {photographer_name}<br>
+                <strong>Service:</strong> {booking.service_type}<br>
+                <strong>Date:</strong> {booking.date} at {booking.time}<br>
+                <strong>Location:</strong> {booking.location}</p>
+                <p>This booking has been cancelled. If you have questions, please contact support.</p>
+                <br><p>Thank you,<br>PhotoRw Team</p>
+            """
+            send_booking_email(subject, message, booking.client.email, html_message=html_message)
+            send_booking_email(subject, message, booking.photographer.email, html_message=html_message)
             messages.success(request, 'Booking cancelled.')
     return redirect(request.META.get('HTTP_REFERER', reverse('client_dashboard')))
 
@@ -50,11 +61,21 @@ def confirm_booking(request, booking_id):
         # Email notification to client
         subject = 'Your Booking Has Been Confirmed'
         photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-        message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} has been confirmed."
+        client_name = f"{booking.client.first_name} {booking.client.last_name}".strip() or booking.client.email
+        message = f"Hello {client_name},\n\nYour booking with {photographer_name} on {booking.date} at {booking.time} has been confirmed!\n\nService: {booking.service_type}\nLocation: {booking.location}\n\nYou can view your booking details in your dashboard.\n\nThank you,\nPhotoRw Team"
+        html_message = f"""
+            <h2>Booking Confirmed</h2>
+            <p><strong>Photographer:</strong> {photographer_name}<br>
+            <strong>Service:</strong> {booking.service_type}<br>
+            <strong>Date:</strong> {booking.date} at {booking.time}<br>
+            <strong>Location:</strong> {booking.location}</p>
+            <p>Your booking has been confirmed! You can view details in your <a href='http://127.0.0.1:8000/bookings/client/'>dashboard</a>.</p>
+            <br><p>Thank you,<br>PhotoRw Team</p>
+        """
         if booking.client and booking.client.email:
-            send_booking_email(subject, message, booking.client.email)
+            send_booking_email(subject, message, booking.client.email, html_message=html_message)
         elif booking.client_name and booking.client_email:
-            send_booking_email(subject, message, booking.client_email)
+            send_booking_email(subject, message, booking.client_email, html_message=html_message)
         else:
             messages.warning(request, 'Booking confirmed, but client email is missing. No email sent.')
         messages.success(request, 'Booking confirmed!')
@@ -128,9 +149,20 @@ def create_booking(request):
             booking.save()
             # Email notification to photographer
             subject = 'New Booking Request on PhotoRw'
-            message = f"You have a new booking request from {client_name} for {booking.date} at {booking.time}. Contact: {client_email}"
+            message = f"Hello {booking.photographer.get_full_name() or booking.photographer.email},\n\nYou have received a new booking request on PhotoRw!\n\nClient: {client_name}\nEmail: {client_email}\nPhone: {booking.client_phone or '-'}\nService: {booking.service_type}\nDate: {booking.date} at {booking.time}\nLocation: {booking.location}\n\nPlease log in to your dashboard to confirm or manage this booking.\n\nThank you,\nPhotoRw Team"
+            html_message = f"""
+                <h2>New Booking Request</h2>
+                <p><strong>Client:</strong> {client_name}<br>
+                <strong>Email:</strong> {client_email}<br>
+                <strong>Phone:</strong> {booking.client_phone or '-'}<br>
+                <strong>Service:</strong> {booking.service_type}<br>
+                <strong>Date:</strong> {booking.date} at {booking.time}<br>
+                <strong>Location:</strong> {booking.location}</p>
+                <p>Please <a href='http://127.0.0.1:8000/bookings/photographer/'>log in</a> to your dashboard to confirm or manage this booking.</p>
+                <br><p>Thank you,<br>PhotoRw Team</p>
+            """
             if booking.photographer.email and booking.photographer.email.strip():
-                send_booking_email(subject, message, booking.photographer.email)
+                send_booking_email(subject, message, booking.photographer.email, html_message=html_message)
             # Show thank you message page for all users
             return render(request, 'bookings/booking_success.html')
     else:

@@ -7,9 +7,24 @@
       <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
       <strong>{{ photo.title }}</strong> by {{ photo.photographer.username }}<br>
       {{ photo.description }}
+      <button onclick="copyPhotoLink('{{ request.build_absolute_uri photo.get_absolute_url }}')" style="margin-left:1rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
+      <span style="margin-left:0.5rem;">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on Facebook" style="margin-right:0.3rem;"><img src="/static/img/facebook-icon.png" alt="Facebook" style="width:22px;height:22px;vertical-align:middle;"></a>
+        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on Twitter" style="margin-right:0.3rem;"><img src="/static/img/twitter-icon.png" alt="Twitter" style="width:22px;height:22px;vertical-align:middle;"></a>
+        <a href="https://wa.me/?text={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on WhatsApp"><img src="/static/img/whatsapp-icon.png" alt="WhatsApp" style="width:22px;height:22px;vertical-align:middle;"></a>
+      </span>
     </li>
   {% empty %}
     <li>No photos in this category.</li>
   {% endfor %}
 </ul>
+<script>
+function copyPhotoLink(url) {
+  navigator.clipboard.writeText(url).then(function() {
+    alert('Photo link copied to clipboard!');
+  }, function() {
+    alert('Failed to copy link.');
+  });
+}
+</script>
 {% endblock %}

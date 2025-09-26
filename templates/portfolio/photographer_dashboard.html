@@ -373,9 +373,29 @@
         
         @media (max-width: 600px) {
             .dashboard-header {
-                padding: 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem 0.5rem;
             }
-            
+            .dashboard-title {
+                font-size: 1.3rem;
+            }
+            .dashboard-container {
+                padding: 0.5rem;
+            }
+            .calendar-box {
+                min-width: 100%;
+                padding: 0.5rem;
+                height: 350px !important;
+            }
+            .profile-summary, .quick-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .btn, .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
             .dashboard-content {
                 padding: 1.5rem;
             }

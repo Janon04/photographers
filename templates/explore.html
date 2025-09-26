@@ -186,7 +186,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 3px 10px rgba(199, 161, 122, 0.2);
+            box-shadow: 0 3px 10px rgba(199, A61, 122, 0.2);
         }
         
         .story-avatar img {
@@ -539,10 +539,19 @@
         }
         
         @media (max-width: 600px) {
-            .explore-hero h1 {
-                font-size: 2.2rem;
+            .explore-container {
+                padding: 0 0.5rem;
             }
-            
+            .explore-hero {
+                padding: 1.5rem 0.5rem 1rem;
+            }
+            .explore-hero h1 {
+                font-size: 1.5rem;
+            }
+            .btn, .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
             .section-title {
                 font-size: 1.8rem;
             }

@@ -43,6 +43,7 @@ urlpatterns = [
     path('privacy/', views.privacy_policy, name='privacy_policy'),
     path('terms/', views.terms_of_service, name='terms_of_service'),
     path('contact/', views.contact_us, name='contact_us'),
+    path('blog/', include('blog.urls')),
     ]
 
 if settings.DEBUG:

@@ -329,19 +329,46 @@
 
         @media (max-width: 600px) {
             .nav-container {
-                padding: 0 1rem;
+                padding: 0 0.5rem;
             }
-
             .logo {
+                font-size: 1.2rem;
+            }
+            .main-content {
+                padding: 0.5rem 0;
+            }
+            .content-container {
+                padding: 0 0.5rem;
+            }
+            .btn, .btn-primary, .btn-outline {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+            .profile-card, .profile-info {
+                padding: 1rem;
+                max-width: 100%;
+            }
+            .profile-avatar {
+                width: 70px;
+                height: 70px;
                 font-size: 1.5rem;
             }
-
-            .footer-container {
-                grid-template-columns: 1fr;
+            .quick-links-container {
+                gap: 0.5rem;
+                padding-bottom: 0.2rem;
+            }
+            ul, li {
+                font-size: 1rem;
             }
         }
     </style>
-    {% block head %}{% endblock %}
+    {% block head %}
+        {{ block.super }}
+        <!-- FullCalendar CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+        <!-- FullCalendar JS -->
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    {% endblock %}
 </head>
 <body>
     <!-- Main Navigation -->
@@ -452,6 +479,7 @@
                     <li><a href="/explore/" class="footer-link"><i class="fas fa-compass"></i> Explore</a></li>
                     <li><a href="/portfolio/" class="footer-link"><i class="fas fa-briefcase"></i> Portfolio</a></li>
                     <li><a href="/community/" class="footer-link"><i class="fas fa-users"></i> Community</a></li>
+                    <li><a href="/blog/" style="color:#c7a17a;font-weight:600;"><i class="fas fa-newspaper"></i> Blogs</a></li>
                 </ul>
             </div>
 

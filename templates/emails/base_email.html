@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoRw Email</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #2D2013, #A67C52);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header .tagline {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #2D2013;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .content p {
+            margin-bottom: 16px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #A67C52);
+            color: #2D2013;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #A67C52;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .footer {
+            background-color: #2D2013;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #FFD700;
+            text-decoration: none;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #FFD700;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px 15px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .footer {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>PhotoRw</h1>
+            <p class="tagline">Rwanda's Premier Photography Platform</p>
+        </div>
+        
+        <div class="content">
+            {% block content %}
+            <!-- Email content goes here -->
+            {% endblock %}
+        </div>
+        
+        <div class="footer">
+            <p><strong>PhotoRw Team</strong></p>
+            <p>Empowering Rwanda's Creative Community</p>
+            
+            <div class="social-links">
+                <a href="#">Facebook</a> |
+                <a href="#">Instagram</a> |
+                <a href="#">Twitter</a>
+            </div>
+            
+            <p style="font-size: 12px; opacity: 0.8; margin-top: 20px;">
+                This email was sent to you because you have an account with PhotoRw.<br>
+                If you have questions, contact us at <a href="mailto:support@photorw.com">support@photorw.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

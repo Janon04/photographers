@@ -7,7 +7,7 @@
     {% for review in reviews %}
       {% if review.is_approved %}
         {% if user.is_authenticated %}
-          <a href="{% url 'report_content' 'review' review.pk %}" style="color:#e53935;font-size:0.98rem;font-weight:600;float:right;">Report</a>
+          <a href="{% url 'community:report_content' 'review' review.pk %}" style="color:#e53935;font-size:0.98rem;font-weight:600;float:right;">Report</a>
         {% endif %}
         <div style="background:#fff;border-radius:1.5rem;box-shadow:0 8px 32px rgba(199,161,122,0.13);padding:2.5rem 2rem 2rem 2rem;display:flex;flex-direction:column;align-items:center;position:relative;transition:box-shadow 0.3s;">
           <div style="position:absolute;top:-38px;left:50%;transform:translateX(-50%);">

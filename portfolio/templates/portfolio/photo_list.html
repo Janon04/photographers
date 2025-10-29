@@ -1,27 +1,36 @@
+
 {% extends 'base.html' %}
 {% block content %}
-<h2>All Photos</h2>
-<ul>
-  {% for photo in photos %}
-    <li>
-      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
-      <strong>{{ photo.title }}</strong> by {{ photo.photographer.username }}<br>
-      Category: {{ photo.category }}
-      <button onclick="copyPhotoLink('{{ request.build_absolute_uri photo.get_absolute_url }}')" style="margin-left:1rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
-      <span style="margin-left:0.5rem;">
-        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on Facebook" style="margin-right:0.3rem;"><img src="/static/img/facebook-icon.png" alt="Facebook" style="width:22px;height:22px;vertical-align:middle;"></a>
-        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on Twitter" style="margin-right:0.3rem;"><img src="/static/img/twitter-icon.png" alt="Twitter" style="width:22px;height:22px;vertical-align:middle;"></a>
-        <a href="https://wa.me/?text={{ request.build_absolute_uri photo.get_absolute_url }}" target="_blank" title="Share on WhatsApp"><img src="/static/img/whatsapp-icon.png" alt="WhatsApp" style="width:22px;height:22px;vertical-align:middle;"></a>
-      </span>
-    </li>
-  {% endfor %}
-</ul>
-<h3>Categories</h3>
-<ul>
-  {% for category in categories %}
-    <li><a href="{% url 'category_photos' category.id %}">{{ category.name }}</a></li>
-  {% endfor %}
-</ul>
+<div class="container" style="max-width:1100px;margin:2rem auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <h2 style="font-size:2rem;font-weight:900;color:#1a120b;">Explore Gallery</h2>
+    {% if user.is_authenticated and user.role == 'photographer' %}
+      <a href="{% url 'portfolio:upload_photo' %}" class="btn btn-primary" style="padding:0.7rem 1.3rem;font-size:1.1rem;font-weight:700;border-radius:0.7rem;background:#7c5c3a;color:#fff;box-shadow:0 2px 8px rgba(199,161,122,0.13);">+ Upload Photo</a>
+    {% endif %}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;">
+    {% for photo in photos %}
+      <div style="background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.13);padding:1rem;display:flex;flex-direction:column;align-items:center;">
+        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="max-width:100%;max-height:220px;border-radius:0.7rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(199,161,122,0.09);">
+        <div style="font-size:1.1rem;font-weight:700;color:#3e2723;margin-bottom:0.5rem;">{{ photo.title }}</div>
+        <div style="color:#7c5c3a;font-size:0.97rem;margin-bottom:0.5rem;">by {{ photo.photographer.username }}</div>
+        <div style="color:#388e3c;font-size:0.95rem;margin-bottom:0.5rem;">Category: {{ photo.category }}</div>
+        <button onclick="copyPhotoLink('{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" style="margin-top:0.5rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
+        <span style="margin-top:0.5rem;">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on Facebook" style="margin-right:0.3rem;"><img src="/static/img/facebook-icon.png" alt="Facebook" style="width:22px;height:22px;vertical-align:middle;"></a>
+          <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on Twitter" style="margin-right:0.3rem;"><img src="/static/img/twitter-icon.png" alt="Twitter" style="width:22px;height:22px;vertical-align:middle;"></a>
+          <a href="https://wa.me/?text={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on WhatsApp"><img src="/static/img/whatsapp-icon.png" alt="WhatsApp" style="width:22px;height:22px;vertical-align:middle;"></a>
+        </span>
+      </div>
+    {% endfor %}
+  </div>
+  <h3 style="margin-top:2.5rem;font-size:1.3rem;color:#1a120b;font-weight:800;">Categories</h3>
+  <ul style="display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1rem;">
+    {% for category in categories %}
+      <li><a href="{% url 'portfolio:category_photos' category.id %}" style="color:#7c5c3a;font-weight:700;">{{ category.name }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}
 
 <script>

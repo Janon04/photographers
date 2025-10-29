@@ -35,9 +35,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = False  # PRODUCTION MODE
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'photorw.com', 'www.photorw.com']
 
 
 # Application definition
@@ -45,11 +45,11 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    # ...removed 'ckeditor5' (invalid app)...
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required for django-allauth
     # Django core apps
 
     # Third-party apps
@@ -136,6 +136,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Site configuration for django-allauth
+SITE_ID = 1
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -171,16 +174,63 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_IMAGE_BACKEND = 'pillow'
 CKEDITOR_ALLOW_NONIMAGE_FILES = False
-# Email config
+# Email config - PRODUCTION CONFIGURATION
+# Using real SMTP for production email delivery
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_HOST_USER = 'janon3030@gmail.com'
-EMAIL_HOST_PASSWORD = 'bflu atpq mrhe wzvw'
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'janon3030@gmail.com'  # Production email for notifications
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Gmail app password from environment
+DEFAULT_FROM_EMAIL = 'PhotoRw Platform <janon3030@gmail.com>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'debug.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'users': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

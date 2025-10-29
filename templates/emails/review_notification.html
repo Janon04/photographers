@@ -1,0 +1,48 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>New Review Received! ⭐</h2>
+
+<p>Hello <strong>{{ photographer.get_full_name|default:photographer.username }}</strong>,</p>
+
+<p>Great news! You've received a new review from one of your clients on PhotoRw.</p>
+
+<div class="info-box" style="border-left-color: #28a745; background-color: #f8fff9;">
+    <h3>Review Details:</h3>
+    <p><strong>From:</strong> {{ reviewer.get_full_name|default:reviewer.username }}</p>
+    <p><strong>Rating:</strong> 
+        {% for i in "12345" %}
+            {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+        {% endfor %}
+        ({{ review.rating }}/5 stars)
+    </p>
+    <p><strong>Comment:</strong></p>
+    <blockquote style="background: #f8f9fa; border-left: 3px solid #A67C52; padding: 15px; margin: 10px 0; font-style: italic;">
+        "{{ review.comment }}"
+    </blockquote>
+</div>
+
+<h3>Why Reviews Matter:</h3>
+<ul>
+    <li>🔍 Improve your visibility in search results</li>
+    <li>🤝 Build trust with potential clients</li>
+    <li>📈 Increase your booking opportunities</li>
+    <li>💡 Get valuable feedback to improve your services</li>
+</ul>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ view_profile_link }}" class="btn">View Your Profile</a>
+</div>
+
+<div class="info-box">
+    <p><strong>💡 Pro Tip:</strong> Thank your client personally for their feedback! Great customer service leads to more positive reviews.</p>
+</div>
+
+<h3>Keep Up the Excellent Work! 🎉</h3>
+<p>Positive reviews like this one show that you're providing exceptional photography services. Keep up the fantastic work!</p>
+
+<p>Thank you for being part of the PhotoRw community!</p>
+
+<p>Best regards,<br>
+<strong>The PhotoRw Team</strong></p>
+{% endblock %}

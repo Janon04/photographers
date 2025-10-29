@@ -1,0 +1,86 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>Booking {{ action|title }} - PhotoRw 📸</h2>
+
+<p>Hello <strong>{{ user_name|default:"Valued Client" }}</strong>,</p>
+
+{% if action == 'confirmed' %}
+    <div class="info-box" style="border-left-color: #28a745; background-color: #f8fff9;">
+        <p><strong>✅ Booking Confirmed!</strong></p>
+        <p>Great news! Your photography session has been confirmed.</p>
+    </div>
+    
+{% elif action == 'cancelled' %}
+    <div class="info-box" style="border-left-color: #dc3545; background-color: #fff8f8;">
+        <p><strong>❌ Booking Cancelled</strong></p>
+        <p>Your photography session has been cancelled.</p>
+    </div>
+    
+{% elif action == 'completed' %}
+    <div class="info-box" style="border-left-color: #17a2b8; background-color: #f8fcff;">
+        <p><strong>🎉 Session Completed!</strong></p>
+        <p>Your photography session has been marked as completed.</p>
+    </div>
+    
+{% elif action == 'pending' %}
+    <div class="info-box" style="border-left-color: #ffc107; background-color: #fffcf5;">
+        <p><strong>⏳ Booking Pending</strong></p>
+        <p>Your booking request has been sent to the photographer.</p>
+    </div>
+{% endif %}
+
+<h3>Booking Details:</h3>
+<ul>
+    <li><strong>Booking ID:</strong> #{{ booking.id }}</li>
+    <li><strong>Service:</strong> {{ booking.service_type }}</li>
+    <li><strong>Date & Time:</strong> {{ booking.date|date:"F d, Y" }} at {{ booking.time|time:"g:i A" }}</li>
+    <li><strong>Location:</strong> {{ booking.location }}</li>
+    <li><strong>Photographer:</strong> {{ booking.photographer.get_full_name }}</li>
+    <li><strong>Client:</strong> {{ user_name|default:booking.client_name }}</li>
+    <li><strong>Status:</strong> {{ booking.get_status_display }}</li>
+</ul>
+
+{% if action == 'confirmed' %}
+    <h3>What's Next?</h3>
+    <p>Your photographer will contact you soon to discuss:</p>
+    <ul>
+        <li>Specific requirements and preferences</li>
+        <li>Exact meeting location and time</li>
+        <li>What to bring or prepare</li>
+        <li>Payment details (if not already completed)</li>
+    </ul>
+    
+{% elif action == 'completed' %}
+    <h3>Leave a Review! ⭐</h3>
+    <p>Help other clients by sharing your experience with {{ booking.photographer.get_full_name }}.</p>
+    
+    <div style="text-align: center;">
+        <a href="{{ review_link }}" class="btn">Write a Review</a>
+    </div>
+    
+{% elif action == 'cancelled' %}
+    <h3>We're Sorry 😔</h3>
+    <p>If you'd like to reschedule or book with another photographer, we're here to help!</p>
+    
+    <div style="text-align: center;">
+        <a href="{{ booking_link }}" class="btn">Book Another Session</a>
+    </div>
+{% endif %}
+
+<h3>Contact Information:</h3>
+<p><strong>Photographer:</strong> {{ booking.photographer.get_full_name }}</p>
+{% if booking.photographer.contact_info %}
+<p><strong>Contact:</strong> {{ booking.photographer.contact_info }}</p>
+{% endif %}
+<p><strong>Email:</strong> {{ booking.photographer.email }}</p>
+
+<div class="info-box">
+    <p><strong>Need Support?</strong> Contact us at <a href="mailto:support@photorw.com">janon3030@gmail.com</a> or call +250 786 003 139</p>
+</div>
+
+<p>Thank you for choosing PhotoRw!</p>
+
+<p>Best regards,<br>
+<strong>The PhotoRw Team</strong></p>
+{% endblock %}

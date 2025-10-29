@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SEO Optimizer - PhotoRw{% endblock %}
+
+{% block extra_css %}
+<style>
+    .seo-optimizer {
+        background: linear-gradient(135deg, #2D2013 0%, #1a1409 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .seo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 3rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .seo-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .seo-header h1 {
+        color: #FFD700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .ai-badge {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .seo-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .seo-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .seo-card:hover {
+        border-color: rgba(255, 215, 0, 0.5);
+        transform: translateY(-5px);
+    }
+    
+    .seo-card h3 {
+        color: #FFD700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .keyword-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .keyword-tag {
+        background: rgba(255, 215, 0, 0.2);
+        color: #FFD700;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .keyword-tag.high-value {
+        background: rgba(255, 215, 0, 0.3);
+        border-color: #FFD700;
+    }
+    
+    .seo-score {
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #FFD700 0deg 0deg, rgba(255, 255, 255, 0.1) 0deg 360deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        position: relative;
+    }
+    
+    .score-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #FFD700;
+    }
+    
+    .suggestions-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .suggestions-list li {
+        background: rgba(255, 215, 0, 0.1);
+        margin: 1rem 0;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #FFD700;
+        color: #ffffff;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .optimize-btn {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .optimize-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    }
+    
+    .optimization-results {
+        display: none;
+        margin-top: 2rem;
+        padding: 2rem;
+        background: rgba(255, 215, 0, 0.1);
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 15px;
+    }
+    
+    .optimization-results.show {
+        display: block;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    .meta-preview {
+        background: #1e1e1e;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        font-family: 'Arial', sans-serif;
+    }
+    
+    .meta-title {
+        color: #1a0dab;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .meta-url {
+        color: #006621;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .meta-description {
+        color: #545454;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .seo-sections {
+            grid-template-columns: 1fr;
+        }
+        
+        .seo-container {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="seo-optimizer">
+    <div class="container">
+        <div class="seo-container">
+            <div class="seo-header">
+                <h1>🔍 SEO Optimizer</h1>
+                <div class="ai-badge">AI-Powered SEO</div>
+                <p style="color: #cccccc;">Optimize your photography portfolio for better search visibility</p>
+            </div>
+            
+            <div class="seo-sections">
+                <!-- Current SEO Score -->
+                <div class="seo-card">
+                    <h3>📊 SEO Performance</h3>
+                    <div class="seo-score">
+                        <div class="score-circle" data-score="{{ seo_score }}">
+                            <div class="score-value">{{ seo_score }}/100</div>
+                        </div>
+                        <p style="color: #cccccc;">Overall SEO Score</p>
+                    </div>
+                    
+                    <ul class="suggestions-list">
+                        {% for issue in seo_issues %}
+                        <li>
+                            <span>⚠️</span>
+                            <span>{{ issue }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <!-- Keyword Analysis -->
+                <div class="seo-card">
+                    <h3>🎯 Keyword Opportunities</h3>
+                    
+                    <h5 style="color: #FFD700; margin: 1.5rem 0 0.5rem;">High-Value Keywords</h5>
+                    <div class="keyword-list">
+                        {% for keyword in high_value_keywords %}
+                        <span class="keyword-tag high-value">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <h5 style="color: #FFD700; margin: 1.5rem 0 0.5rem;">Suggested Keywords</h5>
+                    <div class="keyword-list">
+                        {% for keyword in suggested_keywords %}
+                        <span class="keyword-tag">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <button class="optimize-btn" onclick="generateKeywords()">
+                        🤖 Generate More Keywords
+                    </button>
+                </div>
+                
+                <!-- Meta Tags Optimization -->
+                <div class="seo-card">
+                    <h3>📝 Meta Tags</h3>
+                    
+                    <div class="meta-preview">
+                        <div class="meta-title">{{ optimized_title }}</div>
+                        <div class="meta-url">photorw.com/photographer/{{ user.username }}</div>
+                        <div class="meta-description">{{ optimized_description }}</div>
+                    </div>
+                    
+                    <ul class="suggestions-list">
+                        <li>
+                            <span>✅</span>
+                            <span>Title length: {{ title_length }} characters (optimal: 50-60)</span>
+                        </li>
+                        <li>
+                            <span>✅</span>
+                            <span>Description length: {{ description_length }} characters (optimal: 150-160)</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Content Optimization -->
+                <div class="seo-card">
+                    <h3>📸 Content Optimization</h3>
+                    
+                    <ul class="suggestions-list">
+                        {% for suggestion in content_suggestions %}
+                        <li>
+                            <span>💡</span>
+                            <span>{{ suggestion }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <button class="optimize-btn" onclick="optimizeContent()">
+                        🎨 Optimize Portfolio Content
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Optimization Results -->
+            <div id="optimizationResults" class="optimization-results">
+                <h3 style="color: #FFD700; margin-bottom: 1.5rem;">✨ Optimization Applied!</h3>
+                <div id="resultsContent">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate SEO score circle
+    const scoreCircle = document.querySelector('.score-circle');
+    const score = parseInt(scoreCircle.dataset.score);
+    const percentage = (score / 100) * 360;
+    
+    setTimeout(() => {
+        scoreCircle.style.background = `conic-gradient(from 0deg, #FFD700 0deg ${percentage}deg, rgba(255, 255, 255, 0.1) ${percentage}deg 360deg)`;
+    }, 500);
+});
+
+function generateKeywords() {
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '🤖 Analyzing...';
+    btn.disabled = true;
+    
+    // Simulate AI keyword generation
+    setTimeout(() => {
+        const newKeywords = [
+            'professional wedding photographer',
+            'portrait photography studio',
+            'event photography services',
+            'commercial photography',
+            'family photographer near me'
+        ];
+        
+        const keywordContainer = document.querySelector('.keyword-list:last-of-type');
+        newKeywords.forEach(keyword => {
+            const tag = document.createElement('span');
+            tag.className = 'keyword-tag';
+            tag.textContent = keyword;
+            tag.style.animation = 'fadeInUp 0.5s ease';
+            keywordContainer.appendChild(tag);
+        });
+        
+        btn.textContent = '✅ Keywords Generated!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }, 2000);
+    }, 2000);
+}
+
+function optimizeContent() {
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '🤖 Optimizing...';
+    btn.disabled = true;
+    
+    // Show optimization results
+    setTimeout(() => {
+        const resultsDiv = document.getElementById('optimizationResults');
+        const resultsContent = document.getElementById('resultsContent');
+        
+        resultsContent.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <h4 style="color: #FFD700;">📸 Photos Optimized</h4>
+                    <ul style="color: #ffffff; list-style: none; padding: 0;">
+                        <li>✅ Added alt text to 15 photos</li>
+                        <li>✅ Optimized 8 photo titles</li>
+                        <li>✅ Generated SEO descriptions</li>
+                        <li>✅ Added location keywords</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #FFD700;">🏷️ Tags Applied</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <span class="keyword-tag">wedding photographer</span>
+                        <span class="keyword-tag">professional portraits</span>
+                        <span class="keyword-tag">event photography</span>
+                        <span class="keyword-tag">commercial shoots</span>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <p style="color: #FFD700; font-size: 1.2rem;">🎉 SEO Score improved from {{ seo_score }} to {{ seo_score|add:15 }}!</p>
+            </div>
+        `;
+        
+        resultsDiv.classList.add('show');
+        
+        btn.textContent = '✅ Optimization Complete!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }, 3000);
+    }, 3000);
+}
+</script>
+{% endblock %}

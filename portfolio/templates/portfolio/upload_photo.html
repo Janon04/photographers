@@ -1,10 +1,24 @@
 {% extends 'base.html' %}
-{% block title %}Upload Photo{% endblock %}
 {% block content %}
-<h2>Upload Photo</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-</form>
+<div class="container" style="max-width:600px;margin:2rem auto;">
+    <div style="background:#fffbe6;padding:2rem 2.2rem;border-radius:1.2rem;box-shadow:0 2px 12px rgba(199,161,122,0.13);">
+        <h2 style="font-size:2rem;font-weight:900;color:#1a120b;margin-bottom:0.7rem;letter-spacing:-1px;">Upload Photo</h2>
+        <div style="color:#7c5c3a;font-size:1.08rem;margin-bottom:1.5rem;">Share your best work with the Explore community.</div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display:flex;flex-direction:column;gap:1.1rem;">
+                {% for field in form %}
+                    <div style="display:flex;flex-direction:column;">
+                        <label for="{{ field.id_for_label }}" style="font-weight:700;color:#3e2723;margin-bottom:0.3rem;">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small style="color:#388e3c;">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<div style="color:#d32f2f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;padding:0.7rem 1.5rem;font-size:1.1rem;font-weight:700;border-radius:0.7rem;background:#7c5c3a;color:#fff;border:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);">Upload</button>
+        </form>
+        <a href="{% url 'explore' %}" style="color:#3e2723;font-weight:700;display:block;margin-top:2rem;">← Back to Explore</a>
+    </div>
+</div>
 {% endblock %}

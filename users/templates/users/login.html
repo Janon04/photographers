@@ -78,7 +78,8 @@
       <button type="submit" class="login-btn">Login</button>
     </form>
     <div class="login-links">
-      <span>Don't have an account?</span> <a href="/users/register/">Sign Up</a>
+      <a href="{% url 'users:password_reset' %}">Forgot Password?</a><br><br>
+      <span>Don't have an account?</span> <a href="{% url 'users:register' %}">Sign Up</a>
       <a href="/">Back to Home</a>
     </div>
   </div>

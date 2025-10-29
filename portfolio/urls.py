@@ -2,6 +2,8 @@ from django.urls import path
 
 from . import views
 
+app_name = 'portfolio'
+
 urlpatterns = [
     path('', views.photographer_list, name='portfolio_home'),
     path('dashboard/', views.photographer_dashboard, name='photographer_dashboard'),
@@ -22,4 +24,9 @@ urlpatterns = [
     path('dislike_photo/', views.dislike_photo, name='dislike_photo'),
     path('add_comment/', views.add_comment, name='add_comment'),
     path('share_photo/', views.share_photo, name='share_photo'),
+    
+    # AI-Powered Features
+    path('ai-insights/', views.ai_insights, name='ai_insights'),
+    path('auto-categorize/', views.auto_categorize_photos, name='auto_categorize'),
+    path('seo-optimizer/', views.seo_optimizer, name='seo_optimizer'),
 ]

@@ -13,7 +13,7 @@
         {% else %}
           <div style="width:90px;height:90px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:3px solid #ffd700;font-size:2rem;color:#a67c52;margin-bottom:1rem;">{{ photographer.first_name|first|default:photographer.username|first|upper }}</div>
         {% endif %}
-        <a href="{% url 'photographer_detail' photographer.pk %}" style="font-size:1.2rem;font-weight:700;color:#2d2013;text-decoration:none;margin-bottom:0.3rem;">{{ photographer.first_name }} {{ photographer.last_name }}</a>
+        <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" style="font-size:1.2rem;font-weight:700;color:#2d2013;text-decoration:none;margin-bottom:0.3rem;">{{ photographer.first_name }} {{ photographer.last_name }}</a>
         {% with profile_url=window.location.origin|add:request.get_full_path %}
         <button onclick="copyProfileLink('{{ profile_url }}')" style="margin-top:0.5rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
         {% endwith %}

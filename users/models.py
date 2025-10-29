@@ -1,12 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import RegexValidator
 from PIL import Image
 
 class User(AbstractUser):
 	class Roles(models.TextChoices):
 		PHOTOGRAPHER = 'photographer', _('Photographer')
 		CLIENT = 'client', _('Client')
+
+	# Override username field to allow spaces and more characters
+	username = models.CharField(
+		_('username'),
+		max_length=150,
+		unique=True,
+		help_text=_('Required. 150 characters or fewer. Letters, digits, spaces, dots, hyphens, and underscores allowed.'),
+		validators=[
+			RegexValidator(
+				regex=r'^[\w\s\.\-\_]+$',
+				message=_('Username can only contain letters, numbers, spaces, dots, hyphens, and underscores.'),
+				code='invalid_username'
+			)
+		],
+		error_messages={
+			'unique': _("A user with that username already exists."),
+		},
+	)
 
 	email = models.EmailField(_('email address'), unique=True, blank=False, null=False, help_text=_('Required. Enter a valid email address.'))
 	bio = models.TextField(_('bio'), blank=True)
@@ -16,7 +35,6 @@ class User(AbstractUser):
 	is_verified = models.BooleanField(default=False)
 	role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.CLIENT)
 	price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, help_text=_('Typical session price (optional)'))
-	# Photographer profile enhancements
 	badges = models.CharField(max_length=255, blank=True, help_text=_('Badges or special recognitions (comma-separated)'))
 	certifications = models.CharField(max_length=255, blank=True, help_text=_('Certifications (comma-separated)'))
 	awards = models.CharField(max_length=255, blank=True, help_text=_('Awards (comma-separated)'))

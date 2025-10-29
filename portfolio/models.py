@@ -5,6 +5,7 @@ from django.conf import settings
 from users.models import User
 from django.utils import timezone
 from PIL import Image
+import json
 # Removed import of PhotoComment to resolve circular import
 
 class PhotoLike(models.Model):
@@ -35,12 +36,46 @@ class Photo(models.Model):
 	share_count = models.PositiveIntegerField(default=0)
 
 	def save(self, *args, **kwargs):
+		# Standard image optimization
 		super().save(*args, **kwargs)
 		if self.image:
 			img = Image.open(self.image.path)
 			max_size = (1280, 1280)
 			img.thumbnail(max_size, Image.LANCZOS)
 			img.save(self.image.path, optimize=True, quality=80)
+	
+	def simulate_ai_analysis(self):
+		"""Simulate AI analysis for demo purposes"""
+		filename = self.image.name.lower()
+		title = self.title.lower()
+		description = self.description.lower()
+		
+		# Simple categorization
+		if any(word in filename + title + description for word in ['wedding', 'bride', 'groom']):
+			return {'category': 'wedding', 'confidence': 92, 'tags': ['wedding', 'ceremony', 'professional']}
+		elif any(word in filename + title + description for word in ['portrait', 'headshot']):
+			return {'category': 'portrait', 'confidence': 88, 'tags': ['portrait', 'professional', 'headshot']}
+		elif any(word in filename + title + description for word in ['event', 'corporate']):
+			return {'category': 'event', 'confidence': 85, 'tags': ['event', 'corporate', 'photography']}
+		else:
+			return {'category': 'general', 'confidence': 75, 'tags': ['photography', 'professional']}
+	
+	def get_ai_recommendations(self):
+		"""Get AI recommendations for this photo"""
+		analysis = self.simulate_ai_analysis()
+		return [
+			f"Perfect for {analysis['category']} portfolio section",
+			"Consider adding more descriptive keywords",
+			"Optimize image title for SEO"
+		]
+	
+	def get_suggested_improvements(self):
+		"""Get AI-suggested improvements"""
+		return [
+			"Add more detailed description",
+			"Include location information",
+			"Consider adding watermark for protection"
+		]
 	def __str__(self):
 		return f"{self.title} by {self.photographer.email}"
 

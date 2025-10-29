@@ -34,30 +34,51 @@
     </form>
   </div>
   {% for post in posts %}
-    <div style="background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.13);padding:1.5rem 2rem;transition:box-shadow 0.2s;position:relative;overflow:hidden;">
-      <h3 style="font-size:1.35rem;color:#1a120b;font-weight:800;margin-bottom:0.7rem;letter-spacing:-0.5px;"><a href="{% url 'blog_detail' post.pk %}" style="color:#1a120b;text-decoration:none;">{{ post.title }}</a></h3>
-      <div style="font-size:1rem;margin-bottom:0.7rem;">
-        <span style="background:#7c5c3a;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">{{ post.owner.get_full_name|default:post.owner.username }}</span>
-        {% if post.category %}
-          <span style="background:#3e2723;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">{{ post.category.name }}</span>
-        {% endif %}
-        {% if post.tags.all %}
-          <span style="background:#388e3c;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">
-            {% for tag in post.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-          </span>
-        {% endif %}
-        <span style="color:#4e342e;font-size:0.95rem;">{{ post.created_at|date:'M d, Y' }}</span>
-      </div>
-      </div>
+    <div style="display:flex;flex-wrap:wrap;align-items:stretch;background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.13);margin-bottom:2rem;overflow:hidden;">
       {% if post.image %}
-        <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width:100%;height:auto;border-radius:0.7rem;margin-bottom:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.09);">
+        <div style="flex:0 0 320px;max-width:320px;min-width:220px;display:flex;align-items:center;justify-content:center;background:#e7d7b6;cursor:pointer;" onclick="showModal('{{ post.image.url }}')">
+          <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width:100%;max-height:220px;object-fit:contain;display:block;margin:auto;border-radius:0.7rem 0 0 0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.09);transition:transform 0.2s;">
+        </div>
       {% endif %}
-      <div style="color:#444;font-size:1.13rem;line-height:1.7;margin-bottom:1.2rem;">{{ post.content|truncatewords:40|linebreaks }}</div>
-         <a href="{% url 'blog_detail' post.pk %}" class="btn btn-outline" style="margin-top:0.5rem;font-weight:700;border-radius:0.5rem;background:#7c5c3a;color:#fff;border:none;">Read More</a>
+      <div style="flex:1;padding:2rem 2rem;display:flex;flex-direction:column;justify-content:center;">
+        <h3 style="font-size:1.35rem;color:#1a120b;font-weight:800;margin-bottom:0.7rem;letter-spacing:-0.5px;"><a href="{% url 'blog_detail' post.pk %}" style="color:#1a120b;text-decoration:none;">{{ post.title }}</a></h3>
+        <div style="font-size:1rem;margin-bottom:0.7rem;">
+          <span style="background:#7c5c3a;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">{{ post.owner.get_full_name|default:post.owner.username }}</span>
+          {% if post.category %}
+            <span style="background:#3e2723;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">{{ post.category.name }}</span>
+          {% endif %}
+          {% if post.tags.all %}
+            <span style="background:#388e3c;color:#fff;padding:0.3rem 0.8rem;border-radius:0.5rem;font-size:0.95rem;font-weight:600;">
+              {% for tag in post.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </span>
+          {% endif %}
+          <span style="color:#4e342e;font-size:0.95rem;">{{ post.created_at|date:'M d, Y' }}</span>
+        </div>
+        <div style="color:#444;font-size:1.13rem;line-height:1.7;margin-bottom:1.2rem;">{{ post.content|truncatewords:40|linebreaks }}</div>
+        <a href="{% url 'blog_detail' post.pk %}" class="btn btn-outline" style="margin-top:0.5rem;font-weight:700;border-radius:0.5rem;background:#7c5c3a;color:#fff;border:none;max-width:160px;">Read More</a>
+      </div>
     </div>
   {% empty %}
-      <div style="color:#aaa;text-align:center;margin-top:2rem;">No articles found.</div>
+    <div style="color:#aaa;text-align:center;margin-top:2rem;">No articles found.</div>
   {% endfor %}
+  <!-- Modal for large image view -->
+  <div id="imgModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(30,20,11,0.85);align-items:center;justify-content:center;">
+    <span onclick="closeModal()" style="position:absolute;top:30px;right:50px;font-size:2.5rem;color:#fff;cursor:pointer;font-weight:900;">&times;</span>
+    <img id="modalImg" src="" alt="Large view" style="max-width:80vw;max-height:80vh;border-radius:1rem;box-shadow:0 2px 24px #000;">
+  </div>
+  <script>
+    function showModal(url) {
+      document.getElementById('imgModal').style.display = 'flex';
+      document.getElementById('modalImg').src = url;
+    }
+    function closeModal() {
+      document.getElementById('imgModal').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
   </div>
 </div>
 {% endblock %}

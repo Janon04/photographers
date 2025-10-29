@@ -510,7 +510,7 @@
                             <div class="post-time">{{ post.uploaded_at|localtime|timesince }} ago</div>
                         </div>
                         {% if user.is_authenticated and user == post.photographer %}
-                        <form method="post" action="{% url 'delete_photo' post.id %}" style="margin-left:auto;">
+                        <form method="post" action="{% url 'portfolio:delete_photo' post.id %}" style="margin-left:auto;">
                             {% csrf_token %}
                             <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
                                 <i class="fas fa-trash-alt"></i>
@@ -518,7 +518,7 @@
                         </form>
                         {% endif %}
                         {% if user.is_authenticated and user.is_superuser %}
-                        <form method="post" action="{% url 'delete_photo' post.id %}" style="margin-left:auto;">
+                        <form method="post" action="{% url 'portfolio:delete_photo' post.id %}" style="margin-left:auto;">
                             {% csrf_token %}
                             <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
                                 <i class="fas fa-trash-alt"></i>

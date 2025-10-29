@@ -430,11 +430,11 @@
                 <div class="sidebar-username">{{ user.first_name }} {{ user.last_name }}</div>
             </div>
             <ul>
-                <li><a href="{% url 'photographer_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard Home</a></li>
-                <li><a href="{% url 'upload_photo' %}"><i class="fas fa-upload"></i> Upload Photo</a></li>
-                <li><a href="{% url 'upload_story' %}"><i class="fas fa-history"></i> Upload Story</a></li>
-                <li><a href="{% url 'photographer_detail' user.pk %}"><i class="fas fa-briefcase"></i> My Portfolio</a></li>
-                <li><a href="{% url 'photo_list' %}"><i class="fas fa-images"></i> All Photos</a></li>
+                <li><a href="{% url 'portfolio:photographer_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard Home</a></li>
+                <li><a href="{% url 'portfolio:upload_photo' %}"><i class="fas fa-upload"></i> Upload Photo</a></li>
+                <li><a href="{% url 'portfolio:upload_story' %}"><i class="fas fa-history"></i> Upload Story</a></li>
+                <li><a href="{% url 'portfolio:photographer_detail' user.pk %}"><i class="fas fa-briefcase"></i> My Portfolio</a></li>
+                <li><a href="{% url 'portfolio:photo_list' %}"><i class="fas fa-images"></i> All Photos</a></li>
                 <li><a href="/users/profile/"><i class="fas fa-user-edit"></i> Edit Profile</a></li>
             </ul>
             <form method="post" action="/users/logout/">
@@ -474,13 +474,13 @@
             <div class="dashboard-section">
                 <div class="section-header">
                     <h3>Recent Photos</h3>
-                    <a href="{% url 'photo_list' %}" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
+                    <a href="{% url 'portfolio:photo_list' %}" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="dashboard-photos">
                     {% for photo in user.photos.all|slice:':6' %}
                         <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
                     {% empty %}
-                        <div class="empty-state">No photos uploaded yet. <a href="{% url 'upload_photo' %}">Upload your first photo</a></div>
+                        <div class="empty-state">No photos uploaded yet. <a href="{% url 'portfolio:upload_photo' %}">Upload your first photo</a></div>
                     {% endfor %}
                 </div>
             </div>
@@ -494,7 +494,7 @@
                     {% for story in user.stories.all|slice:':6' %}
                         <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
                     {% empty %}
-                        <div class="empty-state">No stories uploaded yet. <a href="{% url 'upload_story' %}">Share your first story</a></div>
+                        <div class="empty-state">No stories uploaded yet. <a href="{% url 'portfolio:upload_story' %}">Share your first story</a></div>
                     {% endfor %}
                 </div>
             </div>

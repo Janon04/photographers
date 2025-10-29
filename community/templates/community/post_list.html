@@ -16,7 +16,7 @@
               <img src="{{ post.image.url }}" alt="Post Image" style="width:100%;max-width:220px;height:120px;object-fit:cover;border-radius:0.7rem;box-shadow:0 1px 6px #fffbe6;margin-top:0.5rem;">
             {% endif %}
             {% if user.is_authenticated %}
-              <a href="{% url 'report_content' 'post' post.pk %}" style="color:#e53935;font-size:0.98rem;font-weight:600;margin-top:0.5rem;">Report</a>
+              <a href="{% url 'community:report_content' 'post' post.pk %}" style="color:#e53935;font-size:0.98rem;font-weight:600;margin-top:0.5rem;">Report</a>
             {% endif %}
           </div>
         {% endif %}

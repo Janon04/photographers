@@ -740,7 +740,7 @@
         <div class="photographers-grid">
             {% for photographer in photographers %}
             <div class="card photographer-card">
-                <a href="{% url 'photographer_detail' photographer.pk %}" class="photographer-link">
+                <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link">
                     {% if photographer.profile_picture %}
                         <img src="{{ photographer.profile_picture.url }}" alt="Profile picture of {{ photographer.first_name }} {{ photographer.last_name }}" class="photographer-avatar">
                     {% else %}
@@ -800,7 +800,7 @@
                                         <button onclick="showEventDescModal('{{ event.pk }}', '{{ event.title|escapejs }}', `{{ event.description|escapejs }}`, '{% if event.image %}{{ event.image.url }}{% else %}{% endif %}', '{% if event.video %}{{ event.video.url }}{% else %}{% endif %}')" style="background:none;border:none;color:#c7a17a;font-weight:600;cursor:pointer;margin-left:0.5em;">View more</button>
                                     {% endif %}
                                 </div>
-                                <div class="event-photographer">by <a href="{% url 'photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></div>
+                                <div class="event-photographer">by <a href="{% url 'portfolio:photographer_detail' event.photographer.pk %}">{{ event.photographer.first_name }} {{ event.photographer.last_name }}</a></div>
                         </div>
                         {% empty %}
                         <div class="empty-state">No upcoming events found.</div>

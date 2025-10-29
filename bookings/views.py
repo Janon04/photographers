@@ -10,17 +10,14 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
 from django.conf import settings
-# Utility: send booking notification email
-def send_booking_email(subject, message, recipient, html_message=None):
-    if recipient and recipient.strip():
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [recipient],
-            fail_silently=True,
-            html_message=html_message,
-        )
+from config.email_service import EmailService
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import logging
+import json
+
+logger = logging.getLogger(__name__)
+
 # Client cancels their booking
 @login_required
 @require_POST
@@ -30,24 +27,18 @@ def cancel_booking(request, booking_id):
         if booking.status in ['pending', 'confirmed']:
             booking.status = 'cancelled'
             booking.save()
-            # Email notification to both parties
-            subject = 'Booking Cancelled'
-            client_name = f"{booking.client.first_name} {booking.client.last_name}".strip() if booking.client else (booking.client_name or booking.client_email or 'Anonymous')
-            photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-            message = f"Hello,\n\nThe booking between {client_name} and {photographer_name} on {booking.date} at {booking.time} has been cancelled.\n\nService: {booking.service_type}\nLocation: {booking.location}\n\nIf you have questions, please contact support.\n\nThank you,\nPhotoRw Team"
-            html_message = f"""
-                <h2>Booking Cancelled</h2>
-                <p><strong>Client:</strong> {client_name}<br>
-                <strong>Photographer:</strong> {photographer_name}<br>
-                <strong>Service:</strong> {booking.service_type}<br>
-                <strong>Date:</strong> {booking.date} at {booking.time}<br>
-                <strong>Location:</strong> {booking.location}</p>
-                <p>This booking has been cancelled. If you have questions, please contact support.</p>
-                <br><p>Thank you,<br>PhotoRw Team</p>
-            """
-            send_booking_email(subject, message, booking.client.email, html_message=html_message)
-            send_booking_email(subject, message, booking.photographer.email, html_message=html_message)
-            messages.success(request, 'Booking cancelled.')
+            
+            # Send professional email notifications to both parties
+            EmailService.send_booking_notification(booking, 'cancelled', 'client')
+            EmailService.send_booking_notification(booking, 'cancelled', 'photographer')
+            
+            logger.info(f"Booking {booking_id} cancelled by {request.user.email}")
+            messages.success(request, 'Booking cancelled successfully.')
+        else:
+            messages.error(request, 'This booking cannot be cancelled.')
+    else:
+        messages.error(request, 'You do not have permission to cancel this booking.')
+    
     return redirect(request.META.get('HTTP_REFERER', reverse('client_dashboard')))
 
 # Photographer confirms a booking
@@ -58,30 +49,16 @@ def confirm_booking(request, booking_id):
     if booking.status == 'pending':
         booking.status = 'confirmed'
         booking.save()
-        # Email notification to client
-        subject = 'Your Booking Has Been Confirmed'
-        photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-        client_name = f"{booking.client.first_name} {booking.client.last_name}".strip() or booking.client.email
-        message = f"Hello {client_name},\n\nYour booking with {photographer_name} on {booking.date} at {booking.time} has been confirmed!\n\nService: {booking.service_type}\nLocation: {booking.location}\n\nYou can view your booking details in your dashboard.\n\nThank you,\nPhotoRw Team"
-        html_message = f"""
-            <h2>Booking Confirmed</h2>
-            <p><strong>Photographer:</strong> {photographer_name}<br>
-            <strong>Service:</strong> {booking.service_type}<br>
-            <strong>Date:</strong> {booking.date} at {booking.time}<br>
-            <strong>Location:</strong> {booking.location}</p>
-            <p>Your booking has been confirmed! You can view details in your <a href='http://127.0.0.1:8000/bookings/client/'>dashboard</a>.</p>
-            <br><p>Thank you,<br>PhotoRw Team</p>
-        """
-        if booking.client and booking.client.email:
-            send_booking_email(subject, message, booking.client.email, html_message=html_message)
-        elif booking.client_name and booking.client_email:
-            send_booking_email(subject, message, booking.client_email, html_message=html_message)
-        else:
-            messages.warning(request, 'Booking confirmed, but client email is missing. No email sent.')
-        messages.success(request, 'Booking confirmed!')
+        
+        # Send professional email notification to client
+        EmailService.send_booking_notification(booking, 'confirmed', 'client')
+        
+        logger.info(f"Booking {booking_id} confirmed by photographer {request.user.email}")
+        messages.success(request, 'Booking confirmed successfully!')
     else:
         messages.info(request, 'Booking was not pending.')
-    return redirect(request.META.get('HTTP_REFERER', reverse('photographer_dashboard')))
+    
+    return redirect(request.META.get('HTTP_REFERER', reverse('bookings:photographer_dashboard')))
 
 # Photographer marks booking as complete
 @login_required
@@ -91,20 +68,16 @@ def complete_booking(request, booking_id):
     if booking.status == 'confirmed':
         booking.status = 'completed'
         booking.save()
-        # Email notification to client
-        subject = 'Your Booking is Completed'
-        photographer_name = f"{booking.photographer.first_name} {booking.photographer.last_name}".strip() or booking.photographer.email
-        message = f"Your booking with {photographer_name} on {booking.date} at {booking.time} is now marked as completed."
-        if booking.client and booking.client.email:
-            send_booking_email(subject, message, booking.client.email)
-        elif booking.client_name and booking.client_email:
-            send_booking_email(subject, message, booking.client_email)
-        else:
-            messages.warning(request, 'Booking completed, but client email is missing. No email sent.')
+        
+        # Send professional email notification to client
+        EmailService.send_booking_notification(booking, 'completed', 'client')
+        
+        logger.info(f"Booking {booking_id} completed by photographer {request.user.email}")
         messages.success(request, 'Booking marked as completed!')
     else:
         messages.info(request, 'Booking was not confirmed.')
-    return redirect(request.META.get('HTTP_REFERER', reverse('photographer_dashboard')))
+    
+    return redirect(request.META.get('HTTP_REFERER', reverse('bookings:photographer_dashboard')))
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -147,24 +120,15 @@ def create_booking(request):
                 messages.error(request, 'This photographer does not have an email address set. Please choose another photographer or contact support.')
                 return redirect('client_dashboard')
             booking.save()
-            # Email notification to photographer
-            subject = 'New Booking Request on PhotoRw'
-            message = f"Hello {booking.photographer.get_full_name() or booking.photographer.email},\n\nYou have received a new booking request on PhotoRw!\n\nClient: {client_name}\nEmail: {client_email}\nPhone: {booking.client_phone or '-'}\nService: {booking.service_type}\nDate: {booking.date} at {booking.time}\nLocation: {booking.location}\n\nPlease log in to your dashboard to confirm or manage this booking.\n\nThank you,\nPhotoRw Team"
-            html_message = f"""
-                <h2>New Booking Request</h2>
-                <p><strong>Client:</strong> {client_name}<br>
-                <strong>Email:</strong> {client_email}<br>
-                <strong>Phone:</strong> {booking.client_phone or '-'}<br>
-                <strong>Service:</strong> {booking.service_type}<br>
-                <strong>Date:</strong> {booking.date} at {booking.time}<br>
-                <strong>Location:</strong> {booking.location}</p>
-                <p>Please <a href='http://127.0.0.1:8000/bookings/photographer/'>log in</a> to your dashboard to confirm or manage this booking.</p>
-                <br><p>Thank you,<br>PhotoRw Team</p>
-            """
-            if booking.photographer.email and booking.photographer.email.strip():
-                send_booking_email(subject, message, booking.photographer.email, html_message=html_message)
+            
+            # Send professional email notifications
+            EmailService.send_booking_notification(booking, 'pending', 'photographer')
+            EmailService.send_booking_notification(booking, 'pending', 'client')
+            
+            logger.info(f"New booking created: {booking.id} by {client_name}")
+            
             # Show thank you message page for all users
-            return render(request, 'bookings/booking_success.html')
+            return render(request, 'bookings/booking_success.html', {'booking': booking})
     else:
         form = BookingForm(initial=initial, user=request.user if request.user.is_authenticated else None)
     return render(request, 'bookings/create_booking.html', {'form': form})
@@ -178,3 +142,260 @@ def client_dashboard(request):
 def photographer_dashboard(request):
 	bookings = Booking.objects.filter(photographer=request.user)
 	return render(request, 'bookings/photographer_dashboard.html', {'bookings': bookings})
+
+
+@login_required
+def pricing_calculator(request):
+	"""AI-powered pricing calculator for photographers"""
+	if not hasattr(request.user, 'role') or request.user.role != 'photographer':
+		messages.error(request, 'Only photographers can access the pricing calculator.')
+		return redirect('home')
+	
+	if request.method == 'POST':
+		try:
+			# Get form data
+			service_type = request.POST.get('service_type')
+			duration = int(request.POST.get('duration', 4))
+			date = request.POST.get('date')
+			location = request.POST.get('location', '')
+			experience_level = request.POST.get('experience_level')
+			editing_included = request.POST.get('editing_included')
+			
+			# Base rates for different services (production-ready pricing)
+			base_rates = {
+				'wedding': 1500,
+				'portrait': 350,
+				'event': 650,
+				'commercial': 900,
+				'fashion': 750,
+				'landscape': 400,
+				'food': 550,
+				'sports': 500
+			}
+			
+			# Experience multipliers
+			experience_multipliers = {
+				'beginner': 0.7,
+				'intermediate': 1.0,
+				'advanced': 1.3,
+				'expert': 1.6
+			}
+			
+			# Editing level multipliers
+			editing_multipliers = {
+				'none': 0.8,
+				'basic': 1.0,
+				'standard': 1.2,
+				'premium': 1.5
+			}
+			
+			# Duration factor (base is 4 hours)
+			duration_multiplier = 1 + (duration - 4) * 0.1
+			
+			# Location premium for premium areas
+			location_multiplier = 1.2 if any(term in location.lower() for term in ['downtown', 'city center', 'luxury', 'resort']) else 1.0
+			
+			# Calculate final price
+			base_price = base_rates.get(service_type, 500)
+			experience_mult = experience_multipliers.get(experience_level, 1.0)
+			editing_mult = editing_multipliers.get(editing_included, 1.0)
+			
+			final_price = base_price * experience_mult * editing_mult * duration_multiplier * location_multiplier
+			
+			# Get photographer's booking count for market position
+			booking_count = Booking.objects.filter(photographer=request.user).count()
+			market_position = min(90, max(20, 50 + booking_count * 5))
+			
+			response_data = {
+				'success': True,
+				'suggested_price': round(final_price, 0),
+				'price_range': {
+					'min': round(final_price * 0.85, 0),
+					'max': round(final_price * 1.15, 0)
+				},
+				'factors_considered': [
+					f"Base {service_type} rate: ${base_price}",
+					f"Experience level ({experience_level}): {experience_mult}x",
+					f"Editing level ({editing_included}): {editing_mult}x",
+					f"Duration ({duration}h): {duration_multiplier:.1f}x",
+					f"Location factor: {location_multiplier}x"
+				],
+				'market_analysis': {
+					'position_score': market_position,
+					'description': f'{"Above average" if market_position > 60 else "Average" if market_position > 40 else "Growing"} market position'
+				},
+				'recommendations': [
+					"Consider offering package deals for multiple sessions",
+					"Add rush delivery fee (20-30%) for quick turnaround",
+					"Include travel fees for locations over 30 miles",
+					"Offer payment plans for bookings over $1000"
+				]
+			}
+			
+			return JsonResponse(response_data)
+			
+		except Exception as e:
+			logger.error(f"Pricing calculator error: {str(e)}")
+			return JsonResponse({
+				'success': False,
+				'error': 'Pricing calculation failed. Please try again.'
+			})
+	
+	return render(request, 'bookings/pricing_calculator.html')
+
+
+@login_required
+def pricing_calculator(request):
+	"""AI-powered pricing calculator for photographers"""
+	if not hasattr(request.user, 'role') or request.user.role != 'photographer':
+		messages.error(request, 'Only photographers can access the pricing calculator.')
+		return redirect('home')
+	
+	if request.method == 'POST':
+		try:
+			from config.ai_service import ai_service
+			
+			# Get form data
+			service_type = request.POST.get('service_type')
+			duration = int(request.POST.get('duration', 4))
+			date = request.POST.get('date')
+			location = request.POST.get('location', '')
+			experience_level = request.POST.get('experience_level')
+			editing_included = request.POST.get('editing_included')
+			
+			# Prepare photographer profile
+			photographer_profile = {
+				'years_experience': {
+					'beginner': 0.5,
+					'intermediate': 2,
+					'advanced': 4,
+					'expert': 7
+				}.get(experience_level, 2),
+				'total_bookings': Booking.objects.filter(photographer=request.user).count(),
+				'average_rating': 4.2  # Could be calculated from actual reviews
+			}
+			
+			# Prepare booking details
+			booking_details = {
+				'category': service_type,
+				'date': date,
+				'location': location,
+				'duration': duration,
+				'editing_level': editing_included
+			}
+			
+			# Get AI pricing analysis
+			pricing_analysis = ai_service.suggest_pricing(
+				photographer_profile, 
+				booking_details
+			)
+			
+			if 'error' not in pricing_analysis:
+				# Apply editing premium
+				editing_multiplier = {
+					'none': 0.8,
+					'basic': 1.0,
+					'standard': 1.2,
+					'premium': 1.5
+				}.get(editing_included, 1.0)
+				
+				base_price = pricing_analysis['suggested_price']
+				final_price = base_price * editing_multiplier
+				
+				response_data = {
+					'success': True,
+					'suggested_price': round(final_price, 0),
+					'price_range': {
+						'min': round(final_price * 0.8, 0),
+						'max': round(final_price * 1.2, 0)
+					},
+					'factors_considered': pricing_analysis['factors_considered'] + [
+						f"Editing level ({editing_included}): {editing_multiplier}x"
+					],
+					'market_analysis': {
+						'position_score': min(90, max(10, int((final_price / 1000) * 100))),
+						'description': pricing_analysis['market_analysis'].get('category_average', 'Competitive pricing for your market')
+					},
+					'recommendations': pricing_analysis.get('recommendations', []) + [
+						f"Consider {editing_included} editing as your standard offering",
+						"Monitor competitor pricing in your area",
+						"Adjust rates based on seasonal demand"
+					]
+				}
+			else:
+				# Fallback pricing if AI service fails
+				base_rates = {
+					'wedding': 1200,
+					'portrait': 400,
+					'event': 600,
+					'commercial': 800,
+					'fashion': 700,
+					'landscape': 300,
+					'food': 500,
+					'sports': 450
+				}
+				
+				base_price = base_rates.get(service_type, 500)
+				experience_multiplier = {
+					'beginner': 0.7,
+					'intermediate': 1.0,
+					'advanced': 1.3,
+					'expert': 1.6
+				}.get(experience_level, 1.0)
+				
+				editing_multiplier = {
+					'none': 0.8,
+					'basic': 1.0,
+					'standard': 1.2,
+					'premium': 1.5
+				}.get(editing_included, 1.0)
+				
+				final_price = base_price * experience_multiplier * editing_multiplier
+				
+				response_data = {
+					'success': True,
+					'suggested_price': round(final_price, 0),
+					'price_range': {
+						'min': round(final_price * 0.8, 0),
+						'max': round(final_price * 1.2, 0)
+					},
+					'factors_considered': [
+						f"Base {service_type} rate: ${base_price}",
+						f"Experience level ({experience_level}): {experience_multiplier}x",
+						f"Editing level ({editing_included}): {editing_multiplier}x",
+						f"Duration ({duration}h): Standard rate"
+					],
+					'market_analysis': {
+						'position_score': 60,
+						'description': 'Competitive pricing for your experience level'
+					},
+					'recommendations': [
+						"Price is calculated using industry standards",
+						"Consider local market conditions",
+						"Adjust based on your portfolio quality",
+						"Add travel fees for distant locations"
+					]
+				}
+			
+			# Render template with results instead of JSON
+			context = {
+				'calculation_results': response_data,
+				'form_data': {
+					'service_type': service_type,
+					'duration': duration,
+					'experience_level': experience_level,
+					'editing_included': editing_included,
+					'location': location
+				}
+			}
+			return render(request, 'bookings/pricing_calculator.html', context)
+			
+		except Exception as e:
+			logger.error(f"Pricing calculator error: {str(e)}")
+			context = {
+				'error_message': 'Pricing calculation failed. Please try again.',
+				'calculation_results': None
+			}
+			return render(request, 'bookings/pricing_calculator.html', context)
+	
+	return render(request, 'bookings/pricing_calculator.html')

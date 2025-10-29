@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width:500px;margin:3rem auto;">
+  <div style="background:#fffbe6;padding:2rem 2.2rem;border-radius:1.2rem;box-shadow:0 2px 12px rgba(199,161,122,0.13);text-align:center;">
+    <h2 style="font-size:1.5rem;font-weight:900;color:#d32f2f;margin-bottom:1.2rem;">Permission Denied</h2>
+    <div style="color:#7c5c3a;font-size:1.08rem;margin-bottom:1.5rem;">{{ message }}</div>
+    <a href="{% url 'explore' %}" style="color:#3e2723;font-weight:700;display:block;margin-top:2rem;">← Back to Explore</a>
+  </div>
+</div>
+{% endblock %}

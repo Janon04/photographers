@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Insights - PhotoRw{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-insights-container {
+        background: linear-gradient(135deg, #2D2013 0%, #1a1409 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .insights-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #FFD700;
+    }
+    
+    .insights-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .insight-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 215, 0, 0.5);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
+    }
+    
+    .insight-card h3 {
+        color: #FFD700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .insight-icon {
+        font-size: 1.5rem;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #FFA500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        color: #cccccc;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .progress-bar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        height: 10px;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FFD700, #FFA500);
+        border-radius: 10px;
+        transition: width 1s ease;
+    }
+    
+    .recommendation-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .recommendation-list li {
+        background: rgba(255, 215, 0, 0.1);
+        margin: 0.5rem 0;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #FFD700;
+        color: #ffffff;
+    }
+    
+    .ai-badge {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .sentiment-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .sentiment-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    
+    .sentiment-positive { background: #4CAF50; }
+    .sentiment-neutral { background: #FFC107; }
+    .sentiment-negative { background: #F44336; }
+    
+    .pricing-suggestion {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    .suggested-price {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #FFD700;
+        margin: 1rem 0;
+    }
+    
+    .price-range {
+        color: #cccccc;
+        font-size: 1.1rem;
+    }
+    
+    .ai-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    .ai-action-btn {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .ai-action-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        color: #2D2013;
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .insights-header h1 {
+            font-size: 2rem;
+        }
+        
+        .suggested-price {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-insights-container">
+    <div class="container">
+        <div class="insights-header">
+            <h1>🤖 AI Photography Insights</h1>
+            <p>Intelligent analytics and recommendations for your photography business</p>
+        </div>
+        
+        <div class="insights-grid">
+            <!-- Portfolio Performance -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">📸</span> Portfolio Performance</h3>
+                <div class="ai-badge">AI Analyzed</div>
+                
+                <div class="metric-value">{{ portfolio_stats.total_photos }}</div>
+                <div class="metric-label">Total Photos</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ portfolio_stats.quality_score }}%"></div>
+                </div>
+                <p>Average Quality Score: {{ portfolio_stats.quality_score }}%</p>
+                
+                <ul class="recommendation-list">
+                    {% for recommendation in portfolio_recommendations %}
+                    <li>{{ recommendation }}</li>
+                    {% empty %}
+                    <li>Upload more photos to get AI recommendations</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Pricing Intelligence -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">💰</span> Pricing Intelligence</h3>
+                <div class="ai-badge">Smart Pricing</div>
+                
+                <div class="pricing-suggestion">
+                    <div>Suggested Base Rate</div>
+                    <div class="suggested-price">${{ ai_pricing.suggested_base_rate|floatformat:0 }}</div>
+                    <div class="price-range">Range: ${{ ai_pricing.price_range.min|floatformat:0 }} - ${{ ai_pricing.price_range.max|floatformat:0 }}</div>
+                </div>
+                
+                <div class="chart-container">
+                    <h5>Market Position</h5>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ ai_pricing.market_position }}%"></div>
+                    </div>
+                    <p>{{ ai_pricing.market_description }}</p>
+                </div>
+            </div>
+            
+            <!-- Sentiment Analysis -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">💬</span> Review Sentiment</h3>
+                <div class="ai-badge">AI Sentiment</div>
+                
+                <div class="chart-container">
+                    {% for sentiment in sentiment_analysis %}
+                    <div class="sentiment-indicator">
+                        <div class="sentiment-dot sentiment-{{ sentiment.type }}"></div>
+                        <span>{{ sentiment.label }}: {{ sentiment.percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="metric-value">{{ overall_sentiment.score|floatformat:1 }}</div>
+                <div class="metric-label">Overall Satisfaction Score</div>
+                
+                {% if sentiment_insights %}
+                <ul class="recommendation-list">
+                    {% for insight in sentiment_insights %}
+                    <li>{{ insight }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            
+            <!-- Booking Trends -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">📈</span> Booking Trends</h3>
+                <div class="ai-badge">Trend Analysis</div>
+                
+                <div class="metric-value">{{ booking_trends.monthly_growth }}%</div>
+                <div class="metric-label">Monthly Growth</div>
+                
+                <div class="chart-container">
+                    <h5>Popular Services</h5>
+                    {% for service in popular_services %}
+                    <div class="sentiment-indicator">
+                        <div class="sentiment-dot sentiment-positive"></div>
+                        <span>{{ service.name }}: {{ service.bookings }} bookings</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <ul class="recommendation-list">
+                    {% for trend in booking_recommendations %}
+                    <li>{{ trend }}</li>
+                    {% empty %}
+                    <li>Complete more bookings to see AI trend analysis</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- AI Photo Categories -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">🏷️</span> Smart Categorization</h3>
+                <div class="ai-badge">Auto-Tagged</div>
+                
+                <div class="metric-value">{{ auto_tagged_photos }}</div>
+                <div class="metric-label">Auto-Tagged Photos</div>
+                
+                <div class="chart-container">
+                    <h5>Top Categories</h5>
+                    {% for category in top_categories %}
+                    <div class="sentiment-indicator">
+                        <div class="sentiment-dot sentiment-neutral"></div>
+                        <span>{{ category.name|capfirst }}: {{ category.count }} photos</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <ul class="recommendation-list">
+                    <li>{{ categorization_accuracy }}% categorization accuracy</li>
+                    <li>AI has suggested {{ total_tags }} SEO keywords</li>
+                    <li>{{ photos_need_review }} photos need manual review</li>
+                </ul>
+            </div>
+            
+            <!-- Revenue Optimization -->
+            <div class="insight-card">
+                <h3><span class="insight-icon">🎯</span> Revenue Insights</h3>
+                <div class="ai-badge">Revenue AI</div>
+                
+                <div class="metric-value">${{ revenue_insights.potential_increase|floatformat:0 }}</div>
+                <div class="metric-label">Potential Monthly Increase</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ revenue_insights.optimization_score }}%"></div>
+                </div>
+                <p>Revenue Optimization Score: {{ revenue_insights.optimization_score }}%</p>
+                
+                <ul class="recommendation-list">
+                    {% for insight in revenue_recommendations %}
+                    <li>{{ insight }}</li>
+                    {% empty %}
+                    <li>Complete more transactions to get revenue insights</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- AI Actions -->
+        <div class="ai-actions">
+            <a href="{% url 'portfolio:auto_categorize' %}" class="ai-action-btn">
+                🤖 Auto-Categorize Photos
+            </a>
+            <a href="{% url 'bookings:pricing_calculator' %}" class="ai-action-btn">
+                💡 Smart Pricing Calculator
+            </a>
+            <a href="{% url 'reviews:sentiment_report' %}" class="ai-action-btn">
+                📊 Detailed Sentiment Report
+            </a>
+            <a href="{% url 'portfolio:seo_optimizer' %}" class="ai-action-btn">
+                🔍 SEO Optimizer
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.progress-fill');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+    
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.insight-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

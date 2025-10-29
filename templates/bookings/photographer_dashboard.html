@@ -32,10 +32,10 @@
                 <td>{{ booking.get_payment_status_display }}</td>
                 <td>
                     {% if booking.status == 'pending' %}
-                        <form method="post" action="{% url 'confirm_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="confirm-btn">Confirm</button></form>
-                        <form method="post" action="{% url 'cancel_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="cancel-btn">Cancel</button></form>
+                        <form method="post" action="{% url 'bookings:confirm_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="confirm-btn">Confirm</button></form>
+                        <form method="post" action="{% url 'bookings:cancel_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="cancel-btn">Cancel</button></form>
                     {% elif booking.status == 'confirmed' %}
-                        <form method="post" action="{% url 'complete_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="complete-btn">Mark Complete</button></form>
+                        <form method="post" action="{% url 'bookings:complete_booking' booking.id %}" style="display:inline;">{% csrf_token %}<button type="submit" class="complete-btn">Mark Complete</button></form>
                     {% endif %}
                 </td>
             </tr>

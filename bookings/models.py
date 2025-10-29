@@ -1,6 +1,8 @@
 
 from django.db import models
 from users.models import User
+import json
+from decimal import Decimal
 
 class Booking(models.Model):
 	STATUS_CHOICES = [
@@ -26,6 +28,53 @@ class Booking(models.Model):
 	client_name = models.CharField(max_length=100, blank=True, null=True)
 	client_email = models.EmailField(blank=True, null=True)
 	client_phone = models.CharField(max_length=30, blank=True, null=True)
+	
+	def simulate_ai_pricing(self):
+		"""Simulate AI pricing for demo purposes"""
+		base_rates = {
+			'wedding': 1500,
+			'portrait': 350,
+			'event': 650,
+			'commercial': 900,
+			'fashion': 750,
+			'landscape': 400,
+			'food': 550,
+			'sports': 500
+		}
+		
+		base_price = base_rates.get(self.service_type.lower(), 500)
+		
+		return {
+			'suggested_price': base_price,
+			'price_range': {'min': int(base_price * 0.8), 'max': int(base_price * 1.2)},
+			'factors_considered': [
+				f"Base {self.service_type} rate: ${base_price}",
+				"Market analysis applied",
+				"Experience level considered"
+			],
+			'recommendations': [
+				"Consider package deals for repeat clients",
+				"Add travel fees for distant locations"
+			]
+		}
+	
+	def get_pricing_recommendations(self):
+		"""Get AI pricing recommendations"""
+		pricing = self.simulate_ai_pricing()
+		return pricing.get('recommendations', [])
+	
+	def get_market_analysis(self):
+		"""Get market analysis for this booking"""
+		return {
+			'demand_level': 'moderate',
+			'competition': 'average',
+			'seasonal_factor': 'normal'
+		}
+	
+	def get_price_range(self):
+		"""Get suggested price range"""
+		pricing = self.simulate_ai_pricing()
+		return pricing.get('price_range', {'min': 400, 'max': 600})
 
 	def __str__(self):
 		client_email = self.client.email if self.client else (self.client_email or self.client_name or 'Anonymous')

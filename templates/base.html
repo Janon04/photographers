@@ -112,7 +112,7 @@
         .nav-link:hover::after {
             width: 100%;
         }
-
+        
         .btn {
             display: inline-block;
             padding: 0.6rem 1.5rem;
@@ -381,24 +381,24 @@
             <div class="nav-actions" id="navActions">
                 {% if user.is_authenticated %}
                     {% if user.role == 'photographer' %}
-                        <a href="{% url 'photographer_dashboard' %}" class="nav-link">
+                        <a href="{% url 'portfolio:photographer_dashboard' %}" class="nav-link">
                             <i class="fas fa-th-large"></i> Dashboard
                         </a>
                     {% endif %}
-                    <a href="/users/profile/" class="nav-link">
+                    <a href="{% url 'users:profile' %}" class="nav-link">
                         <i class="fas fa-user-circle"></i> Profile
                     </a>
-                    <form method="post" action="/users/logout/" style="display: inline;">
+                    <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline">
                             <i class="fas fa-sign-out-alt"></i> Log Out
                         </button>
                     </form>
                 {% else %}
-                    <a href="/users/login/" class="nav-link">
+                    <a href="{% url 'users:login' %}" class="nav-link">
                         <i class="fas fa-sign-in-alt"></i> Log In
                     </a>
-                    <a href="/users/register/" class="btn btn-primary">
+                    <a href="{% url 'users:register' %}" class="btn btn-primary">
                         <i class="fas fa-user-plus"></i> Sign Up
                     </a>
                 {% endif %}
@@ -490,6 +490,18 @@
                     <li><a href="{% url 'contact_us' %}" class="footer-link"><i class="fas fa-envelope"></i> Contact Us</a></li>
                 </ul>
             </div>
+
+            {% if user.is_authenticated and user.role == 'photographer' %}
+            <div class="footer-section">
+                <h3 class="footer-title">🤖 AI Tools</h3>
+                <ul class="footer-links">
+                    <li><a href="{% url 'portfolio:ai_insights' %}" class="footer-link"><i class="fas fa-chart-line"></i> AI Insights</a></li>
+                    <li><a href="{% url 'bookings:pricing_calculator' %}" class="footer-link"><i class="fas fa-calculator"></i> Smart Pricing</a></li>
+                    <li><a href="{% url 'portfolio:seo_optimizer' %}" class="footer-link"><i class="fas fa-search"></i> SEO Optimizer</a></li>
+                    <li><a href="{% url 'portfolio:auto_categorize' %}" class="footer-link"><i class="fas fa-tags"></i> Auto-Categorize</a></li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
 
         <div class="copyright">

@@ -1,9 +1,22 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import RegexValidator
 from .models import User, Message
 
 class CustomUserCreationForm(UserCreationForm):
-	username = forms.CharField(max_length=150, required=True, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.')
+	# Custom username field that allows spaces and more characters
+	username = forms.CharField(
+		max_length=150, 
+		required=True, 
+		help_text='Required. 150 characters or fewer. Letters, digits, spaces, and common punctuation allowed.',
+		validators=[
+			RegexValidator(
+				regex=r'^[\w\s\.\-\_]+$',
+				message='Username can only contain letters, numbers, spaces, dots, hyphens, and underscores.',
+				code='invalid_username'
+			)
+		]
+	)
 	badges = forms.CharField(max_length=255, required=False, help_text='Badges or special recognitions (comma-separated)')
 	certifications = forms.CharField(max_length=255, required=False, help_text='Certifications (comma-separated)')
 	awards = forms.CharField(max_length=255, required=False, help_text='Awards (comma-separated)')
@@ -14,9 +27,20 @@ class CustomUserCreationForm(UserCreationForm):
 		fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'bio', 'profile_picture', 'location', 'contact_info', 'is_verified', 'role', 'badges', 'certifications', 'awards', 'social_proof')
 
 	def clean_username(self):
-		username = self.cleaned_data['username']
-		if User.objects.filter(username=username).exists():
+		username = self.cleaned_data['username'].strip()
+		
+		# Check if username is empty after stripping
+		if not username:
+			raise forms.ValidationError('Username cannot be empty or contain only spaces.')
+		
+		# Check for minimum length
+		if len(username) < 3:
+			raise forms.ValidationError('Username must be at least 3 characters long.')
+		
+		# Check if username already exists (case-insensitive)
+		if User.objects.filter(username__iexact=username).exists():
 			raise forms.ValidationError('That username is already taken. Please choose another.')
+		
 		return username
 
 	def save(self, commit=True):

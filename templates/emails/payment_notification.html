@@ -1,0 +1,60 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>Payment {{ status|title }} - PhotoRw 💳</h2>
+
+<p>Hello <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+
+{% if status == 'success' %}
+    <div class="info-box" style="border-left-color: #28a745; background-color: #f8fff9;">
+        <p><strong>✅ Payment Successful!</strong></p>
+        <p>Your payment has been processed successfully.</p>
+    </div>
+    
+    <h3>Payment Details:</h3>
+    <ul>
+        <li><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</li>
+        <li><strong>Amount:</strong> ${{ transaction.amount }}</li>
+        <li><strong>Payment Method:</strong> {{ transaction.payment_method }}</li>
+        <li><strong>Date:</strong> {{ transaction.created_at|date:"F d, Y at g:i A" }}</li>
+        <li><strong>Service:</strong> {{ booking.service_type }}</li>
+        <li><strong>Photographer:</strong> {{ booking.photographer.get_full_name }}</li>
+    </ul>
+    
+    <p>Your booking is now confirmed! The photographer will contact you soon to finalize details.</p>
+    
+{% elif status == 'failed' %}
+    <div class="info-box" style="border-left-color: #dc3545; background-color: #fff8f8;">
+        <p><strong>❌ Payment Failed</strong></p>
+        <p>Unfortunately, your payment could not be processed.</p>
+    </div>
+    
+    <h3>What happened?</h3>
+    <p>Your payment for booking with <strong>{{ booking.photographer.get_full_name }}</strong> was not successful.</p>
+    
+    <p><strong>Possible reasons:</strong></p>
+    <ul>
+        <li>Insufficient funds</li>
+        <li>Card expired or blocked</li>
+        <li>Network connectivity issues</li>
+        <li>Bank security measures</li>
+    </ul>
+    
+    <div style="text-align: center;">
+        <a href="{{ retry_payment_link }}" class="btn">Try Payment Again</a>
+    </div>
+    
+{% endif %}
+
+<h3>Need Help?</h3>
+<p>If you have any questions about this payment, please contact our support team:</p>
+<ul>
+    <li>📧 Email: <a href="mailto:support@photorw.com">support@photorw.com</a></li>
+    <li>📞 Phone: +250 123 456 789</li>
+</ul>
+
+<p>Thank you for using PhotoRw!</p>
+
+<p>Best regards,<br>
+<strong>The PhotoRw Team</strong></p>
+{% endblock %}

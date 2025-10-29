@@ -1,0 +1,510 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart Pricing Calculator - PhotoRw{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pricing-calculator {
+        background: linear-gradient(135deg, #2D2013 0%, #1a1409 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .calculator-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 3rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .calculator-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .calculator-header h1 {
+        color: #FFD700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .calculator-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: #FFD700;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #FFD700;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    
+    .form-control option {
+        background: #ffffff;
+        color: #000000;
+    }
+    
+    .ai-badge {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .pricing-results {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .suggested-price {
+        font-size: 4rem;
+        font-weight: bold;
+        color: #FFD700;
+        margin: 1rem 0;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    .price-range {
+        color: #cccccc;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .pricing-factors {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .factor-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .factor-card h4 {
+        color: #FFD700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .factor-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .factor-list li {
+        color: #ffffff;
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        background: rgba(255, 215, 0, 0.1);
+        border-radius: 5px;
+        border-left: 3px solid #FFD700;
+    }
+    
+    .market-analysis {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .progress-bar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        height: 15px;
+        margin: 1rem 0;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #FFD700, #FFA500);
+        border-radius: 10px;
+        transition: width 1s ease;
+    }
+    
+    .recommendations {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .recommendation-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .recommendation-list li {
+        background: rgba(255, 215, 0, 0.1);
+        margin: 1rem 0;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #FFD700;
+        color: #ffffff;
+    }
+    
+    .calculate-btn {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #2D2013;
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 25px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .calculate-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    }
+    
+    .results-section {
+        display: none;
+    }
+    
+    .results-section.show {
+        display: block;
+        animation: fadeInUp 0.6s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .calculator-form {
+            grid-template-columns: 1fr;
+        }
+        
+        .pricing-factors {
+            grid-template-columns: 1fr;
+        }
+        
+        .suggested-price {
+            font-size: 2.5rem;
+        }
+        
+        .calculator-container {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pricing-calculator">
+    <div class="container">
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <h1>🤖 Smart Pricing Calculator</h1>
+                <div class="ai-badge">AI-Powered Pricing Intelligence</div>
+                <p style="color: #cccccc;">Get optimal pricing suggestions based on market analysis, experience, and demand</p>
+            </div>
+            
+            <form id="pricingForm" method="post">
+                {% csrf_token %}
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="service_type">Service Type</label>
+                        <select name="service_type" id="service_type" class="form-control" required>
+                            <option value="">Select Service Type</option>
+                            <option value="wedding"{% if form_data.service_type == 'wedding' %} selected{% endif %}>Wedding Photography</option>
+                            <option value="portrait"{% if form_data.service_type == 'portrait' %} selected{% endif %}>Portrait Sessions</option>
+                            <option value="event"{% if form_data.service_type == 'event' %} selected{% endif %}>Event Photography</option>
+                            <option value="commercial"{% if form_data.service_type == 'commercial' %} selected{% endif %}>Commercial Shoots</option>
+                            <option value="fashion"{% if form_data.service_type == 'fashion' %} selected{% endif %}>Fashion Photography</option>
+                            <option value="landscape"{% if form_data.service_type == 'landscape' %} selected{% endif %}>Landscape Photography</option>
+                            <option value="food"{% if form_data.service_type == 'food' %} selected{% endif %}>Food Photography</option>
+                            <option value="sports"{% if form_data.service_type == 'sports' %} selected{% endif %}>Sports Photography</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="duration">Duration (Hours)</label>
+                        <input type="number" name="duration" id="duration" class="form-control" min="1" max="24" value="4" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date">Event Date</label>
+                        <input type="date" name="date" id="date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" name="location" id="location" class="form-control" placeholder="City or venue type" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience_level">Your Experience Level</label>
+                        <select name="experience_level" id="experience_level" class="form-control" required>
+                            <option value="">Select Experience</option>
+                            <option value="beginner">Beginner (0-1 years)</option>
+                            <option value="intermediate">Intermediate (1-3 years)</option>
+                            <option value="advanced">Advanced (3-5 years)</option>
+                            <option value="expert">Expert (5+ years)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editing_included">Editing Included</label>
+                        <select name="editing_included" id="editing_included" class="form-control" required>
+                            <option value="basic">Basic Editing</option>
+                            <option value="standard">Standard Editing</option>
+                            <option value="premium">Premium Editing</option>
+                            <option value="none">No Editing</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="calculate-btn">
+                    💡 Calculate Smart Pricing
+                </button>
+            </form>
+            
+            <!-- Results Section -->
+            <div id="results" class="results-section{% if calculation_results %} show{% endif %}">
+                {% if calculation_results %}
+                <div class="pricing-results">
+                    <h2 style="color: #FFD700; margin-bottom: 1rem;">Recommended Pricing</h2>
+                    <div class="suggested-price" id="suggestedPrice">${{ calculation_results.suggested_price|floatformat:0 }}</div>
+                    <div class="price-range" id="priceRange">Range: ${{ calculation_results.price_range.min|floatformat:0 }} - ${{ calculation_results.price_range.max|floatformat:0 }}</div>
+                    <p style="color: #cccccc;">Based on AI analysis of market data and your profile</p>
+                </div>
+                
+                <div class="pricing-factors">
+                    <div class="factor-card">
+                        <h4>🎯 Pricing Factors</h4>
+                        <ul class="factor-list" id="pricingFactors">
+                            {% for factor in calculation_results.factors_considered %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="factor-card">
+                        <h4>📊 Market Analysis</h4>
+                        <p style="color: #cccccc; margin-bottom: 1rem;">Your competitive position:</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="marketPosition" style="width: {{ calculation_results.market_analysis.position_score }}%"></div>
+                        </div>
+                        <p style="color: #FFD700;" id="marketDescription">{{ calculation_results.market_analysis.description }}</p>
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3 style="color: #FFD700; margin-bottom: 1.5rem;">💡 AI Recommendations</h3>
+                    <ul class="recommendation-list" id="recommendationsList">
+                        {% for recommendation in calculation_results.recommendations %}
+                        <li>{{ recommendation }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% elif error_message %}
+                <div class="error-message" style="color: #ff6b6b; text-align: center; padding: 2rem;">
+                    <h3>⚠️ Error</h3>
+                    <p>{{ error_message }}</p>
+                </div>
+                {% else %}
+                <div class="pricing-results">
+                    <h2 style="color: #FFD700; margin-bottom: 1rem;">Recommended Pricing</h2>
+                    <div class="suggested-price" id="suggestedPrice">$750</div>
+                    <div class="price-range" id="priceRange">Range: $600 - $900</div>
+                    <p style="color: #cccccc;">Based on AI analysis of market data and your profile</p>
+                </div>
+                
+                <div class="pricing-factors">
+                    <div class="factor-card">
+                        <h4>🎯 Pricing Factors</h4>
+                        <ul class="factor-list" id="pricingFactors">
+                            <li>Base wedding rate: $500</li>
+                            <li>Experience level (Advanced): 1.3x</li>
+                            <li>Peak season demand: 1.2x</li>
+                            <li>Duration (6h): 1.1x</li>
+                            <li>Premium location: 1.2x</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="factor-card">
+                        <h4>📊 Market Analysis</h4>
+                        <p style="color: #cccccc; margin-bottom: 1rem;">Your competitive position:</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="marketPosition" style="width: 75%"></div>
+                        </div>
+                        <p style="color: #FFD700;" id="marketDescription">Above average in your market</p>
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3 style="color: #FFD700; margin-bottom: 1.5rem;">💡 AI Recommendations</h3>
+                    <ul class="recommendation-list" id="recommendationsList">
+                        <li>Consider offering package deals for multi-day events</li>
+                        <li>Your pricing is competitive for the premium market segment</li>
+                        <li>Add travel fees for locations over 50 miles away</li>
+                        <li>Consider rush delivery options for 20% premium</li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('pricingForm');
+    const resultsSection = document.getElementById('results');
+    
+    // Set minimum date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    dateInput.value = today;
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        // Show loading state
+        const button = form.querySelector('.calculate-btn');
+        const originalText = button.textContent;
+        button.textContent = '🤖 Analyzing...';
+        button.disabled = true;
+        
+        fetch('{% url "bookings:pricing_calculator" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateResults(data);
+                resultsSection.classList.add('show');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Error calculating pricing. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error calculating pricing. Please try again.');
+        })
+        .finally(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+        });
+    });
+    
+    function updateResults(data) {
+        document.getElementById('suggestedPrice').textContent = `$${data.suggested_price}`;
+        document.getElementById('priceRange').textContent = 
+            `Range: $${data.price_range.min} - $${data.price_range.max}`;
+        
+        // Update pricing factors
+        const factorsList = document.getElementById('pricingFactors');
+        factorsList.innerHTML = '';
+        data.factors_considered.forEach(factor => {
+            const li = document.createElement('li');
+            li.textContent = factor;
+            factorsList.appendChild(li);
+        });
+        
+        // Update market position
+        const marketPosition = document.getElementById('marketPosition');
+        const marketDesc = document.getElementById('marketDescription');
+        
+        marketPosition.style.width = `${data.market_analysis.position_score}%`;
+        marketDesc.textContent = data.market_analysis.description;
+        
+        // Update recommendations
+        const recList = document.getElementById('recommendationsList');
+        recList.innerHTML = '';
+        data.recommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recList.appendChild(li);
+        });
+    }
+    
+    // Animate progress bars when visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const progressBars = entry.target.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 300);
+                });
+            }
+        });
+    });
+    
+    observer.observe(resultsSection);
+});
+</script>
+{% endblock %}

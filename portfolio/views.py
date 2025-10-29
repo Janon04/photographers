@@ -294,16 +294,35 @@ def view_story(request, story_id):
 def upload_story(request):
 	if request.user.role != 'photographer':
 		return redirect('portfolio:feed')
+	
+	# Get all stories for the current user (active and expired)
+	user_stories = Story.objects.filter(photographer=request.user).order_by('-created_at')
+	
+	# Separate active and expired stories
+	from django.utils import timezone
+	from datetime import timedelta
+	time_threshold = timezone.now() - timedelta(hours=24)
+	active_stories = user_stories.filter(created_at__gte=time_threshold)
+	expired_stories = user_stories.filter(created_at__lt=time_threshold)
+	
 	if request.method == 'POST':
 		form = StoryForm(request.POST, request.FILES)
 		if form.is_valid():
 			story = form.save(commit=False)
 			story.photographer = request.user
 			story.save()
-			return redirect('portfolio:feed')
+			messages.success(request, 'Story uploaded successfully!')
+			return redirect('portfolio:upload_story')  # Redirect back to upload page to see new story
 	else:
 		form = StoryForm()
-	return render(request, 'portfolio/upload_story.html', {'form': form})
+	
+	context = {
+		'form': form,
+		'active_stories': active_stories,
+		'expired_stories': expired_stories,
+		'total_stories': user_stories.count(),
+	}
+	return render(request, 'portfolio/upload_story.html', context)
 
 def photographer_list(request):
 	photographers = User.objects.filter(role='photographer')
@@ -377,11 +396,11 @@ def delete_story(request, story_id):
         if request.method == 'POST':
             story.delete()
             messages.success(request, 'Story deleted successfully.')
-            return redirect('portfolio:feed')
+            return redirect('portfolio:upload_story')  # Redirect back to stories management page
         return render(request, 'portfolio/confirm_delete_story.html', {'story': story})
     else:
         messages.error(request, 'You do not have permission to delete this story.')
-        return redirect('portfolio:feed')
+        return redirect('portfolio:upload_story')
 
 def delete_photo(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)

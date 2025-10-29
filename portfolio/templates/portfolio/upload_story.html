@@ -1,19 +1,557 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Add Story | PhotoRw{% endblock %}
+{% block title %}Manage Stories | PhotoRw{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/feed.css' %}">
+<style>
+  .stories-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .story-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    background: #f9f9f9;
+  }
+  
+  .story-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+  }
+  
+  .story-info {
+    flex-grow: 1;
+  }
+  
+  .story-status {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .status-active {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .status-expired {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  .story-date {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .delete-btn:hover {
+    background: #c82333;
+  }
+  
+  .upload-form {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .section-title {
+    color: #c19a6b;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .story-count {
+    background: #c19a6b;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+  
+  .no-stories {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    font-style: italic;
+  }
+  
+  .video-icon {
+    width: 60px;
+    height: 60px;
+    background: #c19a6b;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .file-upload-container {
+    border: 2px dashed #c19a6b;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+  }
+  
+  .file-upload-container:hover {
+    border-color: #a08660;
+    background: #f5f5f5;
+  }
+  
+  .file-upload-button {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+  }
+  
+  .file-upload-button:hover {
+    background: #f8f9fa;
+    border-color: #c19a6b;
+  }
+  
+  .upload-icon {
+    font-size: 2rem;
+    color: #c19a6b;
+    margin-right: 1rem;
+    width: 60px;
+    text-align: center;
+  }
+  
+  .upload-text {
+    flex-grow: 1;
+  }
+  
+  .upload-title {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .upload-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .file-preview {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .file-preview img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .file-name {
+    font-weight: bold;
+    color: #333;
+    flex-grow: 1;
+  }
+  
+  .remove-file {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  
+  .remove-file:hover {
+    background: #c82333;
+  }
+  
+  .submit-button {
+    width: 100%;
+    background: #c19a6b;
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .submit-button:hover:not(:disabled) {
+    background: #a08660;
+    transform: translateY(-1px);
+  }
+  
+  .submit-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+</style>
 {% endblock %}
+
 {% block content %}
-<div class="feed-container" style="max-width:400px;margin-top:3rem;">
-  <h2 style="text-align:center;color:#c19a6b;">Add a Story</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" style="width:100%;background:#c19a6b;color:#fff;padding:0.75rem;border:none;border-radius:0.5rem;font-size:1.1rem;font-weight:bold;">Upload Story</button>
-  </form>
-  <div style="text-align:center;margin-top:1.5rem;">
-    <a href="/portfolio/feed/" style="color:#c19a6b;">Back to Feed</a>
+<div class="feed-container" style="max-width:800px;margin-top:2rem;">
+  
+  <!-- Upload Form Section -->
+  <div class="upload-form">
+    <h2 class="section-title">
+      <i class="fas fa-plus-circle"></i> Add New Story
+    </h2>
+    
+    <div style="background:#f8f9fa;padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;">
+      <p style="margin:0;color:#666;font-size:0.9rem;">
+        <i class="fas fa-info-circle" style="color:#c19a6b;"></i>
+        Upload an image or video to share your story. Stories are visible for 24 hours.
+      </p>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" id="storyForm">
+      {% csrf_token %}
+      
+      <!-- Image Upload Section -->
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;font-weight:bold;color:#333;margin-bottom:0.5rem;">
+          <i class="fas fa-image" style="color:#c19a6b;"></i> Upload Image
+        </label>
+        <div class="file-upload-container">
+          <input type="file" id="id_image" name="image" accept="image/*" style="display:none;" onchange="updateImagePreview(this)">
+          <div class="file-upload-button" onclick="document.getElementById('id_image').click()">
+            <div class="upload-icon">
+              <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="upload-text">
+              <div class="upload-title">Choose Image</div>
+              <div class="upload-subtitle">JPG, PNG, GIF up to 10MB</div>
+            </div>
+          </div>
+          <div id="imagePreview" class="file-preview" style="display:none;">
+            <img id="imagePreviewImg" src="" alt="Preview">
+            <div class="file-info">
+              <div id="imageFileName" class="file-name"></div>
+              <button type="button" class="remove-file" onclick="clearImagePreview()">
+                <i class="fas fa-times"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- OR Divider -->
+      <div style="text-align:center;margin:1.5rem 0;position:relative;">
+        <div style="height:1px;background:#e0e0e0;"></div>
+        <span style="background:white;padding:0 1rem;color:#666;font-weight:bold;position:absolute;top:-0.5rem;left:50%;transform:translateX(-50%);">OR</span>
+      </div>
+      
+      <!-- Video Upload Section -->
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;font-weight:bold;color:#333;margin-bottom:0.5rem;">
+          <i class="fas fa-video" style="color:#c19a6b;"></i> Upload Video
+        </label>
+        <div class="file-upload-container">
+          <input type="file" id="id_video" name="video" accept="video/*" style="display:none;" onchange="updateVideoPreview(this)">
+          <div class="file-upload-button" onclick="document.getElementById('id_video').click()">
+            <div class="upload-icon">
+              <i class="fas fa-video"></i>
+            </div>
+            <div class="upload-text">
+              <div class="upload-title">Choose Video</div>
+              <div class="upload-subtitle">MP4, MOV, AVI up to 50MB</div>
+            </div>
+          </div>
+          <div id="videoPreview" class="file-preview" style="display:none;">
+            <video id="videoPreviewPlayer" controls style="max-width:100%;height:200px;border-radius:0.5rem;">
+              <source id="videoPreviewSource" src="" type="video/mp4">
+            </video>
+            <div class="file-info">
+              <div id="videoFileName" class="file-name"></div>
+              <button type="button" class="remove-file" onclick="clearVideoPreview()">
+                <i class="fas fa-times"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" class="submit-button" id="submitBtn" disabled>
+        <i class="fas fa-upload"></i> Upload Story
+      </button>
+      
+      <div style="text-align:center;margin-top:1rem;">
+        <small style="color:#666;">
+          <i class="fas fa-shield-alt"></i>
+          Your story will be visible to all users for 24 hours
+        </small>
+      </div>
+    </form>
+  </div>
+
+  <!-- Active Stories Section -->
+  <div class="stories-section">
+    <h3 class="section-title">
+      <i class="fas fa-clock"></i> Active Stories (24h)
+      <span class="story-count">{{ active_stories.count }}</span>
+    </h3>
+    
+    {% if active_stories %}
+      {% for story in active_stories %}
+        <div class="story-item">
+          {% if story.image %}
+            <img src="{{ story.image.url }}" alt="Story" class="story-image">
+          {% elif story.video %}
+            <div class="video-icon">
+              <i class="fas fa-play"></i>
+            </div>
+          {% else %}
+            <div class="video-icon">
+              <i class="fas fa-image"></i>
+            </div>
+          {% endif %}
+          
+          <div class="story-info">
+            <div class="story-status status-active">
+              <i class="fas fa-circle"></i> ACTIVE
+            </div>
+            <div class="story-date">
+              Posted {{ story.created_at|timesince }} ago
+            </div>
+            {% if story.video %}
+              <small style="color:#c19a6b;"><i class="fas fa-video"></i> Video Story</small>
+            {% else %}
+              <small style="color:#c19a6b;"><i class="fas fa-image"></i> Image Story</small>
+            {% endif %}
+          </div>
+          
+          <form method="post" action="{% url 'portfolio:delete_story' story.id %}" style="display:inline;" 
+                onsubmit="return confirm('Are you sure you want to delete this story? This action cannot be undone.')">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-stories">
+        <i class="fas fa-clock" style="font-size:2rem;color:#ccc;margin-bottom:1rem;"></i>
+        <p>No active stories. Stories expire after 24 hours.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Expired Stories Section -->
+  {% if expired_stories %}
+  <div class="stories-section">
+    <h3 class="section-title">
+      <i class="fas fa-history"></i> Expired Stories
+      <span class="story-count">{{ expired_stories.count }}</span>
+    </h3>
+    
+    {% for story in expired_stories %}
+      <div class="story-item" style="opacity:0.7;">
+        {% if story.image %}
+          <img src="{{ story.image.url }}" alt="Story" class="story-image">
+        {% elif story.video %}
+          <div class="video-icon">
+            <i class="fas fa-play"></i>
+          </div>
+        {% else %}
+          <div class="video-icon">
+            <i class="fas fa-image"></i>
+          </div>
+        {% endif %}
+        
+        <div class="story-info">
+          <div class="story-status status-expired">
+            <i class="fas fa-times-circle"></i> EXPIRED
+          </div>
+          <div class="story-date">
+            Posted {{ story.created_at|date:"M d, Y \a\t H:i" }}
+          </div>
+          {% if story.video %}
+            <small style="color:#666;"><i class="fas fa-video"></i> Video Story</small>
+          {% else %}
+            <small style="color:#666;"><i class="fas fa-image"></i> Image Story</small>
+          {% endif %}
+        </div>
+        
+        <form method="post" action="{% url 'portfolio:delete_story' story.id %}" style="display:inline;" 
+              onsubmit="return confirm('Are you sure you want to delete this story? This action cannot be undone.')">
+          {% csrf_token %}
+          <button type="submit" class="delete-btn">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Statistics -->
+  <div class="stories-section">
+    <h3 class="section-title">
+      <i class="fas fa-chart-bar"></i> Story Statistics
+    </h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;">
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:0.5rem;">
+        <div style="font-size:2rem;color:#c19a6b;font-weight:bold;">{{ total_stories }}</div>
+        <div style="color:#666;">Total Stories</div>
+      </div>
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:0.5rem;">
+        <div style="font-size:2rem;color:#28a745;font-weight:bold;">{{ active_stories.count }}</div>
+        <div style="color:#666;">Active Now</div>
+      </div>
+      <div style="text-align:center;padding:1rem;background:#f8f9fa;border-radius:0.5rem;">
+        <div style="font-size:2rem;color:#dc3545;font-weight:bold;">{{ expired_stories.count }}</div>
+        <div style="color:#666;">Expired</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div style="text-align:center;margin-top:2rem;">
+    <a href="/portfolio/feed/" style="color:#c19a6b;text-decoration:none;margin-right:2rem;">
+      <i class="fas fa-stream"></i> Back to Feed
+    </a>
+    <a href="/portfolio/dashboard/" style="color:#c19a6b;text-decoration:none;">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateImagePreview(input) {
+  const file = input.files[0];
+  if (file) {
+    // Clear video selection
+    document.getElementById('id_video').value = '';
+    clearVideoPreview();
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('imagePreviewImg').src = e.target.result;
+      document.getElementById('imageFileName').textContent = file.name;
+      document.getElementById('imagePreview').style.display = 'block';
+      updateSubmitButton();
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function updateVideoPreview(input) {
+  const file = input.files[0];
+  if (file) {
+    // Clear image selection
+    document.getElementById('id_image').value = '';
+    clearImagePreview();
+    
+    const url = URL.createObjectURL(file);
+    document.getElementById('videoPreviewSource').src = url;
+    document.getElementById('videoPreviewPlayer').load();
+    document.getElementById('videoFileName').textContent = file.name;
+    document.getElementById('videoPreview').style.display = 'block';
+    updateSubmitButton();
+  }
+}
+
+function clearImagePreview() {
+  document.getElementById('id_image').value = '';
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('imagePreviewImg').src = '';
+  updateSubmitButton();
+}
+
+function clearVideoPreview() {
+  document.getElementById('id_video').value = '';
+  document.getElementById('videoPreview').style.display = 'none';
+  document.getElementById('videoPreviewSource').src = '';
+  updateSubmitButton();
+}
+
+function updateSubmitButton() {
+  const hasImage = document.getElementById('id_image').files.length > 0;
+  const hasVideo = document.getElementById('id_video').files.length > 0;
+  const submitBtn = document.getElementById('submitBtn');
+  
+  if (hasImage || hasVideo) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = hasImage ? '<i class="fas fa-image"></i> Upload Image Story' : '<i class="fas fa-video"></i> Upload Video Story';
+  } else {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Story';
+  }
+}
+
+// Form validation
+document.getElementById('storyForm').addEventListener('submit', function(e) {
+  const hasImage = document.getElementById('id_image').files.length > 0;
+  const hasVideo = document.getElementById('id_video').files.length > 0;
+  
+  if (!hasImage && !hasVideo) {
+    e.preventDefault();
+    alert('Please select either an image or video to upload.');
+    return false;
+  }
+  
+  if (hasImage && hasVideo) {
+    e.preventDefault();
+    alert('Please select only one file - either an image OR a video, not both.');
+    return false;
+  }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateSubmitButton();
+});
+</script>
 {% endblock %}

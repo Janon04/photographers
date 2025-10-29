@@ -4925,3 +4925,201 @@ INFO 2025-10-29 19:11:09,381 basehttp 13452 28348 "GET /media/stories/videos/Scr
 INFO 2025-10-29 19:11:21,317 basehttp 13452 28348 - Broken pipe from ('127.0.0.1', 62265)
 INFO 2025-10-29 19:11:35,977 autoreload 13452 22348 C:\Users\user\Desktop\All Folders\Photographers\portfolio\views.py changed, reloading.
 INFO 2025-10-29 19:11:40,034 autoreload 15936 20176 Watching for file changes with StatReloader
+INFO 2025-10-29 19:22:26,160 autoreload 27100 19292 Watching for file changes with StatReloader
+INFO 2025-10-29 19:22:39,671 basehttp 27100 16788 "GET / HTTP/1.1" 200 38641
+INFO 2025-10-29 19:22:39,805 basehttp 27100 5244 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:39,813 basehttp 27100 16788 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:39,829 basehttp 27100 25308 "GET /media/portfolio_photos/janonix_Profile_pic_logo_chocolate.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:45,055 basehttp 27100 25308 "GET /portfolio/dashboard/ HTTP/1.1" 200 35577
+INFO 2025-10-29 19:22:45,398 basehttp 27100 25308 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:45,417 basehttp 27100 16788 "GET /media/stories/Homepage_of_platform.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:45,399 basehttp 27100 5244 "GET /media/stories/Copa_3Z88bOM.Rw.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:45,430 basehttp 27100 19228 "GET /media/stories/Copa_mRaGJ4y.Rw.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:22:52,924 basehttp 27100 26524 "GET /portfolio/stories/upload/ HTTP/1.1" 200 17558
+INFO 2025-10-29 19:23:10,922 basehttp 27100 29000 "GET /explore/ HTTP/1.1" 200 56247
+INFO 2025-10-29 19:23:11,048 basehttp 27100 6876 "GET /media/event_photos/Cooffee_2.webp HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,057 basehttp 27100 29000 "GET /media/stories/Copa_nT14IhW.Rw.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,075 basehttp 27100 29268 "GET /media/stories/Copa.Rw.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,075 basehttp 27100 7400 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,103 basehttp 27100 29000 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043_sWY2DYP.mp4 HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,105 basehttp 27100 6876 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043_kLtBSsC.mp4 HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,178 basehttp 27100 7400 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043.mp4 HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:11,178 basehttp 27100 5172 "GET /media/stories/Copa_MFN0zDk.Rw.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:23:17,335 basehttp 27100 13516 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+WARNING 2025-10-29 19:23:17,511 log 27100 6752 Not Found: /favicon.ico
+WARNING 2025-10-29 19:23:17,521 basehttp 27100 6752 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:23:26,016 basehttp 27100 29072 "GET /feed/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:23:26,190 basehttp 27100 29072 "GET /portfolio/feed/ HTTP/1.1" 200 54459
+INFO 2025-10-29 19:23:26,248 basehttp 27100 13516 - Broken pipe from ('127.0.0.1', 52681)
+INFO 2025-10-29 19:23:32,252 basehttp 27100 29072 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:23:34,144 basehttp 27100 6420 "GET /bookings/photographer/ HTTP/1.1" 200 19183
+INFO 2025-10-29 19:23:34,177 basehttp 27100 29072 - Broken pipe from ('127.0.0.1', 61688)
+INFO 2025-10-29 19:23:37,802 basehttp 27100 28284 "GET /explore/ HTTP/1.1" 200 56247
+INFO 2025-10-29 19:23:43,201 basehttp 27100 2452 "GET /portfolio/photographer/10/ HTTP/1.1" 200 22135
+INFO 2025-10-29 19:23:43,581 basehttp 27100 28284 - Broken pipe from ('127.0.0.1', 61200)
+INFO 2025-10-29 19:23:54,123 basehttp 27100 8224 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:23:55,750 basehttp 27100 22732 "GET /explore/ HTTP/1.1" 200 56247
+INFO 2025-10-29 19:23:55,768 basehttp 27100 8224 - Broken pipe from ('127.0.0.1', 59646)
+INFO 2025-10-29 19:23:58,273 basehttp 27100 26184 "GET /explore/ HTTP/1.1" 200 56247
+INFO 2025-10-29 19:23:58,430 basehttp 27100 22732 - Broken pipe from ('127.0.0.1', 56799)
+INFO 2025-10-29 19:24:00,758 basehttp 27100 28324 "GET /portfolio/ HTTP/1.1" 200 19652
+INFO 2025-10-29 19:24:00,979 basehttp 27100 26184 - Broken pipe from ('127.0.0.1', 64611)
+INFO 2025-10-29 19:24:48,567 basehttp 27100 28324 "POST /users/logout/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:24:48,640 basehttp 27100 28324 "GET / HTTP/1.1" 200 36408
+INFO 2025-10-29 19:24:48,784 basehttp 27100 28324 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:24:55,849 basehttp 27100 29348 "POST /portfolio/like_photo/ HTTP/1.1" 200 44
+INFO 2025-10-29 19:24:58,691 basehttp 27100 29348 "POST /portfolio/like_photo/ HTTP/1.1" 200 44
+INFO 2025-10-29 19:25:01,045 basehttp 27100 29348 "POST /portfolio/dislike_photo/ HTTP/1.1" 200 44
+INFO 2025-10-29 19:25:08,921 basehttp 27100 29348 "POST /portfolio/like_photo/ HTTP/1.1" 200 44
+WARNING 2025-10-29 19:25:26,090 log 27100 29348 Not Found: /event
+WARNING 2025-10-29 19:25:26,098 basehttp 27100 29348 "GET /event HTTP/1.1" 404 5027
+INFO 2025-10-29 19:25:32,944 basehttp 27100 29348 "GET / HTTP/1.1" 200 36408
+INFO 2025-10-29 19:25:33,025 basehttp 27100 29348 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:25:35,814 basehttp 27100 29348 "GET /users/login/ HTTP/1.1" 200 16721
+INFO 2025-10-29 19:25:55,536 basehttp 27100 14656 "POST /users/login/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:25:55,661 basehttp 27100 14656 "GET /portfolio/feed/ HTTP/1.1" 200 54459
+INFO 2025-10-29 19:25:55,786 basehttp 27100 8772 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043_sWY2DYP.mp4 HTTP/1.1" 304 0
+INFO 2025-10-29 19:25:55,787 basehttp 27100 14656 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:25:55,898 basehttp 27100 15532 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 200 190645
+INFO 2025-10-29 19:26:04,792 basehttp 27100 15620 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:26:14,998 basehttp 27100 15620 - Broken pipe from ('127.0.0.1', 56568)
+INFO 2025-10-29 19:26:20,617 basehttp 27100 29176 "GET /feed/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:26:20,752 basehttp 27100 29176 "GET /portfolio/feed/ HTTP/1.1" 200 54459
+INFO 2025-10-29 19:26:20,890 basehttp 27100 29176 "GET /media/stories/Homepage_of_platform.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:26:20,911 basehttp 27100 20892 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:26:24,924 basehttp 27100 22968 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:26:31,992 basehttp 27100 21240 "GET /portfolio/dashboard/ HTTP/1.1" 200 35577
+INFO 2025-10-29 19:26:32,029 basehttp 27100 22968 - Broken pipe from ('127.0.0.1', 50879)
+WARNING 2025-10-29 19:26:43,926 log 27100 28792 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:26:43,932 basehttp 27100 28792 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:26:45,490 log 27100 28792 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:26:45,494 basehttp 27100 28792 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:26:47,086 log 27100 8516 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:26:47,093 basehttp 27100 8516 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:26:48,915 log 27100 8516 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:26:48,915 basehttp 27100 8516 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:26:57,240 log 27100 18464 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:26:57,240 basehttp 27100 18464 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:26:59,475 log 27100 18464 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/dislike_photo/
+WARNING 2025-10-29 19:26:59,480 basehttp 27100 18464 "POST /portfolio/dislike_photo/ HTTP/1.1" 403 2538
+WARNING 2025-10-29 19:27:00,649 log 27100 18464 Forbidden (CSRF token from the 'X-Csrftoken' HTTP header incorrect.): /portfolio/like_photo/
+WARNING 2025-10-29 19:27:00,653 basehttp 27100 18464 "POST /portfolio/like_photo/ HTTP/1.1" 403 2538
+INFO 2025-10-29 19:27:04,848 basehttp 27100 18464 "GET / HTTP/1.1" 200 38641
+INFO 2025-10-29 19:27:04,890 basehttp 27100 18464 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:27:21,357 basehttp 27100 8940 "POST /portfolio/like_photo/ HTTP/1.1" 200 44
+INFO 2025-10-29 19:27:27,672 basehttp 27100 340 "POST /portfolio/like_photo/ HTTP/1.1" 200 44
+INFO 2025-10-29 19:27:38,415 basehttp 27100 7076 "GET /portfolio/dashboard/ HTTP/1.1" 200 35577
+INFO 2025-10-29 19:27:38,455 basehttp 27100 7076 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:27:40,973 basehttp 27100 7076 "GET /portfolio/stories/upload/ HTTP/1.1" 200 17558
+INFO 2025-10-29 19:27:46,772 basehttp 27100 27532 "GET /feed/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:27:46,913 basehttp 27100 27532 "GET /portfolio/feed/ HTTP/1.1" 200 54459
+INFO 2025-10-29 19:27:47,046 basehttp 27100 27532 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:27:51,206 basehttp 27100 16896 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:27:55,246 basehttp 27100 27532 "GET /portfolio/dashboard/ HTTP/1.1" 200 35577
+INFO 2025-10-29 19:27:55,301 basehttp 27100 16896 - Broken pipe from ('127.0.0.1', 56871)
+INFO 2025-10-29 19:28:05,218 basehttp 27100 25872 "GET /portfolio/upload/ HTTP/1.1" 200 19779
+INFO 2025-10-29 19:28:11,040 basehttp 27100 25872 "GET /portfolio/stories/upload/ HTTP/1.1" 200 17558
+INFO 2025-10-29 19:32:29,293 autoreload 26140 26484 Watching for file changes with StatReloader
+INFO 2025-10-29 19:40:46,501 autoreload 13380 6240 Watching for file changes with StatReloader
+INFO 2025-10-29 19:42:42,716 autoreload 21228 28096 Watching for file changes with StatReloader
+INFO 2025-10-29 19:45:32,135 autoreload 21360 26012 Watching for file changes with StatReloader
+INFO 2025-10-29 19:45:38,979 basehttp 21360 676 "GET /portfolio/stories/upload/ HTTP/1.1" 200 34245
+INFO 2025-10-29 19:45:39,912 basehttp 21360 12248 "GET /media/stories/Copa_MFN0zDk.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:45:39,914 basehttp 21360 676 "GET /static/css/feed.css HTTP/1.1" 200 3016
+INFO 2025-10-29 19:45:40,267 basehttp 21360 676 "GET /media/stories/Copa.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:45:40,269 basehttp 21360 12248 "GET /media/stories/Copa_nT14IhW.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:45:41,499 basehttp 21360 12248 "GET /media/stories/221010269.jpg HTTP/1.1" 200 26092
+INFO 2025-10-29 19:45:43,196 basehttp 21360 4044 "GET /media/stories/Homepage_of_platform.png HTTP/1.1" 200 199861
+INFO 2025-10-29 19:45:43,307 basehttp 21360 28680 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 200 199861
+INFO 2025-10-29 19:45:43,421 basehttp 21360 29072 "GET /media/stories/Copa_3Z88bOM.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:45:43,553 basehttp 21360 27912 "GET /media/stories/Copa_mRaGJ4y.Rw.png HTTP/1.1" 200 5299
+WARNING 2025-10-29 19:45:43,611 log 21360 27912 Not Found: /favicon.ico
+WARNING 2025-10-29 19:45:43,611 basehttp 21360 27912 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:45:55,292 basehttp 21360 27912 "POST /portfolio/story/21/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:45:55,366 basehttp 21360 27912 "GET /portfolio/stories/upload/ HTTP/1.1" 200 33555
+INFO 2025-10-29 19:46:01,078 basehttp 21360 24784 "POST /portfolio/story/20/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:46:01,145 basehttp 21360 24784 "GET /portfolio/stories/upload/ HTTP/1.1" 200 32479
+INFO 2025-10-29 19:46:41,407 basehttp 21360 22228 "POST /portfolio/story/12/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:46:41,487 basehttp 21360 22228 "GET /portfolio/stories/upload/ HTTP/1.1" 200 31394
+INFO 2025-10-29 19:46:48,241 basehttp 21360 26980 "POST /portfolio/story/14/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:46:48,309 basehttp 21360 26980 "GET /portfolio/stories/upload/ HTTP/1.1" 200 30317
+INFO 2025-10-29 19:46:55,895 basehttp 21360 26980 "POST /portfolio/story/18/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:46:55,965 basehttp 21360 26980 "GET /portfolio/stories/upload/ HTTP/1.1" 200 29245
+INFO 2025-10-29 19:47:01,743 basehttp 21360 28360 "POST /portfolio/story/15/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:47:01,985 basehttp 21360 28360 "GET /portfolio/stories/upload/ HTTP/1.1" 200 28168
+INFO 2025-10-29 19:47:09,496 basehttp 21360 28276 "POST /portfolio/story/13/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:47:09,570 basehttp 21360 28276 "GET /portfolio/stories/upload/ HTTP/1.1" 200 27099
+INFO 2025-10-29 19:47:15,121 basehttp 21360 28276 "GET /feed/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:47:15,253 basehttp 21360 28276 "GET /portfolio/feed/ HTTP/1.1" 200 50563
+INFO 2025-10-29 19:47:15,340 basehttp 21360 28276 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:47:15,355 basehttp 21360 5892 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:47:15,538 basehttp 21360 19988 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:47:15,542 basehttp 21360 5892 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043.mp4 HTTP/1.1" 304 0
+INFO 2025-10-29 19:47:32,073 basehttp 21360 19308 "GET /explore/ HTTP/1.1" 200 52065
+INFO 2025-10-29 19:47:32,253 basehttp 21360 19308 "GET /media/event_photos/Cooffee_2.webp HTTP/1.1" 304 0
+INFO 2025-10-29 19:47:34,463 basehttp 21360 19308 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043.mp4 HTTP/1.1" 200 38175406
+INFO 2025-10-29 19:47:35,140 basehttp 21360 19308 - Broken pipe from ('127.0.0.1', 52209)
+INFO 2025-10-29 19:47:41,542 basehttp 21360 18344 "GET /portfolio/ HTTP/1.1" 200 19652
+INFO 2025-10-29 19:47:44,053 basehttp 21360 18344 "GET /reviews/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:47:44,479 basehttp 21360 18344 "GET /reviews/all/ HTTP/1.1" 200 17336
+INFO 2025-10-29 19:47:47,820 basehttp 21360 18344 "GET /payments/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:47:47,890 basehttp 21360 18344 "GET /payments/earnings/ HTTP/1.1" 200 17126
+INFO 2025-10-29 19:47:54,640 basehttp 21360 3248 "GET /explore/ HTTP/1.1" 200 52065
+INFO 2025-10-29 19:47:56,581 basehttp 21360 3248 "GET /media/stories/videos/Screen_Recording_2024-08-03_150043.mp4 HTTP/1.1" 200 38175406
+INFO 2025-10-29 19:48:04,540 basehttp 21360 14748 "GET /feed/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:48:04,684 basehttp 21360 14748 "GET /portfolio/feed/ HTTP/1.1" 200 50563
+INFO 2025-10-29 19:48:15,730 basehttp 21360 22032 "GET / HTTP/1.1" 200 38641
+INFO 2025-10-29 19:48:15,807 basehttp 21360 20900 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:48:15,810 basehttp 21360 22032 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:48:20,701 basehttp 21360 24280 "GET /explore/ HTTP/1.1" 200 52065
+WARNING 2025-10-29 19:48:25,355 log 21360 24280 Not Found: /favicon.ico
+WARNING 2025-10-29 19:48:25,366 basehttp 21360 24280 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:48:30,302 basehttp 21360 29396 "GET /portfolio/dashboard/ HTTP/1.1" 200 35143
+INFO 2025-10-29 19:49:16,035 basehttp 21360 23212 "GET /portfolio/stories/upload/ HTTP/1.1" 200 26715
+INFO 2025-10-29 19:51:17,014 autoreload 21360 26012 C:\Users\user\Desktop\All Folders\Photographers\portfolio\views.py changed, reloading.
+INFO 2025-10-29 19:51:20,910 autoreload 25796 17820 Watching for file changes with StatReloader
+INFO 2025-10-29 19:52:52,319 basehttp 25796 24820 "GET /portfolio/stories/upload/ HTTP/1.1" 200 30089
+INFO 2025-10-29 19:52:54,256 basehttp 25796 24820 "GET /static/css/feed.css HTTP/1.1" 200 3016
+INFO 2025-10-29 19:52:55,441 basehttp 25796 28712 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 200 199861
+INFO 2025-10-29 19:52:55,478 basehttp 25796 14308 "GET /media/stories/Copa_3Z88bOM.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:52:55,511 basehttp 25796 17904 "GET /media/stories/Copa_mRaGJ4y.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:52:55,517 basehttp 25796 28084 "GET /media/stories/221010269.jpg HTTP/1.1" 200 26092
+WARNING 2025-10-29 19:52:55,591 log 25796 28084 Not Found: /favicon.ico
+WARNING 2025-10-29 19:52:55,595 basehttp 25796 28084 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:55:13,525 autoreload 24104 24736 Watching for file changes with StatReloader
+INFO 2025-10-29 19:55:48,234 basehttp 25796 4588 "GET /portfolio/stories/upload/ HTTP/1.1" 200 32175
+INFO 2025-10-29 19:55:48,321 basehttp 25796 4588 "GET /static/css/feed.css HTTP/1.1" 200 3016
+INFO 2025-10-29 19:55:48,330 basehttp 25796 29364 "GET /media/stories/Copa_3Z88bOM.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:55:48,337 basehttp 25796 4588 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 200 199861
+INFO 2025-10-29 19:55:48,339 basehttp 25796 29364 "GET /media/stories/Copa_mRaGJ4y.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:55:48,348 basehttp 25796 4588 "GET /media/stories/221010269.jpg HTTP/1.1" 200 26092
+WARNING 2025-10-29 19:55:50,042 log 25796 4588 Not Found: /favicon.ico
+WARNING 2025-10-29 19:55:50,045 basehttp 25796 4588 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:58:30,514 autoreload 14620 28972 Watching for file changes with StatReloader
+INFO 2025-10-29 19:58:36,103 basehttp 25796 6480 "GET /portfolio/stories/upload/ HTTP/1.1" 200 34966
+INFO 2025-10-29 19:58:36,188 basehttp 25796 6480 "GET /static/css/feed.css HTTP/1.1" 200 3016
+INFO 2025-10-29 19:58:36,198 basehttp 25796 27204 "GET /media/stories/Copa_3Z88bOM.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:58:36,200 basehttp 25796 6480 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 200 199861
+INFO 2025-10-29 19:58:36,215 basehttp 25796 6480 "GET /media/stories/Copa_mRaGJ4y.Rw.png HTTP/1.1" 200 5299
+INFO 2025-10-29 19:58:36,216 basehttp 25796 27204 "GET /media/stories/221010269.jpg HTTP/1.1" 200 26092
+WARNING 2025-10-29 19:58:40,020 log 25796 25248 Not Found: /favicon.ico
+WARNING 2025-10-29 19:58:40,033 basehttp 25796 25248 "GET /favicon.ico HTTP/1.1" 404 5045
+INFO 2025-10-29 19:59:01,988 basehttp 25796 24944 "POST /portfolio/stories/upload/ HTTP/1.1" 302 0
+INFO 2025-10-29 19:59:02,030 basehttp 25796 24944 "GET /portfolio/stories/upload/ HTTP/1.1" 200 36424
+INFO 2025-10-29 19:59:25,840 basehttp 25796 19724 "GET /portfolio/feed/ HTTP/1.1" 200 51221
+INFO 2025-10-29 19:59:25,918 basehttp 25796 19724 "GET /media/stories/Homepage_of_platform_GTmEfrF.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:59:25,938 basehttp 25796 8744 "GET /media/portfolio_photos/p1.png HTTP/1.1" 304 0
+INFO 2025-10-29 19:59:25,941 basehttp 25796 24732 "GET /media/portfolio_photos/Neza_chillllll.jpg HTTP/1.1" 304 0
+INFO 2025-10-29 19:59:25,971 basehttp 25796 19724 "GET /media/profile_pics/Screenshot_2025-07-19_231731.png HTTP/1.1" 200 190645
+INFO 2025-10-29 19:59:27,949 basehttp 25796 19724 "GET /media/stories/videos/Screen_Recording_2025-01-13_150127_jWnssJb.mp4 HTTP/1.1" 200 150650279
+INFO 2025-10-29 19:59:41,099 basehttp 25796 28260 - Broken pipe from ('127.0.0.1', 62706)
+INFO 2025-10-29 20:00:01,387 basehttp 25796 4764 "POST /portfolio/stories/upload/ HTTP/1.1" 302 0
+INFO 2025-10-29 20:00:01,422 basehttp 25796 4764 "GET /portfolio/stories/upload/ HTTP/1.1" 200 37476
+INFO 2025-10-29 20:00:01,464 basehttp 25796 4764 "GET /media/stories/2.png HTTP/1.1" 200 327531
+INFO 2025-10-29 20:00:43,565 basehttp 25796 12540 "GET /portfolio/stories/upload/ HTTP/1.1" 200 37090
+INFO 2025-10-29 20:00:43,612 basehttp 25796 12540 "GET /media/stories/2.png HTTP/1.1" 304 0
+INFO 2025-10-29 20:00:50,326 basehttp 25796 17872 "POST /portfolio/story/22/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 20:00:50,343 basehttp 25796 17872 "GET /portfolio/stories/upload/ HTTP/1.1" 200 36402
+INFO 2025-10-29 20:00:50,401 basehttp 25796 17872 "GET /media/stories/2.png HTTP/1.1" 304 0
+INFO 2025-10-29 20:00:56,195 basehttp 25796 17872 "POST /portfolio/story/23/delete/ HTTP/1.1" 302 0
+INFO 2025-10-29 20:00:56,241 basehttp 25796 17872 "GET /portfolio/stories/upload/ HTTP/1.1" 200 35350

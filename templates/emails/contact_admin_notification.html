@@ -1,0 +1,46 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>New Contact Form Submission - PhotoRw 📞</h2>
+
+<p>Hello <strong>PhotoRw Team</strong>,</p>
+
+<div class="info-box" style="border-left-color: #17a2b8; background-color: #f8fcff;">
+    <p><strong>📬 New Message Received!</strong></p>
+    <p>A visitor has submitted a message through the contact form on your website.</p>
+</div>
+
+<h3>Contact Details:</h3>
+<ul>
+    <li><strong>Name:</strong> {{ contact_name }}</li>
+    <li><strong>Email:</strong> <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>
+    <li><strong>Submitted:</strong> {{ submitted_at|date:"F d, Y" }} at {{ submitted_at|time:"g:i A" }}</li>
+    <li><strong>Message ID:</strong> #{{ message_id }}</li>
+</ul>
+
+<h3>Message:</h3>
+<div class="info-box">
+    <p style="font-style: italic; margin: 0; white-space: pre-line;">{{ message_content }}</p>
+</div>
+
+<h3>Quick Actions:</h3>
+<div style="text-align: center; margin: 30px 0;">
+    <a href="mailto:{{ contact_email }}?subject=Re: Your inquiry to PhotoRw&body=Dear {{ contact_name }},%0A%0AThank you for contacting PhotoRw.%0A%0A" class="btn">Reply to {{ contact_name }}</a>
+</div>
+
+<div class="info-box">
+    <p><strong>💡 Tip:</strong> Respond within 24 hours to maintain excellent customer service and build trust with potential clients.</p>
+</div>
+
+<h3>Response Guidelines:</h3>
+<ul>
+    <li>✅ Acknowledge their inquiry promptly</li>
+    <li>✅ Provide specific information they requested</li>
+    <li>✅ Include relevant portfolio links if applicable</li>
+    <li>✅ Offer to schedule a consultation call</li>
+    <li>✅ Be professional and friendly in your tone</li>
+</ul>
+
+<p>Best regards,<br>
+<strong>PhotoRw System</strong></p>
+{% endblock %}

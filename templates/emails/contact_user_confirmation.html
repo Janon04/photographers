@@ -1,0 +1,63 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>Thank You for Contacting PhotoRw! 🙏</h2>
+
+<p>Hello <strong>{{ contact_name }}</strong>,</p>
+
+<div class="info-box" style="border-left-color: #28a745; background-color: #f8fff9;">
+    <p><strong>✅ Message Received!</strong></p>
+    <p>Thank you for reaching out to PhotoRw. We have received your message and will get back to you soon.</p>
+</div>
+
+<h3>Your Message Summary:</h3>
+<ul>
+    <li><strong>Submitted:</strong> {{ submitted_at|date:"F d, Y" }} at {{ submitted_at|time:"g:i A" }}</li>
+    <li><strong>Reference ID:</strong> #{{ message_id }}</li>
+    <li><strong>Contact Email:</strong> {{ contact_email }}</li>
+</ul>
+
+<h3>Your Message:</h3>
+<div class="info-box">
+    <p style="font-style: italic; margin: 0; white-space: pre-line;">{{ message_content }}</p>
+</div>
+
+<h3>What Happens Next? 🚀</h3>
+<ul>
+    <li>📧 Our team will review your message carefully</li>
+    <li>⏰ We typically respond within 24-48 hours</li>
+    <li>📞 For urgent inquiries, you can call us at +250 786 003 139</li>
+    <li>💬 We'll send our response to: <strong>{{ contact_email }}</strong></li>
+</ul>
+
+<h3>While You Wait...</h3>
+<p>Feel free to explore more of what PhotoRw has to offer:</p>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/explore/" class="btn" style="margin: 5px;">Explore Photographers</a>
+    <a href="{{ site_url }}/portfolio/" class="btn" style="margin: 5px;">View Portfolios</a>
+</div>
+
+<div class="info-box" style="border-left-color: #ffc107; background-color: #fffcf5;">
+    <p><strong>🌟 Did You Know?</strong></p>
+    <p>PhotoRw connects you with Rwanda's most talented photographers for all your special moments - from weddings and events to professional portraits and commercial photography.</p>
+</div>
+
+<h3>Follow Us:</h3>
+<p>Stay updated with the latest from Rwanda's photography community:</p>
+<div class="social-links" style="text-align: center;">
+    <a href="#" style="margin: 0 10px;">📘 Facebook</a>
+    <a href="#" style="margin: 0 10px;">📸 Instagram</a>
+    <a href="#" style="margin: 0 10px;">🐦 Twitter</a>
+</div>
+
+<div class="info-box">
+    <p><strong>Need Immediate Help?</strong> Contact us at <a href="mailto:janon3030@gmail.com">janon3030@gmail.com</a> or call +250 786 003 139</p>
+</div>
+
+<p>Thank you for choosing PhotoRw!</p>
+
+<p>Best regards,<br>
+<strong>The PhotoRw Team</strong><br>
+<em>Empowering Rwanda's Creative Community</em></p>
+{% endblock %}

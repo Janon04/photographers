@@ -51,7 +51,11 @@
     {% for story in stories %}
       <div style="flex:0 0 110px;text-align:center;">
         <div style="width:100px;height:100px;border-radius:50%;border:3px solid #ffd700;overflow:hidden;box-shadow:0 2px 8px rgba(199,161,122,0.13);margin:0 auto 0.5rem auto;background:#fffbe6;display:flex;align-items:center;justify-content:center;">
-          <img src="{{ story.image.url }}" alt="Story" style="width:100%;height:100%;object-fit:cover;">
+          {% if story.image %}
+            <img src="{{ story.image.url }}" alt="Story" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <i class="fas fa-image" style="font-size:2rem;color:#a67c52;"></i>
+          {% endif %}
         </div>
         <div style="font-size:0.97rem;color:#a67c52;font-weight:600;">Story</div>
       </div>
@@ -206,7 +210,13 @@ window.onclick = function(event) {
           {% if not photo.is_approved %}
             <div style="background:#ff9800;color:#fff;padding:0.2rem 0.5rem;border-radius:0.5rem;font-size:0.8rem;font-weight:600;position:absolute;top:0.5rem;right:0.5rem;z-index:1;">Pending Approval</div>
           {% endif %}
-          <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="width:100%;max-width:260px;height:180px;object-fit:cover;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
+          {% if photo.image %}
+            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="width:100%;max-width:260px;height:180px;object-fit:cover;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
+          {% else %}
+            <div style="width:100%;max-width:260px;height:180px;background:#f8f6f3;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);display:flex;align-items:center;justify-content:center;border:2px dashed #c7a17a;">
+              <i class="fas fa-image" style="font-size:3rem;color:#a67c52;"></i>
+            </div>
+          {% endif %}
           <div style="font-weight:700;color:#2d2013;font-size:1.1rem;">{{ photo.title }}</div>
           <div style="color:#a67c52;font-size:1rem;margin-bottom:0.3rem;">{{ photo.category }}</div>
           <div style="color:#444;font-size:0.97rem;">{{ photo.description|truncatewords:18 }}</div>

@@ -301,6 +301,16 @@
             box-shadow: 0 5px 15px rgba(45, 32, 19, 0.15);
         }
         
+        .dashboard-photo-thumb.no-image, .dashboard-story-thumb.no-image {
+            background: var(--surface-alt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            border: 2px dashed var(--accent-light);
+        }
+        
         .empty-state {
             text-align: center;
             color: var(--text-light);
@@ -477,8 +487,14 @@
                     <a href="{% url 'portfolio:photo_list' %}" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="dashboard-photos">
-                    {% for photo in user.photos.all|slice:':6' %}
-                        <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
+                    {% for photo in recent_photos %}
+                        {% if photo.image %}
+                            <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
+                        {% else %}
+                            <div class="dashboard-photo-thumb no-image">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
                     {% empty %}
                         <div class="empty-state">No photos uploaded yet. <a href="{% url 'portfolio:upload_photo' %}">Upload your first photo</a></div>
                     {% endfor %}
@@ -491,8 +507,14 @@
                     <a href="#" class="view-all-link">View all <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="dashboard-stories">
-                    {% for story in user.stories.all|slice:':6' %}
-                        <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
+                    {% for story in recent_stories %}
+                        {% if story.image %}
+                            <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
+                        {% else %}
+                            <div class="dashboard-story-thumb no-image">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
                     {% empty %}
                         <div class="empty-state">No stories uploaded yet. <a href="{% url 'portfolio:upload_story' %}">Share your first story</a></div>
                     {% endfor %}

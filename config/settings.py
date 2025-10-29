@@ -35,9 +35,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False  # PRODUCTION MODE
+DEBUG = True  # DEVELOPMENT MODE
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'photorw.com', 'www.photorw.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'photorw.com', 'www.photorw.com', 'testserver']
 
 
 # Application definition

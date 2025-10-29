@@ -171,7 +171,105 @@ def create_event(request):
 def photographer_dashboard(request):
 	if request.user.role != 'photographer':
 		return redirect('home')
-	return render(request, 'portfolio/photographer_dashboard.html')
+	
+	from .models import Photo, Story, PhotoLike, Event
+	from bookings.models import Booking
+	from community.models import Post
+	from django.utils import timezone
+	from django.db.models import Count, Q
+	from datetime import datetime, timedelta
+	
+	# Get photographer's photos
+	user_photos = Photo.objects.filter(photographer=request.user, is_approved=True)
+	total_photos = user_photos.count()
+	
+	# Get recent photos (last 6)
+	recent_photos = user_photos.order_by('-uploaded_at')[:6]
+	
+	# Get stories from last 24 hours
+	time_threshold = timezone.now() - timedelta(hours=24)
+	user_stories = Story.objects.filter(photographer=request.user, created_at__gte=time_threshold)
+	total_stories = user_stories.count()
+	recent_stories = user_stories.order_by('-created_at')[:6]
+	
+	# Calculate total likes across all photos
+	total_likes = PhotoLike.objects.filter(photo__in=user_photos, is_like=True).count()
+	
+	# Profile views (if you have a profile view tracking model, otherwise calculate from related data)
+	# For now, use booking requests as a proxy for profile interest
+	profile_views = Booking.objects.filter(photographer=request.user).count() * 15  # Rough estimation
+	
+	# Recent bookings
+	recent_bookings = Booking.objects.filter(photographer=request.user).order_by('-created_at')[:5]
+	
+	# Recent activity (likes, comments, bookings)
+	recent_activity = []
+	
+	# Add recent likes
+	recent_likes = PhotoLike.objects.filter(photo__photographer=request.user, is_like=True).select_related('photo', 'user').order_by('-created_at')[:3]
+	for like in recent_likes:
+		recent_activity.append({
+			'type': 'like',
+			'icon': 'fas fa-heart',
+			'title': f'Your photo "{like.photo.title or "Untitled"}" received a like',
+			'time': like.created_at,
+			'user': like.user.get_full_name() or like.user.username if like.user else 'Anonymous'
+		})
+	
+	# Add recent bookings
+	for booking in recent_bookings[:2]:
+		recent_activity.append({
+			'type': 'booking',
+			'icon': 'fas fa-calendar',
+			'title': f'New booking request for {booking.service_type}',
+			'time': booking.created_at,
+			'user': booking.client_name or (booking.client.get_full_name() if booking.client else 'Client')
+		})
+	
+	# Sort activity by time
+	recent_activity.sort(key=lambda x: x['time'], reverse=True)
+	recent_activity = recent_activity[:5]  # Limit to 5 items
+	
+	# Calculate growth percentages (comparing with previous periods)
+	last_month = timezone.now() - timedelta(days=30)
+	last_week = timezone.now() - timedelta(days=7)
+	
+	# Photos growth (last 30 days vs previous 30 days)
+	photos_last_month = user_photos.filter(uploaded_at__gte=last_month).count()
+	photos_prev_month = user_photos.filter(
+		uploaded_at__gte=timezone.now() - timedelta(days=60),
+		uploaded_at__lt=last_month
+	).count()
+	photos_growth = ((photos_last_month - photos_prev_month) / max(photos_prev_month, 1)) * 100 if photos_prev_month > 0 else 0
+	
+	# Likes growth (last week vs previous week)
+	likes_last_week = PhotoLike.objects.filter(
+		photo__photographer=request.user,
+		is_like=True,
+		created_at__gte=last_week
+	).count()
+	likes_prev_week = PhotoLike.objects.filter(
+		photo__photographer=request.user,
+		is_like=True,
+		created_at__gte=timezone.now() - timedelta(days=14),
+		created_at__lt=last_week
+	).count()
+	likes_growth = ((likes_last_week - likes_prev_week) / max(likes_prev_week, 1)) * 100 if likes_prev_week > 0 else 0
+	
+	context = {
+		'total_photos': total_photos,
+		'recent_photos': recent_photos,
+		'total_stories': total_stories,
+		'recent_stories': recent_stories,
+		'total_likes': total_likes,
+		'profile_views': profile_views,
+		'recent_bookings': recent_bookings,
+		'recent_activity': recent_activity,
+		'photos_growth': round(photos_growth, 1),
+		'likes_growth': round(likes_growth, 1),
+	}
+	
+	return render(request, 'portfolio/photographer_dashboard.html', context)
 
 # Feed view (main Instagram-like feed)
 @login_required
@@ -188,21 +286,21 @@ def view_story(request, story_id):
 	story = Story.objects.get(id=story_id)
 	# Only allow viewing if story is active
 	if not story.is_active():
-		return redirect('feed')
+		return redirect('portfolio:feed')
 	return render(request, 'portfolio/view_story.html', {'story': story})
 
 # Story upload view for photographers
 @login_required
 def upload_story(request):
 	if request.user.role != 'photographer':
-		return redirect('feed')
+		return redirect('portfolio:feed')
 	if request.method == 'POST':
 		form = StoryForm(request.POST, request.FILES)
 		if form.is_valid():
 			story = form.save(commit=False)
 			story.photographer = request.user
 			story.save()
-			return redirect('feed')
+			return redirect('portfolio:feed')
 	else:
 		form = StoryForm()
 	return render(request, 'portfolio/upload_story.html', {'form': form})
@@ -279,11 +377,11 @@ def delete_story(request, story_id):
         if request.method == 'POST':
             story.delete()
             messages.success(request, 'Story deleted successfully.')
-            return redirect('feed')
+            return redirect('portfolio:feed')
         return render(request, 'portfolio/confirm_delete_story.html', {'story': story})
     else:
         messages.error(request, 'You do not have permission to delete this story.')
-        return redirect('feed')
+        return redirect('portfolio:feed')
 
 def delete_photo(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
@@ -293,11 +391,11 @@ def delete_photo(request, photo_id):
         if request.method == 'POST':
             photo.delete()
             messages.success(request, 'Photo deleted successfully.')
-            return redirect('feed')
+            return redirect('portfolio:feed')
         return render(request, 'portfolio/confirm_delete_photo.html', {'photo': photo})
     else:
         messages.error(request, 'You do not have permission to delete this photo.')
-        return redirect('feed')
+        return redirect('portfolio:feed')
 
 @require_POST
 def add_comment(request):

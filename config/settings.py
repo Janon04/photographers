@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
 
     # Local apps
+    'config',
     'users',
     'portfolio',
     'bookings',

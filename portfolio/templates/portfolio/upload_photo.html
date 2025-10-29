@@ -1,24 +1,221 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container" style="max-width:600px;margin:2rem auto;">
-    <div style="background:#fffbe6;padding:2rem 2.2rem;border-radius:1.2rem;box-shadow:0 2px 12px rgba(199,161,122,0.13);">
-        <h2 style="font-size:2rem;font-weight:900;color:#1a120b;margin-bottom:0.7rem;letter-spacing:-1px;">Upload Photo</h2>
-        <div style="color:#7c5c3a;font-size:1.08rem;margin-bottom:1.5rem;">Share your best work with the Explore community.</div>
+    <div style="background: linear-gradient(135deg, #fff9e6 0%, #fffbe6 100%); padding: 2.5rem 2.2rem; border-radius: 1.5rem; box-shadow: 0 8px 30px rgba(124, 92, 58, 0.12); border: 1px solid rgba(124, 92, 58, 0.08);">
+        <!-- Header Section -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #7c5c3a 0%, #a17a52 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16L8 12L11 15L16 10L20 14V18C20 18.5304 19.7893 19.0391 19.4142 19.4142C19.0391 19.7893 18.5304 20 18 20H6C5.46957 20 4.96086 19.7893 4.58579 19.4142C4.21071 19.0391 4 18.5304 4 18V16Z" fill="white"/>
+                    <path d="M15 8C15 8.53043 14.7893 9.03914 14.4142 9.41421C14.0391 9.78929 13.5304 10 13 10C12.4696 10 11.9609 9.78929 11.5858 9.41421C11.2107 9.03914 11 8.53043 11 8C11 7.46957 11.2107 6.96086 11.5858 6.58579C11.9609 6.21071 12.4696 6 13 6C13.5304 6 14.0391 6.21071 14.4142 6.58579C14.7893 6.96086 15 7.46957 15 8Z" fill="white"/>
+                </svg>
+            </div>
+            <h2 style="font-size: 2.2rem; font-weight: 900; color: #1a120b; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Upload Your Photo</h2>
+            <div style="color: #7c5c3a; font-size: 1.1rem; line-height: 1.5;">Share your best work with the Explore community</div>
+        </div>
+        
+        <!-- Upload Form -->
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div style="display:flex;flex-direction:column;gap:1.1rem;">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                 {% for field in form %}
-                    <div style="display:flex;flex-direction:column;">
-                        <label for="{{ field.id_for_label }}" style="font-weight:700;color:#3e2723;margin-bottom:0.3rem;">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}<small style="color:#388e3c;">{{ field.help_text }}</small>{% endif %}
-                        {% for error in field.errors %}<div style="color:#d32f2f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
+                    <div style="display: flex; flex-direction: column;">
+                        <label for="{{ field.id_for_label }}" style="font-weight: 700; color: #3e2723; margin-bottom: 0.5rem; font-size: 1.05rem;">{{ field.label }}</label>
+                        
+                        <!-- Custom styling for file input -->
+                        {% if field.field.widget.input_type == 'file' %}
+                            <div style="position: relative;" id="file-upload-container">
+                                {{ field }}
+                                <div id="upload-zone" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #f9f5f0; border: 2px dashed #c7a17a; border-radius: 0.8rem; display: flex; align-items: center; justify-content: center; pointer-events: none; transition: all 0.3s ease;">
+                                    <div style="text-align: center; padding: 1.5rem;">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 0.5rem;">
+                                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#7c5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M14 2V8H20" stroke="#7c5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M16 13H8" stroke="#7c5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M16 17H8" stroke="#7c5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M10 9H9H8" stroke="#7c5c3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <div style="color: #7c5c3a; font-weight: 600;" id="upload-text">Click to select a photo</div>
+                                        <div style="color: #a17a52; font-size: 0.9rem; margin-top: 0.3rem;">JPG, PNG, or GIF • Max 5MB</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Image Preview -->
+                                <div id="image-preview" style="display: none; margin-top: 1rem; border-radius: 0.8rem; overflow: hidden; border: 2px solid #c7a17a;">
+                                    <img id="preview-img" style="width: 100%; height: 200px; object-fit: cover;" />
+                                    <div style="padding: 1rem; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                                        <span id="file-name" style="color: #7c5c3a; font-weight: 600;"></span>
+                                        <button type="button" id="remove-file" style="background: #d32f2f; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                            <small style="color: #388e3c; margin-top: 0.4rem; font-size: 0.9rem;">{{ field.help_text }}</small>
+                        {% endif %}
+                        
+                        {% for error in field.errors %}
+                            <div style="color: #d32f2f; font-size: 0.95rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 8V12M12 16H12.01M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="#d32f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
                     </div>
                 {% endfor %}
             </div>
-            <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;padding:0.7rem 1.5rem;font-size:1.1rem;font-weight:700;border-radius:0.7rem;background:#7c5c3a;color:#fff;border:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);">Upload</button>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+                <a href="{% url 'explore' %}" style="color: #7c5c3a; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: color 0.2s;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to Explore
+                </a>
+                
+                <button type="submit" style="padding: 0.9rem 2rem; font-size: 1.1rem; font-weight: 700; border-radius: 0.8rem; background: linear-gradient(135deg, #7c5c3a 0%, #a17a52 100%); color: #fff; border: none; box-shadow: 0 4px 15px rgba(124, 92, 58, 0.25); cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15L12 19M12 19L9 16M12 19L15 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 4V6M18.364 5.63604L17.6569 6.34315M21 12H19M5.63604 18.364L6.34315 17.6569M4 12H6M18.364 18.364L17.6569 17.6569M5.63604 5.63604L6.34315 6.34315" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Upload Photo
+                </button>
+            </div>
         </form>
-        <a href="{% url 'explore' %}" style="color:#3e2723;font-weight:700;display:block;margin-top:2rem;">← Back to Explore</a>
     </div>
 </div>
+
+<style>
+    /* Global form input styling */
+    input, textarea, select {
+        padding: 0.9rem 1.2rem;
+        border: 1.5px solid #e0d6c9;
+        border-radius: 0.8rem;
+        font-size: 1rem;
+        background: #fff;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        width: 100%;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #7c5c3a;
+        box-shadow: 0 0 0 3px rgba(124, 92, 58, 0.1);
+    }
+    
+    /* File input specific styling */
+    input[type="file"] {
+        padding: 1.5rem;
+        height: 160px;
+        opacity: 0;
+        z-index: 2;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    /* Button hover effects */
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(124, 92, 58, 0.3);
+    }
+    
+    /* Link hover effects */
+    a:hover {
+        color: #3e2723;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[type="file"]');
+    const uploadZone = document.getElementById('upload-zone');
+    const uploadText = document.getElementById('upload-text');
+    const imagePreview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    const fileName = document.getElementById('file-name');
+    const removeBtn = document.getElementById('remove-file');
+    
+    if (fileInput) {
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelection(file);
+            }
+        });
+        
+        // Handle drag and drop
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#7c5c3a';
+            this.style.background = '#f0ebe3';
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#c7a17a';
+            this.style.background = '#f9f5f0';
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#c7a17a';
+            this.style.background = '#f9f5f0';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    fileInput.files = files;
+                    handleFileSelection(file);
+                } else {
+                    alert('Please select an image file (JPG, PNG, or GIF)');
+                }
+            }
+        });
+        
+        // Remove file button
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                imagePreview.style.display = 'none';
+                uploadZone.style.display = 'flex';
+                uploadText.textContent = 'Click to select a photo';
+            });
+        }
+    }
+    
+    function handleFileSelection(file) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (JPG, PNG, or GIF)');
+            return;
+        }
+        
+        // Validate file size (5MB = 5 * 1024 * 1024 bytes)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            return;
+        }
+        
+        // Read and display the file
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            fileName.textContent = file.name;
+            uploadZone.style.display = 'none';
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+        
+        // Update upload text
+        uploadText.textContent = 'Photo selected: ' + file.name;
+    }
+});
+</script>
 {% endblock %}

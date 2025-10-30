@@ -3,8 +3,51 @@
 <div style="display:flex;justify-content:flex-end;max-width:1100px;margin:2rem auto 0 auto;padding:0 1.5rem 0 1.5rem;">
   <a href="/bookings/create/" style="background:#ffd700;color:#2d2013;padding:0.7rem 2rem;border-radius:1.2rem;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);transition:all 0.2s;">Book a Photographer</a>
 </div>
-<div style="max-width:1100px;margin:2.5rem auto 0 auto;">
+
+<div style="max-width:1100px;margin:2.5rem auto 0 auto;padding:0 1.5rem;">
   <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:2rem;">Photographers</h2>
+  
+  <!-- Filters and Search -->
+  <div style="margin-bottom:2rem;background:#f8f6f3;padding:1.5rem;border-radius:1rem;border:1px solid #e5e5e5;">
+    <form method="get" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <!-- Search Input -->
+      <div style="flex:1;min-width:250px;">
+        <label for="search" style="font-weight:600;color:#2d2013;display:block;margin-bottom:0.3rem;">Search Photographers:</label>
+        <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search by name or location..." style="width:100%;padding:0.6rem 1rem;border:2px solid #c7a17a;border-radius:0.7rem;background:#fff;color:#2d2013;font-size:1rem;">
+      </div>
+      
+      <!-- Location Filter -->
+      <div style="min-width:200px;">
+        <label for="location" style="font-weight:600;color:#2d2013;display:block;margin-bottom:0.3rem;">Filter by Location:</label>
+        <select name="location" id="location" style="width:100%;padding:0.6rem 1rem;border:2px solid #c7a17a;border-radius:0.7rem;background:#fff;color:#2d2013;font-size:1rem;">
+          <option value="">All Locations</option>
+          {% for location in all_locations %}
+            <option value="{{ location }}" {% if location == selected_location %}selected{% endif %}>{{ location }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:0.5rem;align-items:end;height:fit-content;margin-top:1.8rem;">
+        <button type="submit" style="background:#ffd700;color:#2d2013;padding:0.6rem 1.5rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;font-size:1rem;">Search</button>
+        {% if selected_location or search_query %}
+          <a href="{% url 'portfolio:photographer_list' %}" style="background:#a67c52;color:#fff;padding:0.6rem 1rem;border-radius:0.7rem;text-decoration:none;font-size:1rem;">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+    
+    <!-- Results Info -->
+    {% if selected_location or search_query %}
+      <div style="margin-top:1rem;padding:0.5rem 0;color:#666;font-size:0.9rem;">
+        Showing results for:
+        {% if search_query %}<strong>"{{ search_query }}"</strong>{% endif %}
+        {% if selected_location and search_query %} in {% endif %}
+        {% if selected_location %}<strong>{{ selected_location }}</strong>{% endif %}
+        ({{ photographers|length }} photographer{{ photographers|length|pluralize }} found)
+      </div>
+    {% endif %}
+  </div>
+
   <div style="display:flex;flex-wrap:wrap;gap:2rem;">
     {% for photographer in photographers %}
       <div style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;text-align:center;display:flex;flex-direction:column;align-items:center;">
@@ -21,7 +64,25 @@
         <div style="color:#6b6b6b;font-size:0.98rem;">{{ photographer.location }}</div>
       </div>
     {% empty %}
-      <div style="color:#888;">No photographers found.</div>
+      <div style="color:#888;text-align:center;width:100%;padding:3rem;background:#f8f6f3;border-radius:1rem;border:2px dashed #c7a17a;">
+        <div style="font-size:3rem;margin-bottom:1rem;color:#c7a17a;">📸</div>
+        {% if selected_location or search_query %}
+          <h3 style="color:#2d2013;margin-bottom:0.5rem;">No photographers found</h3>
+          <p style="margin-bottom:1rem;">
+            {% if search_query and selected_location %}
+              No photographers match "{{ search_query }}" in {{ selected_location }}.
+            {% elif search_query %}
+              No photographers match "{{ search_query }}".
+            {% elif selected_location %}
+              No photographers found in {{ selected_location }}.
+            {% endif %}
+          </p>
+          <a href="{% url 'portfolio:photographer_list' %}" style="background:#ffd700;color:#2d2013;padding:0.7rem 1.5rem;border-radius:0.7rem;text-decoration:none;font-weight:600;">View All Photographers</a>
+        {% else %}
+          <h3 style="color:#2d2013;margin-bottom:0.5rem;">No photographers available</h3>
+          <p>Check back later for new photographers joining our platform.</p>
+        {% endif %}
+      </div>
     {% endfor %}
   </div>
 </div>

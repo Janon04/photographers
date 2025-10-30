@@ -35,4 +35,10 @@ urlpatterns = [
     # Messaging/Chat
     path('inbox/', views.inbox, name='inbox'),
     path('send_message/', views.send_message, name='send_message'),
+    
+    # AJAX endpoints for location dropdowns
+    path('ajax/get_districts/', views.get_districts_ajax, name='get_districts_ajax'),
+    path('ajax/get_sectors/', views.get_sectors_ajax, name='get_sectors_ajax'),
+    path('ajax/get_cells/', views.get_cells_ajax, name='get_cells_ajax'),
+    path('ajax/get_villages/', views.get_villages_ajax, name='get_villages_ajax'),
 ]

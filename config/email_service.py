@@ -276,3 +276,163 @@ The PhotoRw Team
         except Exception as e:
             logger.error(f"Error sending review notification: {e}")
             return False
+    
+    @staticmethod
+    def send_help_question_notification(user_question):
+        """Send notification when a new help question is submitted"""
+        try:
+            # Send confirmation email to the user
+            user_html_content = render_to_string('emails/help_user_confirmation.html', {
+                'user_question': user_question,
+                'base_url': EmailService.get_base_url(),
+            })
+            
+            user_text_content = f"""
+Dear {user_question.name or 'User'},
+
+Thank you for contacting PhotoRw Help Center!
+
+════════════════════════════════════════════════════════════════
+📝 YOUR QUESTION:
+════════════════════════════════════════════════════════════════
+
+{user_question.question}
+
+════════════════════════════════════════════════════════════════
+
+Our support team will review your question and respond as soon as possible. You can expect a response within 24-48 hours during business days.
+
+Question Details:
+- Submitted: {user_question.submitted_at.strftime('%B %d, %Y at %I:%M %p')}
+- Reference ID: #{user_question.id}
+
+Best regards,
+PhotoRw Support Team
+            """.strip()
+            
+            # Send confirmation to user
+            user_success = send_mail(
+                subject='Your Question Has Been Received - PhotoRw Help Center',
+                message=user_text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user_question.email] if user_question.email else [],
+                html_message=user_html_content,
+                fail_silently=True
+            )
+            
+            # Send notification to admin
+            admin_html_content = render_to_string('emails/help_admin_notification.html', {
+                'user_question': user_question,
+                'admin_url': f"{EmailService.get_base_url()}/admin/helpcenter/userquestion/{user_question.id}/change/",
+            })
+            
+            admin_text_content = f"""
+New Help Center Question Received
+
+From: {user_question.name or 'Anonymous'} ({user_question.email or 'No email provided'})
+Submitted: {user_question.submitted_at.strftime('%B %d, %Y at %I:%M %p')}
+
+════════════════════════════════════════════════════════════════
+❓ USER'S QUESTION:
+════════════════════════════════════════════════════════════════
+
+{user_question.question}
+
+════════════════════════════════════════════════════════════════
+
+View in admin panel: {EmailService.get_base_url()}/admin/helpcenter/userquestion/{user_question.id}/change/
+
+Best regards,
+PhotoRw System
+            """.strip()
+            
+            # Get admin emails from settings or use default
+            admin_emails = getattr(settings, 'ADMIN_EMAILS', [settings.DEFAULT_FROM_EMAIL])
+            
+            admin_success = send_mail(
+                subject='New Help Center Question - PhotoRw',
+                message=admin_text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=admin_emails,
+                html_message=admin_html_content,
+                fail_silently=True
+            )
+            
+            if user_success:
+                logger.info(f"Help question confirmation sent to {user_question.email}")
+            if admin_success:
+                logger.info(f"Help question notification sent to admins")
+                
+            return user_success or admin_success
+            
+        except Exception as e:
+            logger.error(f"Error sending help question notification: {e}")
+            return False
+    
+    @staticmethod
+    def send_help_response_notification(user_question):
+        """Send notification when admin responds to a help question"""
+        try:
+            if not user_question.email or not user_question.admin_response:
+                logger.warning(f"Cannot send response email for question #{user_question.id}: missing email or response")
+                return False
+            
+            # Send response email to the user
+            response_html_content = render_to_string('emails/help_response_notification.html', {
+                'user_question': user_question,
+                'base_url': EmailService.get_base_url(),
+            })
+            
+            response_text_content = f"""
+Dear {user_question.name or 'User'},
+
+We have responded to your question submitted to PhotoRw Help Center!
+
+════════════════════════════════════════════════════════════════
+📝 YOUR ORIGINAL QUESTION:
+════════════════════════════════════════════════════════════════
+
+{user_question.question}
+
+════════════════════════════════════════════════════════════════
+✅ OUR RESPONSE:
+════════════════════════════════════════════════════════════════
+
+{user_question.admin_response}
+
+════════════════════════════════════════════════════════════════
+
+Question Details:
+- Original Submission: {user_question.submitted_at.strftime('%B %d, %Y at %I:%M %p')}
+- Response Date: {user_question.responded_at.strftime('%B %d, %Y at %I:%M %p') if user_question.responded_at else 'Just now'}
+- Reference ID: #{user_question.id}
+- Responded by: {user_question.responded_by.get_full_name() if user_question.responded_by else 'PhotoRw Support Team'}
+
+If you have any follow-up questions, please don't hesitate to contact us again at {EmailService.get_base_url()}/help/
+
+Thank you for choosing PhotoRw!
+
+Best regards,
+PhotoRw Support Team
+            """.strip()
+            
+            # Send response to user
+            user_success = send_mail(
+                subject='Response to Your Question - PhotoRw Help Center',
+                message=response_text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user_question.email],
+                html_message=response_html_content,
+                fail_silently=True
+            )
+            
+            if user_success:
+                logger.info(f"Help response email sent to {user_question.email} for question #{user_question.id}")
+            else:
+                logger.warning(f"Failed to send help response email to {user_question.email}")
+                
+            return user_success
+            
+        except Exception as e:
+            logger.error(f"Error sending help response notification: {e}")
+            return False

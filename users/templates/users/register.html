@@ -2,94 +2,552 @@
 {% block head %}
 <style>
 .register-hero {
-  min-height: 80vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(120deg, var(--primary-light) 0%, var(--background) 100%);
+  background: linear-gradient(135deg, #2D2013 0%, #3A2A1B 50%, #A67C52 100%);
+  padding: 2rem 1rem;
 }
+
 .register-card {
-  background: var(--surface);
+  background: white;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 32px rgba(26,35,126,0.10);
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
-  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(45, 32, 19, 0.15);
+  padding: 3rem 2.5rem;
+  max-width: 520px;
   width: 100%;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
+
+.register-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #A67C52, #FFD700);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.register-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #A67C52, #FFD700);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 8px 20px rgba(166, 124, 82, 0.3);
+}
+
 .register-title {
   font-size: 2rem;
-  font-weight: bold;
-  color: var(--primary);
-  margin-bottom: 1.2rem;
-  letter-spacing: 1px;
+  font-weight: 700;
+  color: #2D2013;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
-.register-form label {
-  display: block;
-  text-align: left;
-  color: var(--text-main);
-  font-weight: 500;
-  margin-bottom: 0.3rem;
-}
-.register-form input, .register-form select, .register-form textarea {
-  width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1.2rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+
+.register-subtitle {
+  color: #6B6B6B;
   font-size: 1rem;
-  background: #f8fafc;
+  line-height: 1.5;
 }
+
+.register-form {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #2D2013;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.required-star {
+  color: #e74c3c;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: 2px solid #e9e1d6;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  background: #fff;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #A67C52;
+  box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
+  background: #F8F6F3;
+}
+
+.form-input.error {
+  border-color: #e74c3c;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  color: #6B6B6B;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.location-section {
+  background: linear-gradient(135deg, #F8F6F3 0%, #e9e1d6 100%);
+  padding: 2rem;
+  border-radius: 1rem;
+  margin: 2rem 0;
+  border: 2px solid #e9e1d6;
+  position: relative;
+}
+
+.location-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.location-icon {
+  width: 24px;
+  height: 24px;
+  color: #A67C52;
+}
+
+.location-title {
+  color: #2D2013;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.location-field {
+  display: flex;
+  flex-direction: column;
+}
+
 .register-btn {
   width: 100%;
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(135deg, #A67C52 0%, #C7A17A 50%, #FFD700 100%);
+  color: white;
   border: none;
-  padding: 0.9rem;
-  border-radius: 0.7rem;
+  padding: 1.2rem 2rem;
+  border-radius: 0.75rem;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(166, 124, 82, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
 .register-btn:hover {
-  background: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(166, 124, 82, 0.4);
+  background: linear-gradient(135deg, #8B6332 0%, #A67C52 50%, #E6C200 100%);
 }
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+.register-footer {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid #e9e1d6;
+  color: #6B6B6B;
+}
+
 .register-links {
-  margin-top: 1.5rem;
-  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
-.register-links a {
-  color: var(--accent);
-  text-decoration: underline;
-  font-weight: bold;
-  margin-right: 1.5rem;
+
+.register-link {
+  color: #A67C52;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.register-link:hover {
+  color: #2D2013;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .location-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .register-links {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .register-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-hero {
+    padding: 1rem 0.5rem;
+  }
+  
+  .register-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .form-input {
+    padding: 0.875rem 1rem;
+  }
+}
+
+/* Loading state for dropdowns */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  background: linear-gradient(90deg, #F8F6F3, #e9e1d6, #F8F6F3);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Success state */
+.form-input.success {
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+/* Photography-themed enhancements */
+.register-card::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #FFD700, transparent);
+  border-radius: 2px;
+}
+
+/* Enhanced location section with camera theme */
+.location-section::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, #A67C52, #FFD700, #C7A17A);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.5;
 }
 </style>
 {% endblock %}
+
 {% block content %}
 <div class="register-hero">
   <div class="register-card">
-    <div class="register-title">Create Your Account</div>
+    <div class="register-header">
+      <div class="register-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 4H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="register-title">Join PhotoRw</h1>
+      <p class="register-subtitle">Rwanda's premier photography community - Connect, Create, Capture</p>
+    </div>
+
     <form method="post" enctype="multipart/form-data" class="register-form">
       {% csrf_token %}
+      
+      <!-- Basic User Information -->
       {% for field in form %}
-        <div style="margin-bottom:1.2rem;">
-          <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:#e74c3c;">*</span>{% endif %}</label>
-          {{ field }}
-          {% if field.help_text %}<div style="font-size:0.95em;color:#888;margin-top:0.2rem;">{{ field.help_text }}</div>{% endif %}
-          {% for error in field.errors %}
-            <div style="color:#e74c3c;font-size:0.97em;margin-top:0.2rem;">{{ error }}</div>
-          {% endfor %}
-        </div>
+        {% if field.name not in 'province,district,sector,cell,village,location' %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}" class="form-label">
+              {{ field.label }}
+              {% if field.field.required %}<span class="required-star">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="help-text">{{ field.help_text }}</div>
+            {% endif %}
+            {% for error in field.errors %}
+              <div class="error-text">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 8V12M12 16H12.01M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       {% endfor %}
-      <button type="submit" class="register-btn">Register</button>
+      
+      <!-- Rwanda Location Section -->
+      <div class="location-section">
+        <div class="location-header">
+          <svg class="location-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.6569 16.6569C16.7202 17.5935 14.7616 19.5521 13.4138 20.8999C12.6327 21.681 11.3677 21.6814 10.5866 20.9003C9.26234 19.576 7.34159 17.6553 6.34315 16.6569C3.21895 13.5327 3.21895 8.46734 6.34315 5.34315C9.46734 2.21895 14.5327 2.21895 17.6569 5.34315C20.781 8.46734 20.781 13.5327 17.6569 16.6569Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 11C15 12.6569 13.6569 14 12 14C10.3431 14 9 12.6569 9 11C9 9.34315 10.3431 8 12 8C13.6569 8 15 9.34315 15 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="location-title">Location Details</h3>
+        </div>
+        
+        <div class="location-grid">
+          <div class="location-field">
+            <label for="{{ form.province.id_for_label }}" class="form-label">Province</label>
+            {{ form.province }}
+          </div>
+          <div class="location-field">
+            <label for="{{ form.district.id_for_label }}" class="form-label">District</label>
+            {{ form.district }}
+          </div>
+          <div class="location-field">
+            <label for="{{ form.sector.id_for_label }}" class="form-label">Sector</label>
+            {{ form.sector }}
+          </div>
+          <div class="location-field">
+            <label for="{{ form.cell.id_for_label }}" class="form-label">Cell</label>
+            {{ form.cell }}
+          </div>
+          <div class="location-field" style="grid-column: span 2;">
+            <label for="{{ form.village.id_for_label }}" class="form-label">Village</label>
+            {{ form.village }}
+          </div>
+        </div>
+        
+        <!-- Hidden location field for form submission -->
+        {{ form.location.as_hidden }}
+      </div>
+      
+      <button type="submit" class="register-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 4H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="3" stroke="white" stroke-width="2"/>
+        </svg>
+        Join PhotoRw Community
+      </button>
     </form>
-    <div class="register-links">
-      <span>Already have an account?</span> <a href="{% url 'users:login' %}">Log In</a>
-      <a href="/">Back to Home</a>
+
+    <div class="register-footer">
+      <p>Already have an account?</p>
+      <div class="register-links">
+        <a href="{% url 'users:login' %}" class="register-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 17L15 12L10 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sign In
+        </a>
+        <a href="/" class="register-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Home
+        </a>
+      </div>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('{{ form.province.id_for_label }}');
+    const districtSelect = document.getElementById('{{ form.district.id_for_label }}');
+    const sectorSelect = document.getElementById('{{ form.sector.id_for_label }}');
+    const cellSelect = document.getElementById('{{ form.cell.id_for_label }}');
+    const villageSelect = document.getElementById('{{ form.village.id_for_label }}');
+    
+    // Add classes to form inputs for styling
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (!input.classList.contains('form-input')) {
+            input.classList.add('form-input');
+        }
+    });
+    
+    // Function to clear and disable subsequent dropdowns
+    function clearSubsequentDropdowns(fromLevel) {
+        const levels = [districtSelect, sectorSelect, cellSelect, villageSelect];
+        const startIndex = fromLevel;
+        
+        for (let i = startIndex; i < levels.length; i++) {
+            levels[i].innerHTML = '<option value="">Select ' + levels[i].previousElementSibling.textContent + '</option>';
+            levels[i].disabled = true;
+            levels[i].classList.remove('success');
+        }
+    }
+    
+    // Function to populate dropdown via AJAX
+    function populateDropdown(url, params, targetSelect, defaultText) {
+        targetSelect.classList.add('loading');
+        
+        fetch(url + '?' + new URLSearchParams(params))
+            .then(response => response.json())
+            .then(data => {
+                const options = data[Object.keys(data)[0]];
+                targetSelect.innerHTML = `<option value="">${defaultText}</option>`;
+                
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.textContent = option;
+                    targetSelect.appendChild(optionElement);
+                });
+                
+                targetSelect.disabled = false;
+                targetSelect.classList.remove('loading');
+                targetSelect.classList.add('success');
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                targetSelect.innerHTML = `<option value="">${defaultText}</option>`;
+                targetSelect.disabled = true;
+                targetSelect.classList.remove('loading');
+            });
+    }
+    
+    // Province change handler
+    provinceSelect.addEventListener('change', function() {
+        const province = this.value;
+        
+        if (province) {
+            clearSubsequentDropdowns(0);
+            populateDropdown(
+                '{% url "users:get_districts_ajax" %}',
+                { province: province },
+                districtSelect,
+                'Select District'
+            );
+        } else {
+            clearSubsequentDropdowns(0);
+        }
+    });
+    
+    // District change handler
+    districtSelect.addEventListener('change', function() {
+        const province = provinceSelect.value;
+        const district = this.value;
+        
+        if (province && district) {
+            clearSubsequentDropdowns(1);
+            populateDropdown(
+                '{% url "users:get_sectors_ajax" %}',
+                { province: province, district: district },
+                sectorSelect,
+                'Select Sector'
+            );
+        } else {
+            clearSubsequentDropdowns(1);
+        }
+    });
+    
+    // Sector change handler
+    sectorSelect.addEventListener('change', function() {
+        const province = provinceSelect.value;
+        const district = districtSelect.value;
+        const sector = this.value;
+        
+        if (province && district && sector) {
+            clearSubsequentDropdowns(2);
+            populateDropdown(
+                '{% url "users:get_cells_ajax" %}',
+                { province: province, district: district, sector: sector },
+                cellSelect,
+                'Select Cell'
+            );
+        } else {
+            clearSubsequentDropdowns(2);
+        }
+    });
+    
+    // Cell change handler
+    cellSelect.addEventListener('change', function() {
+        const province = provinceSelect.value;
+        const district = districtSelect.value;
+        const sector = sectorSelect.value;
+        const cell = this.value;
+        
+        if (province && district && sector && cell) {
+            clearSubsequentDropdowns(3);
+            populateDropdown(
+                '{% url "users:get_villages_ajax" %}',
+                { province: province, district: district, sector: sector, cell: cell },
+                villageSelect,
+                'Select Village'
+            );
+        } else {
+            clearSubsequentDropdowns(3);
+        }
+    });
+    
+    // Initial state - disable all dropdowns except province
+    clearSubsequentDropdowns(0);
+});
+</script>
 {% endblock %}

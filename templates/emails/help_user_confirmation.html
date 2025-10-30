@@ -1,0 +1,46 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+    <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">Thank You!</h1>
+    <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">Your question has been received</p>
+</div>
+
+<div style="padding: 0 1rem;">
+    <p style="font-size: 1.1rem; color: #333; margin-bottom: 1.5rem;">
+        Dear {{ user_question.name|default:"User" }},
+    </p>
+    
+    <p style="color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+        Thank you for contacting PhotoRw Help Center! We have received your question and our support team will review it carefully.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 12px; margin: 2rem 0; border-left: 6px solid #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);">
+        <h3 style="color: #333; margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 600;">📝 Your Question:</h3>
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <p style="color: #555; margin: 0; line-height: 1.8; font-size: 1.1rem; white-space: pre-wrap;">{{ user_question.question }}</p>
+        </div>
+    </div>
+    
+    <div style="background: #e8f4fd; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <h3 style="color: #1976d2; margin: 0 0 1rem 0; font-size: 1.1rem;">What happens next?</h3>
+        <ul style="color: #555; line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+            <li>Our support team will review your question</li>
+            <li>You'll receive a response within 24-48 hours during business days</li>
+            <li>Check your email for our detailed response</li>
+        </ul>
+    </div>
+    
+    <div style="border-top: 2px solid #f0f0f0; padding-top: 1.5rem; margin-top: 2rem;">
+        <p style="color: #777; font-size: 0.9rem; margin: 0;">
+            <strong>Question Details:</strong><br>
+            Submitted: {{ user_question.submitted_at|date:"F d, Y \a\t g:i A" }}<br>
+            Reference ID: #{{ user_question.id }}
+        </p>
+    </div>
+    
+    <p style="color: #555; line-height: 1.6; margin-top: 2rem;">
+        In the meantime, you can browse our <a href="{{ base_url }}/help/" style="color: #667eea; text-decoration: none;">Help Center</a> for frequently asked questions and helpful articles.
+    </p>
+</div>
+{% endblock %}

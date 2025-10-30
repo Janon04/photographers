@@ -1,0 +1,75 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+    <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">Response Received!</h1>
+    <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">We've answered your question</p>
+</div>
+
+<div style="padding: 0 1rem;">
+    <p style="font-size: 1.1rem; color: #333; margin-bottom: 1.5rem;">
+        Dear {{ user_question.name|default:"User" }},
+    </p>
+    
+    <p style="color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+        Great news! We have reviewed and responded to your question submitted to PhotoRw Help Center. Here's our detailed response:
+    </p>
+    
+    <!-- Original Question -->
+    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 12px; margin: 2rem 0; border-left: 6px solid #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);">
+        <h3 style="color: #333; margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 600;">📝 Your Original Question:</h3>
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <p style="color: #555; margin: 0; line-height: 1.8; font-size: 1rem; white-space: pre-wrap;">{{ user_question.question }}</p>
+        </div>
+    </div>
+    
+    <!-- Admin Response -->
+    <div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); padding: 2rem; border-radius: 12px; margin: 2rem 0; border-left: 6px solid #4caf50; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);">
+        <h3 style="color: #2e7d32; margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 600;">✅ Our Response:</h3>
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div style="color: #555; line-height: 1.8; font-size: 1.1rem;">{{ user_question.admin_response|safe }}</div>
+        </div>
+    </div>
+    
+    <!-- Response Details -->
+    <div style="background: #f0f4ff; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <h3 style="color: #1976d2; margin: 0 0 1rem 0; font-size: 1.1rem;">📋 Response Details:</h3>
+        <ul style="color: #555; line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+            <li><strong>Original Submission:</strong> {{ user_question.submitted_at|date:"F d, Y \a\t g:i A" }}</li>
+            <li><strong>Response Date:</strong> {{ user_question.responded_at|date:"F d, Y \a\t g:i A"|default:"Just now" }}</li>
+            <li><strong>Reference ID:</strong> #{{ user_question.id }}</li>
+            {% if user_question.responded_by %}
+            <li><strong>Responded by:</strong> {{ user_question.responded_by.get_full_name }}</li>
+            {% endif %}
+        </ul>
+    </div>
+    
+    <!-- Call to Action -->
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; margin: 2rem 0; text-align: center;">
+        <h3 style="color: #f57c00; margin: 0 0 1rem 0; font-size: 1.1rem;">Need More Help?</h3>
+        <p style="color: #555; margin: 0 0 1.5rem 0;">
+            If you have any follow-up questions or need further clarification, don't hesitate to reach out!
+        </p>
+        <a href="{{ base_url }}/help/" style="
+            display: inline-block;
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        ">
+            Visit Help Center
+        </a>
+    </div>
+    
+    <!-- Satisfaction -->
+    <div style="border-top: 2px solid #f0f0f0; padding-top: 2rem; margin-top: 2rem; text-align: center;">
+        <p style="color: #777; line-height: 1.6; margin: 0;">
+            Was this response helpful? We'd love to hear your feedback!<br>
+            <strong>Thank you for choosing PhotoRw - Rwanda's Premier Photography Platform</strong>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,24 +1,781 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Book a Photographer{% endblock %}
+
+{% block title %}Book Professional Photography - PhotoRw{% endblock %}
+
 {% block head %}
-    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+<style>
+/* Professional Booking Form Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.booking-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #c7a17a 0%, #ffd700 50%, #f8f6f3 100%);
+    padding: 2rem 0;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.booking-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.booking-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #2d2013;
+}
+
+.booking-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 8px rgba(45,32,19,0.3);
+    color: #2d2013;
+}
+
+.booking-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+    color: #a67c52;
+}
+
+.booking-main {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.booking-form-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 20px 60px rgba(199, 161, 122, 0.2), 0 8px 32px rgba(199, 161, 122, 0.15);
+    border: 2px solid rgba(199, 161, 122, 0.3);
+}
+
+.booking-info-card {
+    background: rgba(199, 161, 122, 0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    border: 2px solid rgba(199, 161, 122, 0.3);
+    color: #2d2013;
+    position: sticky;
+    top: 2rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.form-header h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.form-header p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.form-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.form-steps::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: linear-gradient(90deg, #c7a17a, #ffd700, #a67c52, #c7a17a);
+    border-radius: 1px;
+    z-index: 1;
+}
+
+.form-step {
+    background: white;
+    border: 3px solid #e5e7eb;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #6b7280;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.form-step.active {
+    border-color: #c7a17a;
+    background: #c7a17a;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(199, 161, 122, 0.2);
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.form-label .required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.form-label .icon {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    color: #1f2937;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #c7a17a;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(199, 161, 122, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-control:hover {
+    border-color: #a67c52;
+    background: white;
+}
+
+select.form-control {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23c7a17a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 1rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 3rem;
+}
+
+.photographer-info {
+    background: linear-gradient(135deg, #f8f6f3 0%, #c7a17a 20%);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 0.75rem;
+    border-left: 4px solid #c7a17a;
+    font-size: 0.95rem;
+    color: #2d2013;
+}
+
+.form-help {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.form-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.submit-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 32px rgba(199, 161, 122, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.submit-btn:hover::before {
+    left: 100%;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(199, 161, 122, 0.4);
+    background: linear-gradient(90deg, #c7a17a 0%, #ffd700 100%);
+    color: white;
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+.info-section {
+    margin-bottom: 2rem;
+}
+
+.info-section h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+}
+
+.info-list li {
+    padding: 0.75rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+.info-list li::before {
+    content: "✓";
+    color: #c7a17a;
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: rgba(199, 161, 122, 0.2);
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-card {
+    background: rgba(199, 161, 122, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid rgba(199, 161, 122, 0.3);
+}
+
+.contact-card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d2013;
+}
+
+.contact-card a {
+    color: #a67c52;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.contact-card a:hover {
+    color: #c7a17a;
+}
+
+.message-alert {
+    max-width: 1400px;
+    margin: 0 auto 2rem auto;
+    padding: 0 1rem;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #f8f6f3 0%, rgba(199, 161, 122, 0.2) 100%);
+    border: 1px solid #c7a17a;
+    color: #2d2013;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+    border: 1px solid #ffd700;
+    color: #a67c52;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #fecaca 0%, #fef2f2 100%);
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
+
+@media (max-width: 1024px) {
+    .booking-main {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .booking-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .booking-form-card,
+    .booking-info-card {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-wrapper {
+        padding: 1rem 0;
+    }
+    
+    .booking-header h1 {
+        font-size: 2rem;
+    }
+    
+    .booking-header p {
+        font-size: 1rem;
+    }
+    
+    .form-steps {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .form-steps::before {
+        display: none;
+    }
+    
+    .booking-form-card,
+    .booking-info-card {
+        padding: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
+
 {% block content %}
-<div class="booking-container">
-    <h2>Book a Photographer</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        {% for field in form.visible_fields %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:#d9534f;">*</span>{% endif %}</label>
-                {{ field }}
-                {% if field.help_text %}<small style="color:#888;">{{ field.help_text }}</small>{% endif %}
-                {% for error in field.errors %}<div style="color:#d9534f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
+<div class="booking-wrapper">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="message-alert">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                {{ message }}
             </div>
         {% endfor %}
-        <button type="submit" class="booking-btn">Book Now</button>
-    </form>
+    </div>
+    {% endif %}
+
+    <div class="booking-container">
+        <!-- Header -->
+        <div class="booking-header">
+            <h1>📸 Professional Photography Booking</h1>
+            <p>Book your perfect moment with Rwanda's finest photographers</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="booking-main">
+            <!-- Booking Form -->
+            <div class="booking-form-card">
+                <div class="form-header">
+                    <h2>Book Your Session</h2>
+                    <p>Tell us about your photography needs and we'll match you with the perfect photographer</p>
+                </div>
+                
+                <!-- Progress Steps -->
+                <div class="form-steps">
+                    <div class="form-step active">1</div>
+                    <div class="form-step">2</div>
+                    <div class="form-step">3</div>
+                    <div class="form-step">4</div>
+                </div>
+
+                <form method="post" id="bookingForm">
+                    {% csrf_token %}
+                    
+                    <!-- Non-field errors -->
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="alert alert-error">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                </svg>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Form Fields -->
+                    {% for field in form.visible_fields %}
+                        {% if field.name == 'photographer' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">📷</span>Select Photographer
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" {% if field.field.required %}required{% endif %}>
+                                    {% for value, label in field.field.choices %}
+                                        <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if field.value and field.value != '' %}
+                                    <div class="photographer-info">
+                                        <strong>📧 Contact:</strong> Professional photographer selected<br>
+                                        <strong>🎯 Specialization:</strong> Professional Photography Services
+                                    </div>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'service_type' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">🎯</span>Photography Service
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <select name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" {% if field.field.required %}required{% endif %}>
+                                    {% for value, label in field.field.choices %}
+                                        <option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'date' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">📅</span>Preferred Date
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}>
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'time' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">⏰</span>Preferred Time
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="time" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}>
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'location' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">📍</span>Session Location
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}
+                                       placeholder="Where would you like your photo session?">
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'client_name' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">👤</span>Your Full Name
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="text" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}
+                                       placeholder="Enter your full name">
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'client_phone' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">📱</span>Phone Number
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="tel" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}
+                                       placeholder="+250 XXX XXX XXX">
+                                {% if field.help_text %}
+                                    <div class="form-help">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elif field.name == 'client_email' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <span class="icon">📧</span>Email Address
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                <input type="email" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" 
+                                       value="{{ field.value|default_if_none:'' }}" {% if field.field.required %}required{% endif %}
+                                       placeholder="your.email@example.com">
+                                <div class="form-help">We'll send your booking confirmation here</div>
+                                {% for error in field.errors %}
+                                    <div class="form-error">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        🎉 Book My Photography Session
+                    </button>
+                </form>
+            </div>
+
+            <!-- Information Sidebar -->
+            <div class="booking-info-card">
+                <div class="info-section">
+                    <h3>
+                        <span>✨</span>
+                        What's Included
+                    </h3>
+                    <ul class="info-list">
+                        <li>Professional consultation & planning</li>
+                        <li>High-resolution edited photos</li>
+                        <li>Multiple format deliverables</li>
+                        <li>7-14 day turnaround time</li>
+                        <li>Online gallery for easy sharing</li>
+                        <li>Satisfaction guarantee</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3>
+                        <span>📋</span>
+                        Our Photography Services
+                    </h3>
+                    <ul class="info-list">
+                        <li>💍 Weddings & Engagements</li>
+                        <li>👨‍👩‍👧‍👦 Family & Portrait Sessions</li>
+                        <li>👶 Maternity & Newborn Photography</li>
+                        <li>🏢 Corporate & Business Events</li>
+                        <li>📦 Product & Commercial Shoots</li>
+                        <li>🎉 Special Events & Celebrations</li>
+                        <li>🎨 Artistic & Creative Photography</li>
+                        <li>🏔️ Nature & Landscape Photography</li>
+                        <li>⚽ Sports & Action Photography</li>
+                        <li>🚁 Aerial & Drone Photography</li>
+                        <li>🎯 Custom Photography Sessions</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <h3>
+                        <span>🚀</span>
+                        Booking Process
+                    </h3>
+                    <ul class="info-list">
+                        <li>Submit your booking request</li>
+                        <li>Receive photographer confirmation</li>
+                        <li>Schedule consultation call</li>
+                        <li>Finalize session details</li>
+                        <li>Enjoy your photography session!</li>
+                    </ul>
+                </div>
+
+                <div class="contact-card">
+                    <h4>💬 Need Assistance?</h4>
+                    <p>Our team is here to help!</p>
+                    <a href="mailto:janon3030@gmail.com">janon3030@gmail.com</a><br>
+                    <span>+250 786 003 139</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const steps = document.querySelectorAll('.form-step');
+    
+    // Set minimum date to today
+    const dateField = document.querySelector('input[type="date"]');
+    if (dateField) {
+        const today = new Date().toISOString().split('T')[0];
+        dateField.setAttribute('min', today);
+    }
+    
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        submitBtn.innerHTML = '⏳ Processing Your Booking...';
+        submitBtn.disabled = true;
+        
+        // Animate steps
+        let currentStep = 0;
+        const stepAnimation = setInterval(() => {
+            if (currentStep < steps.length) {
+                steps[currentStep].classList.add('active');
+                currentStep++;
+            } else {
+                clearInterval(stepAnimation);
+            }
+        }, 200);
+    });
+    
+    // Add smooth animations to form elements
+    const formGroups = document.querySelectorAll('.form-group');
+    formGroups.forEach((group, index) => {
+        group.style.opacity = '0';
+        group.style.transform = 'translateY(20px)';
+        group.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            group.style.opacity = '1';
+            group.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Enhanced form field interactions
+    const formControls = document.querySelectorAll('.form-control');
+    formControls.forEach(control => {
+        control.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+            this.parentElement.style.transition = 'transform 0.2s ease';
+        });
+        
+        control.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}

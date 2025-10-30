@@ -1,51 +1,204 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if messages %}
-  <div style="max-width:480px;margin:2rem auto 0 auto;">
-    {% for message in messages %}
-      <div style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:1rem 1.2rem;border-radius:0.8rem;margin-bottom:1.2rem;font-size:1.08rem;box-shadow:0 2px 8px #ffeeba80;">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
-<div class="booking-form-container" style="max-width:480px;margin:3.5rem auto 0 auto;background:#fff;border-radius:1.5rem;box-shadow:0 8px 32px rgba(199,161,122,0.13);padding:2.5rem 2rem;">
-  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:1.5rem;text-align:center;letter-spacing:1px;">Request a Booking</h2>
-  <form method="post" style="display:flex;flex-direction:column;gap:1.2rem;">
-    {% csrf_token %}
-    <div style="display:flex;flex-direction:column;gap:0.7rem;">
-      {{ form.non_field_errors }}
-      {% for field in form.visible_fields %}
-        {% if field.name == 'photographer' %}
-          <div style="display:flex;flex-direction:column;gap:0.2rem;">
-            <label style="font-weight:600;color:#a67c52;font-size:1.05rem;">Photographer</label>
-            {{ field }}
-            {% if field.value %}
-              {% with photographer_obj=field.field.queryset.get(pk=field.value) %}
-                <div style="margin-top:0.3rem;font-size:0.98rem;color:#2d2013;background:#f8f5f0;padding:0.5rem 0.8rem;border-radius:0.6rem;">
-                  <strong>Email:</strong> {{ photographer_obj.email }}
-                </div>
-              {% endwith %}
-            {% endif %}
-            {% for error in field.errors %}<div style="color:#d9534f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
-          </div>
-        {% elif field.name != 'email' %}
-          <div style="display:flex;flex-direction:column;gap:0.2rem;">
-            <label for="{{ field.id_for_label }}" style="font-weight:600;color:#a67c52;font-size:1.05rem;">{{ field.label }}{% if field.field.required %} <span style="color:#d9534f;">*</span>{% endif %}</label>
-            {{ field }}
-            {% if field.help_text %}<small style="color:#888;">{{ field.help_text }}</small>{% endif %}
-            {% for error in field.errors %}<div style="color:#d9534f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
-          </div>
-        {% endif %}
-      {% endfor %}
-      {% if not user.email %}
-        <div style="display:flex;flex-direction:column;gap:0.2rem;">
-          <label for="id_email" style="font-weight:600;color:#a67c52;font-size:1.05rem;">Your Email <span style="color:#d9534f;">*</span></label>
-          <input type="email" name="email" id="id_email" class="form-control" required placeholder="Enter your email" style="padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #c7a17a;">
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+  {% if messages %}
+    <div style="max-width: 600px; margin: 0 auto 2rem auto;">
+      {% for message in messages %}
+        <div style="background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 1rem 1.2rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.7rem; box-shadow: 0 2px 4px rgba(46, 125, 50, 0.1);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12L11 14L15 10M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ message }}
         </div>
-      {% endif %}
+      {% endfor %}
     </div>
-    <button type="submit" style="background:linear-gradient(90deg,#ffd700 0%,#c7a17a 100%);color:#2d2013;font-weight:700;padding:1rem 0;border-radius:1rem;font-size:1.15rem;box-shadow:0 4px 15px rgba(199,161,122,0.18);border:none;transition:all 0.2s;cursor:pointer;margin-top:1.2rem;">Book Now</button>
-  </form>
+  {% endif %}
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+    <!-- Left Column: Form -->
+    <div class="booking-form-container" style="background: #fff; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); padding: 2.5rem;">
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Booking Request</h2>
+        <p style="color: #666; font-size: 1rem; line-height: 1.5;">Complete the form below to schedule your photography session. We'll contact you within 24 hours to confirm details.</p>
+      </div>
+      
+      <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+          {{ form.non_field_errors }}
+          
+          {% for field in form.visible_fields %}
+            {% if field.name == 'photographer' %}
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label style="font-weight: 600; color: #333; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Photographer</label>
+                {{ field }}
+                {% if field.value %}
+                  {% with photographer_obj=field.field.queryset.get(pk=field.value) %}
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #2d2013; background: #f8f9fa; padding: 0.8rem 1rem; border-radius: 0.5rem; border-left: 3px solid #007bff;">
+                      <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                        <span><strong>Email:</strong> {{ photographer_obj.email }}</span>
+                        {% if photographer_obj.phone %}
+                          <span><strong>Phone:</strong> {{ photographer_obj.phone }}</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endwith %}
+                {% endif %}
+                {% for error in field.errors %}
+                  <div style="color: #dc3545; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 8V12M12 16H12.01M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {{ error }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% elif field.name != 'email' %}
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="{{ field.id_for_label }}" style="font-weight: 600; color: #333; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                  {{ field.label }}{% if field.field.required %} <span style="color: #dc3545;">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                  <small style="color: #6c757d; font-size: 0.85rem;">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                  <div style="color: #dc3545; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 8V12M12 16H12.01M21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {{ error }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+          {% if not user.email %}
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label for="id_email" style="font-weight: 600; color: #333; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Your Email <span style="color: #dc3545;">*</span>
+              </label>
+              <input type="email" name="email" id="id_email" class="form-control" required placeholder="Enter your email address" style="padding: 0.8rem 1rem; border-radius: 0.5rem; border: 1px solid #ddd; font-size: 1rem; transition: all 0.2s;">
+            </div>
+          {% endif %}
+        </div>
+        
+        <button type="submit" style="background: #007bff; color: white; font-weight: 600; padding: 1rem 0; border-radius: 0.5rem; font-size: 1rem; border: none; transition: all 0.2s; cursor: pointer; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 12V19C20 19.5304 19.7893 20.0391 19.4142 20.4142C19.0391 20.7893 18.5304 21 18 21H6C5.46957 21 4.96086 20.7893 4.58579 20.4142C4.21071 20.0391 4 19.5304 4 19V12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 6L12 2L8 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 2V14" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Submit Booking Request
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Column: Information -->
+    <div style="background: #f8f9fa; border-radius: 1rem; padding: 2.5rem; height: fit-content;">
+      <h3 style="font-size: 1.4rem; font-weight: 600; color: #1a1a1a; margin-bottom: 1.5rem;">Booking Information</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="display: flex; gap: 1rem;">
+          <div style="background: #e7f1ff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 7V3M16 7V3M7 11H17M5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21Z" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h4 style="font-weight: 600; color: #333; margin-bottom: 0.3rem;">Confirmation Process</h4>
+            <p style="color: #666; font-size: 0.95rem; line-height: 1.5;">Your booking request will be reviewed and confirmed within 24 hours. You'll receive an email with session details.</p>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+          <div style="background: #e7f1ff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 8V12L15 15" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h4 style="font-weight: 600; color: #333; margin-bottom: 0.3rem;">Session Duration</h4>
+            <p style="color: #666; font-size: 0.95rem; line-height: 1.5;">Standard sessions last 1-2 hours. Extended sessions available upon request during confirmation.</p>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+          <div style="background: #e7f1ff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 12V19C20 19.5304 19.7893 20.0391 19.4142 20.4142C19.0391 20.7893 18.5304 21 18 21H6C5.46957 21 4.96086 20.7893 4.58579 20.4142C4.21071 20.0391 4 19.5304 4 19V12" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 7L12 2L22 7" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M15 11L12 14L9 11" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h4 style="font-weight: 600; color: #333; margin-bottom: 0.3rem;">Cancellation Policy</h4>
+            <p style="color: #666; font-size: 0.95rem; line-height: 1.5;">Cancellations made 48+ hours in advance receive full refund. Contact us for rescheduling.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e0e0e0;">
+        <h4 style="font-weight: 600; color: #333; margin-bottom: 1rem;">Need Assistance?</h4>
+        <div style="display: flex; flex-direction: column; gap: 0.7rem;">
+          <div style="display: flex; align-items: center; gap: 0.7rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 6L12 13L2 6" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="color: #666; font-size: 0.95rem;">bookings@photography.com</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.7rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 16.92V19.92C22 20.4504 21.7893 20.9591 21.4142 21.3342C21.0391 21.7093 20.5304 21.92 20 21.92C16.225 21.613 12.693 20.29 9.72 18.08C6.904 15.994 4.606 13.206 3.04 9.92001C1.71 6.94701 1.387 3.41501 1.08 -0.359985C1.08 -0.889985 1.29037 -1.39871 1.66546 -1.77379C2.04054 -2.14887 2.54927 -2.35924 3.07927 -2.35924H6.07927C6.47927 -2.35924 6.84827 -2.13924 9.01927 -0.359985C9.01927 3.28001 10.3593 5.52001 12.0193 7.20001C13.6993 8.86001 15.9393 10.2 19.5793 10.2C21.3593 12.371 21.5793 12.74 21.5793 13.14V16.14C21.5793 16.67 21.3693 17.179 20.9943 17.554C20.6193 17.929 20.1103 18.14 19.5803 18.14H16.5803" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="color: #666; font-size: 0.95rem;">+1 (555) 123-4567</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+  /* Form input styling */
+  input, select, textarea {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background: #fff;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+    font-family: inherit;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+  
+  /* Button hover effects */
+  button:hover {
+    background: #0056b3 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    div[style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .booking-form-container {
+      padding: 2rem 1.5rem !important;
+    }
+  }
+</style>
 {% endblock %}

@@ -186,6 +186,9 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Gmail app password fro
 DEFAULT_FROM_EMAIL = 'PhotoRw Platform <janon3030@gmail.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# Admin emails for notifications
+ADMIN_EMAILS = ['janon3030@gmail.com']  # Add more admin emails as needed
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

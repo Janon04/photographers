@@ -1,0 +1,64 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #ff7b7b 0%, #d63384 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+    <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">New Help Question</h1>
+    <p style="color: white; margin: 0.5rem 0 0 0; opacity: 0.9;">Action required</p>
+</div>
+
+<div style="padding: 0 1rem;">
+    <p style="font-size: 1.1rem; color: #333; margin-bottom: 1.5rem;">
+        Hello Admin,
+    </p>
+    
+    <p style="color: #555; line-height: 1.6; margin-bottom: 1.5rem;">
+        A new question has been submitted through the PhotoRw Help Center. Please review and respond promptly.
+    </p>
+    
+    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; border-left: 4px solid #ffc107;">
+        <h3 style="color: #333; margin: 0 0 1rem 0; font-size: 1.1rem;">User Information:</h3>
+        <p style="color: #555; margin: 0; line-height: 1.6;">
+            <strong>Name:</strong> {{ user_question.name|default:"Not provided" }}<br>
+            <strong>Email:</strong> {{ user_question.email|default:"Not provided" }}<br>
+            <strong>Submitted:</strong> {{ user_question.submitted_at|date:"F d, Y \a\t g:i A" }}<br>
+            <strong>Reference ID:</strong> #{{ user_question.id }}
+        </p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%); padding: 2rem; border-radius: 12px; margin: 2rem 0; border-left: 6px solid #ffc107; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.1);">
+        <h3 style="color: #333; margin: 0 0 1rem 0; font-size: 1.2rem; font-weight: 600;">❓ User's Question:</h3>
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <p style="color: #555; margin: 0; line-height: 1.8; font-size: 1.1rem; white-space: pre-wrap; font-family: 'Segoe UI', Arial, sans-serif;">{{ user_question.question }}</p>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 2rem 0;">
+        <a href="{{ admin_url }}" style="
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        ">
+            View in Admin Panel
+        </a>
+    </div>
+    
+    <div style="background: #d1ecf1; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+        <h3 style="color: #0c5460; margin: 0 0 1rem 0; font-size: 1.1rem;">Recommended Actions:</h3>
+        <ul style="color: #0c5460; line-height: 1.6; margin: 0; padding-left: 1.2rem;">
+            <li>Review the question thoroughly</li>
+            <li>Respond within 24-48 hours</li>
+            <li>Consider if this should become an FAQ</li>
+            <li>Ensure professional and helpful response</li>
+        </ul>
+    </div>
+    
+    <p style="color: #555; line-height: 1.6; margin-top: 2rem; font-size: 0.9rem;">
+        This is an automated notification from the PhotoRw Help Center system.
+    </p>
+</div>
+{% endblock %}

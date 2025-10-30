@@ -1,58 +1,555 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="helpcenter-container" style="max-width:900px;margin:2rem auto;padding:2.5rem;background:#f8f9fa;border-radius:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.07);">
-  <h1 style="font-size:2.5rem;font-weight:700;color:#2d2d2d;margin-bottom:0.5rem;">Help Center</h1>
-  <p style="font-size:1.2rem;color:#555;margin-bottom:2rem;">Find answers, guides, and support below.</p>
-  <form method="get" style="margin-bottom:2rem;max-width:500px;">
-    <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search FAQs..." style="width:80%;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
-    <button type="submit" style="padding:0.7rem 1.5rem;border-radius:0.7rem;background:#b77b2b;color:#fff;border:none;font-weight:600;">Search</button>
-  </form>
 
-  <div style="margin-bottom:2.5rem;max-width:500px;">
-    <h2 style="font-size:1.3rem;color:#2d2d2d;margin-bottom:0.5rem;">Ask a Question</h2>
-    {% if question_success %}
-      <div style="background:#e6ffe6;color:#2d7b2d;padding:1rem;border-radius:0.7rem;margin-bottom:1rem;">Thank you! Your question has been submitted.</div>
-    {% endif %}
-    <form method="post" style="background:#fffbe6;padding:1.5rem;border-radius:1rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
-      {% csrf_token %}
-      <label for="question_name" style="font-weight:500;">Provide your full names</label><br>
-  <input type="text" id="question_name" name="name" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
-  <label for="question_email" style="font-weight:500;">Provide your Email:</label><br>
-  <input type="email" id="question_email" name="email" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;">
-  <label for="question_text" style="font-weight:500;">Provide your Question:</label><br>
-  <textarea id="question_text" name="question" required style="width:100%;margin-bottom:1rem;padding:0.7rem 1rem;border-radius:0.7rem;border:1px solid #ccc;font-size:1rem;min-height:80px;"></textarea>
-      <button type="submit" style="padding:0.7rem 1.5rem;border-radius:0.7rem;background:#2b7bb7;color:#fff;border:none;font-weight:600;">Submit Question</button>
-    </form>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
-    <div style="flex:1 1 350px;background:#fffbe6;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);">
-      <h2 style="font-size:1.5rem;color:#b77b2b;margin-bottom:1rem;">Frequently Asked Questions</h2>
-      {% for group in faq_categories %}
-        <h3 style="font-size:1.1rem;color:#b77b2b;margin-bottom:0.5rem;">{{ group.category.name }}</h3>
-        <ul style="list-style:none;padding:0;margin-bottom:1.5rem;">
-          {% for faq in group.faqs %}
-            <li style="margin-bottom:0.75rem;">
-              <button class="faq-toggle" style="background:none;border:none;color:#b77b2b;font-weight:500;text-align:left;cursor:pointer;padding:0;font-size:1rem;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block';">{{ faq.title }}</button>
-              <div class="faq-answer" style="display:none;margin-top:0.5rem;color:#333;background:#fff;padding:0.75rem 1rem;border-radius:0.5rem;box-shadow:0 1px 4px rgba(199,161,122,0.07);">{{ faq.content|linebreaks }}</div>
-            </li>
-          {% empty %}
-            <li style="color:#888;">No FAQs available yet.</li>
-          {% endfor %}
-        </ul>
-      {% empty %}
-        <p style="color:#888;">No FAQs available yet.</p>
-      {% endfor %}
-    </div>
-    <div style="flex:1 1 350px;background:#e6f7ff;border-radius:1rem;padding:1.5rem;box-shadow:0 2px 8px rgba(122,199,199,0.07);">
-      <h2 style="font-size:1.5rem;color:#2b7bb7;margin-bottom:1rem;">Help Categories</h2>
-      <ul style="list-style:none;padding:0;">
-        {% for category in categories %}
-          <li style="margin-bottom:0.75rem;"><a href="{% url 'helpcenter_category' category.id %}" style="color:#2b7bb7;font-weight:500;text-decoration:none;">{{ category.name }}</a> <span style="color:#555;">- {{ category.description }}</span></li>
-        {% empty %}
-          <li style="color:#888;">No help categories available yet.</li>
-        {% endfor %}
-      </ul>
-    </div>
+{% block content %}
+<style>
+  /* Professional Help Center Styles - Photography Theme */
+  .help-hero {
+    background: linear-gradient(135deg, #3A2A1B 0%, #2D2013 100%);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+    margin-bottom: 0;
+    position: relative;
+  }
+  
+  .help-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23FFD700" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="%23C7A17A" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="%23A67C52" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+  }
+  
+  .help-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .help-search {
+    max-width: 600px;
+    margin: 2rem auto;
+    position: relative;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 2px solid #e9e1d6;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+    background: #FFFFFF;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #A67C52;
+    box-shadow: 0 6px 25px rgba(166, 124, 82, 0.2);
+  }
+  
+  .search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #A67C52, #C7A17A);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .search-btn:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 15px rgba(166, 124, 82, 0.3);
+    background: linear-gradient(135deg, #C7A17A, #FFD700);
+  }
+  
+  .help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin: 3rem 0;
+  }
+  
+  .help-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9e1d6;
+  }
+  
+  .help-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(45, 32, 19, 0.15);
+    border-color: #C7A17A;
+  }
+  
+  .question-form {
+    background: linear-gradient(135deg, #F8F6F3 0%, #F0EDE8 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+    border: 1px solid #e9e1d6;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: #2D2013;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e9e1d6;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #FFFFFF;
+    color: #2D2013;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: #A67C52;
+    box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+  }
+  
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
+  .submit-btn {
+    background: linear-gradient(135deg, #A67C52, #C7A17A);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+  
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(166, 124, 82, 0.3);
+    background: linear-gradient(135deg, #C7A17A, #FFD700);
+  }
+  
+  .success-alert {
+    background: linear-gradient(135deg, #e8f5e8, #d4edda);
+    color: #155724;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #27ae60;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .faq-section {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+    border: 1px solid #e9e1d6;
+  }
+  
+  .faq-category {
+    margin-bottom: 2rem;
+  }
+  
+  .category-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2D2013;
+    margin-bottom: 1rem;
+  }
+  
+  .category-badge {
+    background: linear-gradient(135deg, #A67C52, #C7A17A);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin-left: 0.75rem;
+  }
+  
+  .faq-item {
+    background: #F8F6F3;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e9e1d6;
+  }
+  
+  .faq-item:hover {
+    background: #F0EDE8;
+    border-color: #C7A17A;
+  }
+  
+  .faq-question {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: #2D2013;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+  }
+  
+  .faq-question:hover {
+    color: #A67C52;
+  }
+  
+  .faq-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+    color: #A67C52;
+  }
+  
+  .faq-answer {
+    padding: 0 1.5rem 1.25rem;
+    color: #6B6B6B;
+    line-height: 1.6;
+    display: none;
+  }
+  
+  .faq-answer.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .user-faq {
+    border-left: 4px solid #A67C52;
+    background: #F8F6F3;
+    border-color: #C7A17A;
+  }
+  
+  .user-faq .faq-question {
+    background: #F8F6F3;
+  }
+  
+  .help-categories {
+    background: linear-gradient(135deg, #F8F6F3 0%, #F0EDE8 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+    border: 1px solid #e9e1d6;
+  }
+  
+  .category-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .category-item {
+    background: #FFFFFF;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e9e1d6;
+  }
+  
+  .category-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
+    border-color: #C7A17A;
+  }
+  
+  .category-link {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: #2D2013;
+    font-weight: 600;
+  }
+  
+  .category-link:hover {
+    color: #A67C52;
+  }
+  
+  .category-desc {
+    color: #6B6B6B;
+    font-weight: 400;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Photography themed decorative elements */
+  .help-hero h1 {
+    position: relative;
+  }
+  
+  .help-hero h1::after {
+    content: '📸';
+    margin-left: 1rem;
+    font-size: 0.8em;
+    opacity: 0.8;
+  }
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #2D2013;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 2rem;
+    background: linear-gradient(135deg, #A67C52, #FFD700);
+    border-radius: 2px;
+  }
+  
+  @media (max-width: 768px) {
+    .help-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .help-hero {
+      padding: 2rem 0;
+    }
+    
+    .help-container {
+      padding: 0 1rem;
+    }
+    
+    .help-card, .question-form, .faq-section, .help-categories {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<!-- Hero Section -->
+<div class="help-hero">
+  <div class="help-container">
+    <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; font-family: 'Playfair Display', serif;">Help Center</h1>
+    <p style="font-size: 1.3rem; opacity: 0.9;">Find answers, get support, and learn how to make the most of PhotoRw</p>
   </div>
 </div>
+
+<!-- Search Section -->
+<div class="help-container">
+  <form method="get" class="help-search">
+    <input type="text" name="q" value="{{ request.GET.q|default:'' }}" 
+           placeholder="🔍 Search for answers..." class="search-input">
+    <button type="submit" class="search-btn">Search</button>
+  </form>
+
+  <!-- Success Message -->
+  {% if question_success %}
+  <div class="success-alert">
+    <strong>✅ Thank you!</strong> Your question has been submitted successfully.<br>
+    <small>📧 A confirmation email has been sent to your email address. Our team will respond within 24-48 hours.</small>
+  </div>
+  {% endif %}
+
+  <!-- Main Content Grid -->
+  <div class="help-grid">
+    <!-- Question Form -->
+    <div class="help-card">
+      <h2 class="section-title" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem;">
+        💬 Ask a Question
+      </h2>
+      <p style="color: #6B6B6B; margin-bottom: 2rem;">Can't find what you're looking for? Send us a message and we'll get back to you.</p>
+      
+      <form method="post" class="question-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="question_name" class="form-label">👤 Full Name</label>
+          <input type="text" id="question_name" name="name" required class="form-input" 
+                 placeholder="Enter your full name">
+        </div>
+        
+        <div class="form-group">
+          <label for="question_email" class="form-label">📧 Email Address</label>
+          <input type="email" id="question_email" name="email" required class="form-input" 
+                 placeholder="your.email@example.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="question_text" class="form-label">❓ Your Question</label>
+          <textarea id="question_text" name="question" required 
+                    class="form-input form-textarea" 
+                    placeholder="Describe your question in detail..."></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">Send Question</button>
+      </form>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="help-card">
+      <h2 class="section-title" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem;">
+        ❓ Frequently Asked Questions
+      </h2>
+      
+      <div class="faq-section">
+        {% for group in faq_categories %}
+        <div class="faq-category">
+          <div class="category-title">
+            {{ group.category.name }}
+            {% if group.is_user_faq %}
+            <span class="category-badge">Community Q&A</span>
+            {% endif %}
+          </div>
+          
+          <!-- Regular Article FAQs -->
+          {% for faq in group.faqs %}
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>{{ faq.title }}</span>
+              <span class="faq-icon">➕</span>
+            </button>
+            <div class="faq-answer">
+              {{ faq.content|safe }}
+            </div>
+          </div>
+          {% endfor %}
+          
+          <!-- User Question FAQs -->
+          {% for user_faq in group.user_faqs %}
+          <div class="faq-item user-faq">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+              <span>
+                {% if user_faq.faq_title %}{{ user_faq.faq_title }}{% else %}{{ user_faq.question|truncatechars:80 }}{% endif %}
+                💬
+              </span>
+              <span class="faq-icon">➕</span>
+            </button>
+            <div class="faq-answer">
+              <div style="background: #e6fffa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #38b2ac;">
+                <strong>Q:</strong> {{ user_faq.question|linebreaks }}
+              </div>
+              <div>
+                <strong>A:</strong> {{ user_faq.admin_response|safe }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 2rem; color: #718096;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🤔</div>
+          <p>No FAQs available yet. Be the first to ask a question!</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Categories -->
+  <div class="help-categories" style="margin: 3rem 0;">
+    <h2 class="section-title" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem;">
+      📋 Browse by Category
+    </h2>
+    
+    <ul class="category-list">
+      {% for category in categories %}
+      <li class="category-item">
+        <a href="{% url 'helpcenter_category' category.id %}" class="category-link">
+          <div>{{ category.name }}</div>
+          <div class="category-desc">{{ category.description|striptags|truncatechars:100 }}</div>
+        </a>
+      </li>
+      {% empty %}
+      <li style="text-align: center; padding: 2rem; color: #6B6B6B;">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">📚</div>
+        <p>Help categories will be available soon.</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<script>
+function toggleFAQ(button) {
+  const answer = button.nextElementSibling;
+  const icon = button.querySelector('.faq-icon');
+  const isActive = answer.classList.contains('active');
+  
+  // Close all other FAQs
+  document.querySelectorAll('.faq-answer.active').forEach(item => {
+    item.classList.remove('active');
+  });
+  document.querySelectorAll('.faq-icon').forEach(icon => {
+    icon.textContent = '➕';
+  });
+  
+  // Toggle current FAQ
+  if (!isActive) {
+    answer.classList.add('active');
+    icon.textContent = '➖';
+  }
+}
+
+// Add smooth scrolling and form validation
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-focus search if there's a query parameter
+  if (window.location.search.includes('q=')) {
+    document.querySelector('.search-input').focus();
+  }
+  
+  // Form validation enhancement
+  const form = document.querySelector('form[method="post"]');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const name = document.getElementById('question_name').value.trim();
+      const email = document.getElementById('question_email').value.trim();
+      const question = document.getElementById('question_text').value.trim();
+      
+      if (name.length < 2) {
+        alert('Please enter your full name (at least 2 characters)');
+        e.preventDefault();
+        return;
+      }
+      
+      if (question.length < 10) {
+        alert('Please provide more details in your question (at least 10 characters)');
+        e.preventDefault();
+        return;
+      }
+    });
+  }
+});
+</script>
+
 {% endblock %}

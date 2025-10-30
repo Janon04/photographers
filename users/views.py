@@ -13,6 +13,8 @@ import logging
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
+from django.http import JsonResponse
+from utils.rwanda_locations import get_districts, get_sectors, get_cells, get_villages
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ def register(request):
 			else:
 				messages.warning(request, 'Registration successful! However, we could not send the activation email. Please contact support.')
 			
-			return redirect('login')
+			return redirect('users:login')
 		else:
 			logger.warning(f"Registration form invalid: {form.errors}")
 	else:
@@ -51,10 +53,10 @@ def activate(request, uidb64, token):
 		user.is_verified = True
 		user.save()
 		messages.success(request, 'Your account has been activated! You can now log in.')
-		return redirect('login')
+		return redirect('users:login')
 	else:
 		messages.error(request, 'Activation link is invalid or expired.')
-		return redirect('login')
+		return redirect('users:login')
 
 def user_login(request):
 	if request.method == 'POST':
@@ -99,6 +101,8 @@ def photographer_search(request):
 
     if form.is_valid():
         location = form.cleaned_data.get('location')
+        province = form.cleaned_data.get('province')
+        district = form.cleaned_data.get('district')
         min_price = form.cleaned_data.get('min_price')
         max_price = form.cleaned_data.get('max_price')
         min_rating = form.cleaned_data.get('min_rating')
@@ -106,6 +110,10 @@ def photographer_search(request):
 
         if location:
             photographers = photographers.filter(location__icontains=location)
+        if province:
+            photographers = photographers.filter(location__icontains=province)
+        if district:
+            photographers = photographers.filter(location__icontains=district)
         if min_price is not None:
             photographers = photographers.filter(price__gte=min_price)
         if max_price is not None:
@@ -137,3 +145,34 @@ def send_message(request):
     else:
         form = MessageForm()
     return render(request, 'users/send_message.html', {'form': form})
+
+# AJAX views for cascading location dropdowns
+def get_districts_ajax(request):
+    """AJAX view to get districts based on province"""
+    province = request.GET.get('province')
+    districts = get_districts(province) if province else []
+    return JsonResponse({'districts': districts})
+
+def get_sectors_ajax(request):
+    """AJAX view to get sectors based on province and district"""
+    province = request.GET.get('province')
+    district = request.GET.get('district')
+    sectors = get_sectors(province, district) if province and district else []
+    return JsonResponse({'sectors': sectors})
+
+def get_cells_ajax(request):
+    """AJAX view to get cells based on province, district, and sector"""
+    province = request.GET.get('province')
+    district = request.GET.get('district')
+    sector = request.GET.get('sector')
+    cells = get_cells(province, district, sector) if province and district and sector else []
+    return JsonResponse({'cells': cells})
+
+def get_villages_ajax(request):
+    """AJAX view to get villages based on province, district, sector, and cell"""
+    province = request.GET.get('province')
+    district = request.GET.get('district')
+    sector = request.GET.get('sector')
+    cell = request.GET.get('cell')
+    villages = get_villages(province, district, sector, cell) if province and district and sector and cell else []
+    return JsonResponse({'villages': villages})

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .forms import PhotoForm
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Q
 from collections import Counter
 import json
 
@@ -326,7 +326,38 @@ def upload_story(request):
 
 def photographer_list(request):
 	photographers = User.objects.filter(role='photographer')
-	return render(request, 'portfolio/photographer_list.html', {'photographers': photographers})
+	
+	# Get filters from URL parameters
+	location_filter = request.GET.get('location', '').strip()
+	search_query = request.GET.get('search', '').strip()
+	
+	# Apply location filter if provided
+	if location_filter:
+		photographers = photographers.filter(location__icontains=location_filter)
+	
+	# Apply search filter if provided
+	if search_query:
+		photographers = photographers.filter(
+			Q(first_name__icontains=search_query) |
+			Q(last_name__icontains=search_query) |
+			Q(username__icontains=search_query) |
+			Q(location__icontains=search_query)
+		)
+	
+	# Get all unique locations for the filter dropdown (exclude empty values)
+	all_locations = User.objects.filter(
+		role='photographer', 
+		location__isnull=False
+	).exclude(location='').values_list('location', flat=True).distinct().order_by('location')
+	
+	context = {
+		'photographers': photographers,
+		'all_locations': all_locations,
+		'selected_location': location_filter,
+		'search_query': search_query,
+	}
+	
+	return render(request, 'portfolio/photographer_list.html', context)
 
 def photographer_detail(request, pk):
 	photographer = get_object_or_404(User, pk=pk, role='photographer')
@@ -391,7 +422,7 @@ def add_category(request):
 def delete_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
     if not request.user.is_authenticated:
-        return redirect('login')
+        return redirect('users:login')
     if request.user == story.photographer or request.user.is_superuser:
         if request.method == 'POST':
             story.delete()
@@ -405,7 +436,7 @@ def delete_story(request, story_id):
 def delete_photo(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
     if not request.user.is_authenticated:
-        return redirect('login')
+        return redirect('users:login')
     if request.user == photo.photographer or request.user.is_superuser:
         if request.method == 'POST':
             photo.delete()

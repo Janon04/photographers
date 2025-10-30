@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %} - Photographers Platform</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .admin-main {
+            padding: 2rem;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-brand h4 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--accent-color);
+            transition: transform 0.2s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stats-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stats-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .badge-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-confirmed { background: #d1ecf1; color: #0c5460; }
+        .badge-completed { background: #d4edda; color: #155724; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin: 0 0.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-approve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-reject {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-edit {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .search-filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .admin-content {
+                margin-left: 0;
+            }
+            
+            .admin-main {
+                padding: 1rem;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="sidebar-brand">
+                <h4><i class="fas fa-camera-retro"></i> Admin Panel</h4>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:users_management' %}" class="nav-link {% if request.resolver_match.url_name == 'users_management' %}active{% endif %}">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:bookings_management' %}" class="nav-link {% if request.resolver_match.url_name == 'bookings_management' %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i> Bookings
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:reviews_management' %}" class="nav-link {% if request.resolver_match.url_name == 'reviews_management' %}active{% endif %}">
+                        <i class="fas fa-star"></i> Reviews
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:notifications_management' %}" class="nav-link {% if request.resolver_match.url_name == 'notifications_management' %}active{% endif %}">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'admin_dashboard:activity_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'activity_logs' %}active{% endif %}">
+                        <i class="fas fa-history"></i> Activity Logs
+                    </a>
+                </div>
+                
+                <hr style="margin: 1rem; opacity: 0.3;">
+                
+                <div class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link">
+                        <i class="fas fa-home"></i> Back to Site
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{% url 'users:logout' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-md-none me-3" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="h4 mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    <span class="me-3">Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
+                    <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
+                         alt="Avatar" class="user-avatar">
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="admin-main">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.querySelector('.admin-sidebar').classList.toggle('show');
+        });
+
+        // AJAX helper function
+        function adminAjax(url, data = {}) {
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.json());
+        }
+
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                if (alert.querySelector('.btn-close')) {
+                    alert.querySelector('.btn-close').click();
+                }
+            });
+        }, 5000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

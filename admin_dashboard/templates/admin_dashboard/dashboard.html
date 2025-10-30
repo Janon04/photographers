@@ -1,0 +1,269 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Platform Overview{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Key Statistics -->
+    <div class="col-md-3 mb-4">
+        <div class="stats-card">
+            <div class="stats-number text-primary">{{ total_users }}</div>
+            <div class="stats-label">Total Users</div>
+            <small class="text-muted">
+                <i class="fas fa-arrow-up text-success"></i> +{{ new_users_30d }} this month
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card success">
+            <div class="stats-number text-success">{{ total_photographers }}</div>
+            <div class="stats-label">Photographers</div>
+            <small class="text-muted">{{ total_clients }} clients</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card warning">
+            <div class="stats-number text-warning">{{ total_bookings }}</div>
+            <div class="stats-label">Total Bookings</div>
+            <small class="text-muted">{{ completed_bookings }} completed</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stats-card danger">
+            <div class="stats-number text-info">${{ total_revenue|floatformat:2 }}</div>
+            <div class="stats-label">Total Revenue</div>
+            <small class="text-muted">Platform earnings</small>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="mb-3">User Registration Trends (Last 7 Days)</h5>
+            <canvas id="userGrowthChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="chart-container">
+            <h5 class="mb-3">Booking Status Distribution</h5>
+            <canvas id="bookingStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions and Recent Activity -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-exclamation-circle me-2"></i>Pending Approvals
+            </div>
+            <div class="p-3">
+                {% if pending_reviews > 0 %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Reviews awaiting approval</span>
+                        <span class="badge bg-warning">{{ pending_reviews }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'admin_dashboard:reviews_management' %}?approved=false" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>Review Pending Items
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <p class="mb-0">No pending reviews!</p>
+                    </div>
+                {% endif %}
+                
+                <!-- Contact Messages Info -->
+                <div class="mt-3 pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Total contact messages</span>
+                        <span class="badge bg-info">{{ total_contact_messages }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-clock me-2"></i>Recent Activity
+            </div>
+            <div class="p-3">
+                {% if recent_users %}
+                    <h6 class="mb-2">New Users</h6>
+                    {% for user in recent_users %}
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
+                                 alt="Avatar" class="user-avatar me-2" style="width: 24px; height: 24px;">
+                            <span class="flex-grow-1">{{ user.get_full_name|default:user.email }}</span>
+                            <small class="text-muted">{{ user.role|title }}</small>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% if recent_bookings %}
+                    <h6 class="mb-2 mt-3">Recent Bookings</h6>
+                    {% for booking in recent_bookings|slice:":3" %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">{{ booking.service_type|truncatechars:20 }}</span>
+                            <span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Users Table -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table">
+            <div class="table-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-users me-2"></i>Recent User Registrations</span>
+                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-outline-light btn-sm">
+                    View All <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Verified</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in recent_users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
+                                             alt="Avatar" class="user-avatar me-2">
+                                        <div>
+                                            <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                            <small class="text-muted">{{ user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ user.role|yesno:'primary,success' }}">
+                                        {{ user.get_role_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if user.is_verified %}
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-clock text-warning"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'admin_dashboard:user_detail' user.id %}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    No recent registrations
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // User Growth Chart
+    const userGrowthData = {{ user_growth|safe }};
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(userGrowthCtx, {
+        type: 'line',
+        data: {
+            labels: userGrowthData.map(item => item.date),
+            datasets: [{
+                label: 'New Users',
+                data: userGrowthData.map(item => item.count),
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Booking Status Chart
+    const bookingStatusData = {{ booking_stats|safe }};
+    const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+    new Chart(bookingStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+            datasets: [{
+                data: [
+                    bookingStatusData.pending,
+                    bookingStatusData.confirmed,
+                    bookingStatusData.completed,
+                    bookingStatusData.cancelled
+                ],
+                backgroundColor: [
+                    '#f39c12',
+                    '#3498db',
+                    '#27ae60',
+                    '#e74c3c'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

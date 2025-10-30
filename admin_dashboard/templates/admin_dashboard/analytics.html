@@ -1,0 +1,261 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Platform Analytics{% endblock %}
+
+{% block content %}
+<!-- Period Filter -->
+<div class="search-filters">
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label for="period" class="form-label">Time Period</label>
+            <select class="form-control" id="period" name="period">
+                <option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
+                <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option>
+                <option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
+                <option value="365" {% if period == '365' %}selected{% endif %}>Last year</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Update
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Charts Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-3">User Registration Trends</h5>
+            <canvas id="userRegistrationChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-3">Booking Trends</h5>
+            <canvas id="bookingTrendsChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <h5 class="mb-3">Revenue Trends</h5>
+            <canvas id="revenueTrendsChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-trophy me-2"></i>Top Photographers
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Photographer</th>
+                            <th>Bookings</th>
+                            <th>Completed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for photographer in top_photographers %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if photographer.profile_picture %}
+                                            <img src="{{ photographer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                        {% else %}
+                                            <div class="user-avatar me-2 bg-primary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                                {{ photographer.first_name|first|default:photographer.email|first|upper }}
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ photographer.get_full_name|default:photographer.username }}</div>
+                                            <small class="text-muted">{{ photographer.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ photographer.booking_count }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">{{ photographer.completed_bookings }}</span>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">
+                                    No photographers found
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Service Popularity -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-camera me-2"></i>Popular Services
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Service Type</th>
+                            <th>Total Bookings</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in service_popularity %}
+                            <tr>
+                                <td>{{ service.service_type|title }}</td>
+                                <td>{{ service.count }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" 
+                                             style="width: {{ service.count|floatformat:0 }}%">
+                                            {{ service.count|floatformat:0 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">
+                                    No service data available
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // User Registration Chart
+    const userRegistrationData = {{ user_registrations|safe }};
+    const userRegistrationCtx = document.getElementById('userRegistrationChart').getContext('2d');
+    new Chart(userRegistrationCtx, {
+        type: 'line',
+        data: {
+            labels: userRegistrationData.map(item => item.date),
+            datasets: [
+                {
+                    label: 'All Users',
+                    data: userRegistrationData.map(item => item.count),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Photographers',
+                    data: {{ photographer_registrations|safe }}.map(item => item.count),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Clients',
+                    data: {{ client_registrations|safe }}.map(item => item.count),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Booking Trends Chart
+    const bookingTrendsData = {{ booking_trends|safe }};
+    const bookingTrendsCtx = document.getElementById('bookingTrendsChart').getContext('2d');
+    new Chart(bookingTrendsCtx, {
+        type: 'bar',
+        data: {
+            labels: bookingTrendsData.map(item => item.date),
+            datasets: [{
+                label: 'Bookings',
+                data: bookingTrendsData.map(item => item.count),
+                backgroundColor: '#f39c12',
+                borderColor: '#e67e22',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Revenue Trends Chart
+    const revenueTrendsData = {{ revenue_trends|safe }};
+    const revenueTrendsCtx = document.getElementById('revenueTrendsChart').getContext('2d');
+    new Chart(revenueTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: revenueTrendsData.map(item => item.date),
+            datasets: [{
+                label: 'Revenue ($)',
+                data: revenueTrendsData.map(item => item.amount),
+                borderColor: '#27ae60',
+                backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

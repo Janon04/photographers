@@ -1,0 +1,235 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Notifications Management{% endblock %}
+{% block page_title %}System Notifications{% endblock %}
+
+{% block content %}
+<!-- Create Notification Form -->
+<div class="data-table mb-4">
+    <div class="table-header">
+        <i class="fas fa-bell me-2"></i>Create New Notification
+    </div>
+    <div class="p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.notification_type.id_for_label }}" class="form-label">Type</label>
+                    {{ form.notification_type }}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
+                {{ form.message }}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.target_users.id_for_label }}" class="form-label">Target Users</label>
+                    {{ form.target_users }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.expires_at.id_for_label }}" class="form-label">Expires At (Optional)</label>
+                    {{ form.expires_at }}
+                </div>
+                <div class="col-md-4 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            Active Notification
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Create Notification
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Existing Notifications -->
+<div class="data-table">
+    <div class="table-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-list me-2"></i>Existing Notifications ({{ page_obj.paginator.count }} total)</span>
+        <div>
+            <span class="text-light">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in page_obj %}
+                    <tr>
+                        <td>
+                            <div>
+                                <div class="fw-bold">{{ notification.title }}</div>
+                                <small class="text-muted">{{ notification.message|truncatechars:50 }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if notification.notification_type == 'info' %}info{% elif notification.notification_type == 'warning' %}warning{% elif notification.notification_type == 'maintenance' %}danger{% elif notification.notification_type == 'feature' %}success{% else %}primary{% endif %}">
+                                {{ notification.get_notification_type_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ notification.get_target_users_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if notification.is_active %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle"></i> Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div>
+                                {{ notification.created_at|date:"M d, Y" }}
+                                <small class="text-muted d-block">{{ notification.created_at|time:"H:i" }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            {% if notification.expires_at %}
+                                <div>
+                                    {{ notification.expires_at|date:"M d, Y" }}
+                                    <small class="text-muted d-block">{{ notification.expires_at|time:"H:i" }}</small>
+                                </div>
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" 
+                                        onclick="viewNotification('{{ notification.id }}', '{{ notification.title|escapejs }}', '{{ notification.message|escapejs }}')"
+                                        title="View Full Notification">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-{% if notification.is_active %}warning{% else %}success{% endif %} btn-sm"
+                                        onclick="toggleNotification({{ notification.id }}, {{ notification.is_active|yesno:'true,false' }})"
+                                        title="{% if notification.is_active %}Deactivate{% else %}Activate{% endif %} Notification">
+                                    <i class="fas fa-{% if notification.is_active %}pause{% else %}play{% endif %}"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>
+                            No notifications created yet
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav aria-label="Notifications pagination">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+<!-- Notification View Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">Notification Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="notificationTitle"></h6>
+                <p id="notificationMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token for AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewNotification(id, title, message) {
+        document.getElementById('notificationTitle').textContent = title;
+        document.getElementById('notificationMessage').textContent = message;
+        
+        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        modal.show();
+    }
+
+    function toggleNotification(notificationId, currentStatus) {
+        const action = currentStatus ? 'deactivate' : 'activate';
+        if (confirm(`Are you sure you want to ${action} this notification?`)) {
+            // This would require implementing the toggle endpoint in views
+            // For now, just reload the page
+            alert('Feature not implemented yet. Please use Django admin for now.');
+        }
+    }
+</script>
+{% endblock %}

@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'community',
     'helpcenter',
     'blog',
+    'admin_dashboard',
 ]
 
 MIDDLEWARE = [
@@ -84,6 +85,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     "allauth.account.middleware.AccountMiddleware", 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'admin_dashboard.middleware.AdminActivityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

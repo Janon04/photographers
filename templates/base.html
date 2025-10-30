@@ -487,7 +487,11 @@
 
             <div class="nav-actions" id="navActions">
                 {% if user.is_authenticated %}
-                    {% if user.role == 'photographer' %}
+                    {% if user.role == 'admin' %}
+                        <a href="{% url 'admin_dashboard:dashboard' %}" class="nav-link">
+                            <i class="fas fa-cogs"></i> Admin Panel
+                        </a>
+                    {% elif user.role == 'photographer' %}
                         <a href="{% url 'portfolio:photographer_dashboard' %}" class="nav-link">
                             <i class="fas fa-th-large"></i> Dashboard
                         </a>

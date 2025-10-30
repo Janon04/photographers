@@ -1,0 +1,274 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}User Details{% endblock %}
+{% block page_title %}User Details - {{ user_obj.get_full_name|default:user_obj.email }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- User Information -->
+    <div class="col-md-8">
+        <div class="data-table mb-4">
+            <div class="table-header">
+                <i class="fas fa-user me-2"></i>Edit User Information
+            </div>
+            <div class="p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                            {{ form.username }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                            {{ form.role }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                {{ form.is_verified }}
+                                <label class="form-check-label" for="{{ form.is_verified.id_for_label }}">
+                                    Verified User
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Account
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                        {{ form.bio }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                            {{ form.location }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.contact_info.id_for_label }}" class="form-label">Contact Info</label>
+                            {{ form.contact_info }}
+                        </div>
+                    </div>
+                    
+                    {% if user_obj.role == 'photographer' %}
+                        <hr>
+                        <h6>Photographer Specific</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">Typical Session Price</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.social_proof.id_for_label }}" class="form-label">Social Proof URL</label>
+                                {{ form.social_proof }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.badges.id_for_label }}" class="form-label">Badges</label>
+                                {{ form.badges }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.certifications.id_for_label }}" class="form-label">Certifications</label>
+                                {{ form.certifications }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.awards.id_for_label }}" class="form-label">Awards</label>
+                                {{ form.awards }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left"></i> Back to Users
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Stats -->
+    <div class="col-md-4">
+        <div class="data-table mb-4">
+            <div class="table-header">
+                <i class="fas fa-chart-bar me-2"></i>User Statistics
+            </div>
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Total Bookings</span>
+                    <span class="badge bg-primary">{{ user_stats.total_bookings }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Completed Bookings</span>
+                    <span class="badge bg-success">{{ user_stats.completed_bookings }}</span>
+                </div>
+                {% if user_obj.role == 'photographer' %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Total Photos</span>
+                        <span class="badge bg-info">{{ user_stats.total_photos }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Reviews Received</span>
+                        <span class="badge bg-warning">{{ user_stats.total_reviews }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Average Rating</span>
+                        <span class="badge bg-warning">{{ user_stats.average_rating|floatformat:1 }}/5</span>
+                    </div>
+                {% else %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Reviews Made</span>
+                        <span class="badge bg-warning">{{ user_stats.total_reviews }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- User Profile Info -->
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-info-circle me-2"></i>Profile Information
+            </div>
+            <div class="p-3 text-center">
+                {% if user_obj.profile_picture %}
+                    <img src="{{ user_obj.profile_picture.url }}" alt="Profile Picture" 
+                         class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white mb-3" 
+                         style="width: 100px; height: 100px; font-size: 2rem;">
+                        {{ user_obj.first_name|first|default:user_obj.email|first|upper }}
+                    </div>
+                {% endif %}
+                
+                <h5>{{ user_obj.get_full_name|default:user_obj.username }}</h5>
+                <p class="text-muted">{{ user_obj.email }}</p>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Joined</small>
+                        <strong>{{ user_obj.date_joined|date:"M d, Y" }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Last Login</small>
+                        <strong>
+                            {% if user_obj.last_login %}
+                                {{ user_obj.last_login|date:"M d, Y" }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-center gap-3">
+                    {% if user_obj.is_verified %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle"></i> Verified
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning">
+                            <i class="fas fa-clock"></i> Unverified
+                        </span>
+                    {% endif %}
+                    
+                    {% if user_obj.is_active %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-circle"></i> Active
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger">
+                            <i class="fas fa-ban"></i> Suspended
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings -->
+{% if recent_bookings %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table">
+            <div class="table-header">
+                <i class="fas fa-calendar-check me-2"></i>Recent Bookings
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            {% if user_obj.role == 'photographer' %}
+                                <th>Client</th>
+                            {% else %}
+                                <th>Photographer</th>
+                            {% endif %}
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                            <tr>
+                                {% if user_obj.role == 'photographer' %}
+                                    <td>{{ booking.client.get_full_name|default:booking.client_email }}</td>
+                                {% else %}
+                                    <td>{{ booking.photographer.get_full_name }}</td>
+                                {% endif %}
+                                <td>{{ booking.service_type }}</td>
+                                <td>{{ booking.date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge badge-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ booking.payment_status }}">
+                                        {{ booking.get_payment_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

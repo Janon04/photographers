@@ -8,6 +8,7 @@ class User(AbstractUser):
 	class Roles(models.TextChoices):
 		PHOTOGRAPHER = 'photographer', _('Photographer')
 		CLIENT = 'client', _('Client')
+		ADMIN = 'admin', _('Platform Admin')
 
 	# Override username field to allow spaces and more characters
 	username = models.CharField(

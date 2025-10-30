@@ -1,0 +1,238 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Reviews Management{% endblock %}
+{% block page_title %}Reviews Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filter Section -->
+<div class="search-filters">
+    <form method="get" class="row g-3">
+        <div class="col-md-6">
+            <label for="search" class="form-label">Search Reviews</label>
+            <input type="text" class="form-control" id="search" name="search" 
+                   value="{{ search_query }}" placeholder="Reviewer, photographer, or comment...">
+        </div>
+        <div class="col-md-2">
+            <label for="approved" class="form-label">Approval Status</label>
+            <select class="form-control" id="approved" name="approved">
+                <option value="">All Reviews</option>
+                <option value="true" {% if approval_filter == 'true' %}selected{% endif %}>Approved</option>
+                <option value="false" {% if approval_filter == 'false' %}selected{% endif %}>Pending Approval</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{% url 'admin_dashboard:reviews_management' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <a href="{% url 'admin_dashboard:export_data' %}?type=reviews" class="btn btn-success">
+                <i class="fas fa-download"></i> Export CSV
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Reviews Table -->
+<div class="data-table">
+    <div class="table-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-star me-2"></i>Reviews ({{ page_obj.paginator.count }} total)</span>
+        <div>
+            <span class="text-light">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Reviewer</th>
+                    <th>Photographer</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if review.reviewer.profile_picture %}
+                                    <img src="{{ review.reviewer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                {% else %}
+                                    <div class="user-avatar me-2 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                        {{ review.reviewer.first_name|first|default:review.reviewer.email|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</div>
+                                    <small class="text-muted">{{ review.reviewer.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if review.photographer.profile_picture %}
+                                    <img src="{{ review.photographer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                {% else %}
+                                    <div class="user-avatar me-2 bg-primary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                        {{ review.photographer.first_name|first|default:review.photographer.email|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ review.photographer.get_full_name|default:review.photographer.username }}</div>
+                                    <small class="text-muted">{{ review.photographer.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">{{ review.rating }}</span>
+                                <div>
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment-preview">
+                                {{ review.comment|truncatechars:100 }}
+                                {% if review.comment|length > 100 %}
+                                    <button class="btn btn-link btn-sm p-0" onclick="showFullComment('{{ review.id }}')">
+                                        Read more...
+                                    </button>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Hidden full comment -->
+                            <div id="full-comment-{{ review.id }}" class="d-none">
+                                <div class="p-3 bg-light rounded">
+                                    <strong>Full Comment:</strong>
+                                    <p class="mt-2 mb-0">{{ review.comment }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if review.is_approved %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle"></i> Approved
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock"></i> Pending
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ review.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <button type="button" 
+                                    class="btn btn-{% if review.is_approved %}warning{% else %}success{% endif %} btn-sm"
+                                    onclick="toggleApproval({{ review.id }}, {{ review.is_approved|yesno:'true,false' }})"
+                                    title="{% if review.is_approved %}Disapprove{% else %}Approve{% endif %} Review">
+                                <i class="fas fa-{% if review.is_approved %}times{% else %}check{% endif %}"></i>
+                                {% if review.is_approved %}Disapprove{% else %}Approve{% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-star fa-2x mb-2 d-block"></i>
+                            No reviews found matching your criteria
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav aria-label="Reviews pagination">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if approval_filter %}&approved={{ approval_filter }}{% endif %}">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if approval_filter %}&approved={{ approval_filter }}{% endif %}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if approval_filter %}&approved={{ approval_filter }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if approval_filter %}&approved={{ approval_filter }}{% endif %}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if approval_filter %}&approved={{ approval_filter }}{% endif %}">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+
+<!-- CSRF Token for AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleApproval(reviewId, currentStatus) {
+        const action = currentStatus ? 'disapprove' : 'approve';
+        if (confirm(`Are you sure you want to ${action} this review?`)) {
+            fetch(`/admin-dashboard/reviews/${reviewId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating review status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating review status');
+            });
+        }
+    }
+
+    function showFullComment(reviewId) {
+        const fullCommentDiv = document.getElementById(`full-comment-${reviewId}`);
+        fullCommentDiv.classList.remove('d-none');
+        
+        // Hide the truncated version
+        const commentPreview = fullCommentDiv.previousElementSibling;
+        commentPreview.style.display = 'none';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+<h2>{{ title }} 📢</h2>
+
+<p>Hello <strong>{{ user_name|default:"Valued User" }}</strong>,</p>
+
+<div class="info-box" style="border-left-color: {% if notification.notification_type == 'warning' %}#ffc107{% elif notification.notification_type == 'info' %}#17a2b8{% elif notification.notification_type == 'feature' %}#28a745{% elif notification.notification_type == 'promotion' %}#fd7e14{% else %}#6c757d{% endif %}; background-color: {% if notification.notification_type == 'warning' %}#fff3cd{% elif notification.notification_type == 'info' %}#d1ecf1{% elif notification.notification_type == 'feature' %}#d4edda{% elif notification.notification_type == 'promotion' %}#ffeaa7{% else %}#f8f9fa{% endif %};">
+    <p><strong>
+        {% if notification.notification_type == 'warning' %}⚠️ {{ notification_type }}
+        {% elif notification.notification_type == 'info' %}ℹ️ {{ notification_type }}
+        {% elif notification.notification_type == 'feature' %}🎉 {{ notification_type }}
+        {% elif notification.notification_type == 'promotion' %}🎯 {{ notification_type }}
+        {% elif notification.notification_type == 'maintenance' %}🔧 {{ notification_type }}
+        {% elif notification.notification_type == 'announcement' %}📣 {{ notification_type }}
+        {% elif notification.notification_type == 'update' %}🔄 {{ notification_type }}
+        {% else %}📢 {{ notification_type }}
+        {% endif %}
+    </strong></p>
+</div>
+
+<div style="background-color: #ffffff; padding: 2rem; border-radius: 8px; border: 1px solid #e9ecef; margin: 1.5rem 0;">
+    {{ message|linebreaks }}
+</div>
+
+{% if notification.expires_at %}
+<p style="color: #6c757d; font-size: 0.9rem;">
+    <strong>Note:</strong> This notification expires on {{ notification.expires_at|date:"F d, Y at g:i A" }}.
+</p>
+{% endif %}
+
+<div style="text-align: center; margin: 2rem 0;">
+    <a href="http://127.0.0.1:8000/" class="btn" style="background-color: #A67C52; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+        Visit PhotoRw Platform
+    </a>
+</div>
+
+<h3>Need Help?</h3>
+<p>If you have any questions about this notification, please contact our support team:</p>
+<ul>
+    <li>📧 Email: <a href="mailto:janon3030@gmail.com">janon3030@gmail.com</a></li>
+    <li>📞 Phone: <a href="tel:+250786003139">+250 786 003 139</a></li>
+</ul>
+
+<p>Thank you for being part of the PhotoRw community!</p>
+
+<p>Best regards,<br>
+<strong>{{ created_by }}</strong><br>
+<em>PhotoRw Administration Team</em></p>
+
+<hr style="border: none; border-top: 1px solid #e9ecef; margin: 2rem 0;">
+<p style="color: #6c757d; font-size: 0.8rem;">
+    This notification was sent on {{ created_at|date:"F d, Y at g:i A" }} to {{ notification.get_target_users_display|lower }}.
+    <br>
+    You're receiving this because you are a member of PhotoRw photography platform.
+</p>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Email Preview - {{ notification.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>📧 Email Preview</h2>
+                <p class="text-muted">Preview how the email will look when sent to users</p>
+            </div>
+            <div>
+                <a href="{% url 'admin_dashboard:notifications_management' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Notifications
+                </a>
+            </div>
+        </div>
+
+        <!-- Notification Info Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Notification Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Title:</strong> {{ notification.title }}</p>
+                        <p><strong>Type:</strong> 
+                            <span class="badge badge-{% if notification.notification_type == 'warning' %}warning{% elif notification.notification_type == 'info' %}info{% elif notification.notification_type == 'feature' %}success{% elif notification.notification_type == 'promotion' %}primary{% else %}secondary{% endif %}">
+                                {{ notification.get_notification_type_display }}
+                            </span>
+                        </p>
+                        <p><strong>Target Users:</strong> {{ notification.get_target_users_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email Subject:</strong> {{ preview.subject }}</p>
+                        <p><strong>Recipients:</strong> {{ recipient_count }} users</p>
+                        <p><strong>Created By:</strong> {{ notification.created_by.get_full_name|default:notification.created_by.username }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Preview Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="previewTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="html-tab" data-bs-toggle="tab" data-bs-target="#html-preview" type="button" role="tab" aria-controls="html-preview" aria-selected="true">
+                            <i class="fas fa-code"></i> HTML Preview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-preview" type="button" role="tab" aria-controls="text-preview" aria-selected="false">
+                            <i class="fas fa-file-text"></i> Text Preview
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="previewTabsContent">
+                    <!-- HTML Preview -->
+                    <div class="tab-pane fade show active" id="html-preview" role="tabpanel" aria-labelledby="html-tab">
+                        <div class="email-preview-container" style="border: 1px solid #ddd; background: #f8f9fa; padding: 2rem; border-radius: 8px; max-height: 600px; overflow-y: auto;">
+                            {{ preview.html_content|safe }}
+                        </div>
+                    </div>
+                    
+                    <!-- Text Preview -->
+                    <div class="tab-pane fade" id="text-preview" role="tabpanel" aria-labelledby="text-tab">
+                        <div class="text-preview-container" style="border: 1px solid #ddd; background: #f8f9fa; padding: 2rem; border-radius: 8px; max-height: 600px; overflow-y: auto;">
+                            <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace; color: #333;">{{ preview.text_content }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                {% if notification.delivery_method in 'email,both' %}
+                    {% if notification.email_status == 'draft' or notification.email_status == 'pending' %}
+                        <form method="post" action="{% url 'admin_dashboard:send_notification_email' notification.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg me-3" onclick="return confirm('Are you sure you want to send this email to {{ recipient_count }} users?')">
+                                <i class="fas fa-paper-plane"></i> Send Email to {{ recipient_count }} Users
+                            </button>
+                        </form>
+                    {% elif notification.email_status == 'sent' %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> This email has already been sent to {{ notification.emails_sent }} users on {{ notification.email_sent_at|date:"F d, Y at g:i A" }}
+                        </div>
+                        <form method="post" action="{% url 'admin_dashboard:send_notification_email' notification.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-lg me-3" onclick="return confirm('This email was already sent. Are you sure you want to send it again to {{ recipient_count }} users?')">
+                                <i class="fas fa-redo"></i> Send Again
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                
+                <a href="{% url 'admin_dashboard:notifications_management' %}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.email-preview-container {
+    font-family: Arial, sans-serif;
+}
+
+.email-preview-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+.text-preview-container {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-main);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+</style>
+{% endblock %}

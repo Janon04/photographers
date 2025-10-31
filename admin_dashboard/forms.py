@@ -34,25 +34,50 @@ class UserEditForm(forms.ModelForm):
         }
 
 class SystemNotificationForm(forms.ModelForm):
-    """Form for creating system notifications"""
+    """Form for creating system notifications with email support"""
     
     class Meta:
         model = SystemNotification
         fields = [
             'title', 'message', 'notification_type', 'target_users',
+            'delivery_method', 'email_subject', 'send_immediately',
             'is_active', 'expires_at'
         ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Enter notification title...'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 5,
+                'placeholder': 'Enter notification message...'
+            }),
             'notification_type': forms.Select(attrs={'class': 'form-control'}),
             'target_users': forms.Select(attrs={'class': 'form-control'}),
+            'delivery_method': forms.Select(attrs={'class': 'form-control'}),
+            'email_subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Custom email subject (optional - defaults to notification title)'
+            }),
+            'send_immediately': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'expires_at': forms.DateTimeInput(attrs={
                 'class': 'form-control',
                 'type': 'datetime-local'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add help text
+        self.fields['delivery_method'].help_text = 'Choose how to deliver this notification'
+        self.fields['email_subject'].help_text = 'Leave blank to use notification title as email subject'
+        self.fields['send_immediately'].help_text = 'Uncheck to save as draft for later sending'
+        self.fields['expires_at'].help_text = 'Optional expiration date for the notification'
+        
+        # Make email_subject conditional
+        self.fields['email_subject'].required = False
 
 class PlatformSettingsForm(forms.ModelForm):
     """Form for managing platform settings"""

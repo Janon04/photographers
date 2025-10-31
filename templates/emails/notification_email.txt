@@ -1,0 +1,28 @@
+{{ title }}
+========================================
+
+Hello {{ user_name|default:"Valued User" }},
+
+{{ notification_type|upper }}: {{ title }}
+
+{{ message }}
+
+{% if notification.expires_at %}
+Note: This notification expires on {{ notification.expires_at|date:"F d, Y at g:i A" }}.
+{% endif %}
+
+Visit PhotoRw Platform: http://127.0.0.1:8000/
+
+Need Help?
+- Email: janon3030@gmail.com
+- Phone: +250 786 003 139
+
+Thank you for being part of the PhotoRw community!
+
+Best regards,
+{{ created_by }}
+PhotoRw Administration Team
+
+---
+This notification was sent on {{ created_at|date:"F d, Y at g:i A" }} to {{ notification.get_target_users_display|lower }}.
+You're receiving this because you are a member of PhotoRw photography platform.

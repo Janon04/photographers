@@ -26,6 +26,17 @@ urlpatterns = [
     # Notifications
     path('notifications/', views.notifications_management, name='notifications_management'),
     
+    # Notification email endpoints (for new notifications)
+    path('notifications/preview-email/', views.preview_notification_email, name='preview_notification_email'),
+    path('notifications/send-email/', views.send_notification_email, name='send_notification_email'),
+    path('notifications/recipient-count/', views.get_recipient_count, name='get_recipient_count'),
+    
+    # Existing notification endpoints
+    path('notifications/<int:notification_id>/preview-existing/', views.preview_existing_notification_email, name='preview_existing_notification_email'),
+    path('notifications/<int:notification_id>/send-existing/', views.send_existing_notification_email, name='send_existing_notification_email'),
+    path('notifications/<int:notification_id>/toggle/', views.toggle_notification, name='toggle_notification'),
+    path('notifications/<int:notification_id>/delete/', views.delete_notification, name='delete_notification'),
+    
     # Activity logs
     path('logs/', views.activity_logs, name='activity_logs'),
     

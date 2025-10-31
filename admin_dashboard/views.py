@@ -21,6 +21,7 @@ from community.models import Post
 from blog.models import BlogPost
 from .models import AdminActivityLog, PlatformSettings, SystemNotification, PlatformAnalytics
 from .forms import UserEditForm, SystemNotificationForm, PlatformSettingsForm
+from .email_service import NotificationEmailService
 
 User = get_user_model()
 
@@ -453,22 +454,67 @@ def analytics_dashboard(request):
 @login_required
 @user_passes_test(is_admin)
 def notifications_management(request):
-    """Manage system notifications"""
+    """Manage system notifications with email support"""
     if request.method == 'POST':
         form = SystemNotificationForm(request.POST)
         if form.is_valid():
             notification = form.save(commit=False)
             notification.created_by = request.user
+            
+            # Set email subject if not provided
+            if not notification.email_subject:
+                notification.email_subject = notification.title
+            
+            # Set email status based on delivery method and send_immediately
+            if notification.delivery_method in ['email', 'both']:
+                if notification.send_immediately:
+                    notification.email_status = 'pending'
+                else:
+                    notification.email_status = 'draft'
+            else:
+                notification.email_status = 'pending'  # For in-app only
+            
             notification.save()
+            
+            # Send emails if required and send_immediately is True
+            if notification.delivery_method in ['email', 'both'] and notification.send_immediately:
+                try:
+                    result = NotificationEmailService.send_notification_email(notification)
+                    if result['success']:
+                        messages.success(
+                            request, 
+                            f'Notification created and {result["message"]}!'
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            f'Notification created but email sending failed: {result["message"]}'
+                        )
+                except Exception as e:
+                    messages.error(
+                        request,
+                        f'Notification created but email sending failed: {str(e)}'
+                    )
+            else:
+                messages.success(request, 'Notification created successfully.')
             
             log_admin_activity(
                 request.user, 'create', 'SystemNotification', notification.id,
-                f"Notification: {notification.title}", f"Created system notification",
+                f"Notification: {notification.title}", 
+                f"Created notification for {notification.target_users}",
                 request.META.get('REMOTE_ADDR')
             )
             
-            messages.success(request, 'System notification created successfully.')
             return redirect('admin_dashboard:notifications_management')
+        else:
+            # Form is not valid - display errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == '__all__':
+                        messages.error(request, f'Form error: {error}')
+                    else:
+                        field_name = form.fields[field].label or field.replace('_', ' ').title()
+                        messages.error(request, f'{field_name}: {error}')
     else:
         form = SystemNotificationForm()
     
@@ -485,6 +531,80 @@ def notifications_management(request):
     }
     
     return render(request, 'admin_dashboard/notifications.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def send_notification_email(request, notification_id):
+    """Send email for a notification manually"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    
+    if request.method == 'POST':
+        if notification.delivery_method not in ['email', 'both']:
+            messages.error(request, 'This notification is not configured for email delivery.')
+            return redirect('admin_dashboard:notifications_management')
+        
+        try:
+            result = NotificationEmailService.send_notification_email(notification)
+            if result['success']:
+                messages.success(request, result['message'])
+                
+                log_admin_activity(
+                    request.user, 'update', 'SystemNotification', notification.id,
+                    f"Notification: {notification.title}", 
+                    f"Sent emails to {result.get('sent_count', 0)} users",
+                    request.META.get('REMOTE_ADDR')
+                )
+            else:
+                messages.error(request, f'Email sending failed: {result["message"]}')
+        except Exception as e:
+            messages.error(request, f'Error sending emails: {str(e)}')
+    
+    return redirect('admin_dashboard:notifications_management')
+
+@login_required
+@user_passes_test(is_admin)
+def preview_notification_email(request, notification_id):
+    """Preview email for a notification"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    
+    if notification.delivery_method not in ['email', 'both']:
+        messages.error(request, 'This notification is not configured for email delivery.')
+        return redirect('admin_dashboard:notifications_management')
+    
+    try:
+        preview_result = NotificationEmailService.preview_notification_email(notification)
+        if preview_result['success']:
+            context = {
+                'notification': notification,
+                'preview': preview_result,
+                'recipient_count': preview_result.get('recipient_count', 0),
+            }
+            return render(request, 'admin_dashboard/email_preview.html', context)
+        else:
+            messages.error(request, f'Preview failed: {preview_result["message"]}')
+    except Exception as e:
+        messages.error(request, f'Error generating preview: {str(e)}')
+    
+    return redirect('admin_dashboard:notifications_management')
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def toggle_notification_status(request, notification_id):
+    """Toggle notification active status"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    notification.is_active = not notification.is_active
+    notification.save()
+    
+    status = 'activated' if notification.is_active else 'deactivated'
+    log_admin_activity(
+        request.user, 'update', 'SystemNotification', notification.id,
+        f"Notification: {notification.title}", f"Notification {status}",
+        request.META.get('REMOTE_ADDR')
+    )
+    
+    messages.success(request, f'Notification has been {status}.')
+    return JsonResponse({'success': True, 'is_active': notification.is_active})
 
 @login_required
 @user_passes_test(is_admin)
@@ -563,3 +683,248 @@ def export_data(request):
             ])
     
     return response
+
+
+# === New Notification Email Views ===
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def preview_notification_email(request):
+    """Preview email for new notification (without saving)"""
+    form = SystemNotificationForm(request.POST)
+    
+    if form.is_valid():
+        # Create temporary notification object for preview
+        temp_notification = form.save(commit=False)
+        temp_notification.pk = 0  # Temporary ID for preview
+        
+        try:
+            from .email_service import NotificationEmailService
+            email_service = NotificationEmailService()
+            
+            # Generate preview HTML
+            preview_html = email_service.generate_preview_html(temp_notification)
+            
+            return JsonResponse({
+                'success': True,
+                'preview_html': preview_html
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    else:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid form data',
+            'form_errors': form.errors
+        })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def send_notification_email(request):
+    """Send email for new notification"""
+    form = SystemNotificationForm(request.POST)
+    
+    if form.is_valid():
+        # Save the notification
+        notification = form.save()
+        
+        try:
+            from .email_service import NotificationEmailService
+            email_service = NotificationEmailService()
+            
+            # Send emails if email delivery is enabled
+            if notification.delivery_method in ['email', 'both']:
+                result = email_service.send_notification_email(notification)
+                
+                if result['success']:
+                    sent_count = result['sent_count']
+                    
+                    # Log the activity
+                    log_admin_activity(
+                        request.user, 'create', 'SystemNotification', notification.id,
+                        f"Notification: {notification.title}", 
+                        f"Created and sent to {sent_count} recipients",
+                        request.META.get('REMOTE_ADDR')
+                    )
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'sent_count': sent_count,
+                        'message': f'Notification created and emails sent to {sent_count} recipients'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'error': result['message']
+                    })
+            else:
+                # Log activity for in-app only notifications
+                log_admin_activity(
+                    request.user, 'create', 'SystemNotification', notification.id,
+                    f"Notification: {notification.title}", "Created (in-app only)",
+                    request.META.get('REMOTE_ADDR')
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'sent_count': 0,
+                    'message': 'Notification created (in-app only)'
+                })
+                
+        except Exception as e:
+            # If email fails, still keep the notification but mark email as failed
+            notification.email_status = 'failed'
+            notification.save()
+            
+            return JsonResponse({
+                'success': False,
+                'error': f'Notification created but email sending failed: {str(e)}'
+            })
+    else:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid form data',
+            'form_errors': form.errors
+        })
+
+@login_required
+@user_passes_test(is_admin)
+def get_recipient_count(request):
+    """Get count of recipients for target user selection"""
+    target = request.GET.get('target', 'all')
+    
+    try:
+        # Create temporary notification to use the queryset method
+        temp_notification = SystemNotification(target_users=target)
+        queryset = temp_notification.get_target_users_queryset()
+        count = queryset.count()
+        
+        return JsonResponse({
+            'success': True,
+            'count': count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e),
+            'count': 0
+        })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def preview_existing_notification_email(request, notification_id):
+    """Preview email for existing notification"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    
+    try:
+        from .email_service import NotificationEmailService
+        email_service = NotificationEmailService()
+        
+        # Generate preview HTML
+        preview_html = email_service.generate_preview_html(notification)
+        
+        return JsonResponse({
+            'success': True,
+            'preview_html': preview_html
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def send_existing_notification_email(request, notification_id):
+    """Send email for existing notification"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    
+    try:
+        from .email_service import NotificationEmailService
+        email_service = NotificationEmailService()
+        
+        # Send emails
+        result = email_service.send_notification_email(notification)
+        
+        if result['success']:
+            sent_count = result['sent_count']
+            
+            # Log the activity
+            log_admin_activity(
+                request.user, 'update', 'SystemNotification', notification.id,
+                f"Notification: {notification.title}", 
+                f"Emails sent to {sent_count} recipients",
+                request.META.get('REMOTE_ADDR')
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'sent_count': sent_count
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': result['message']
+            })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def toggle_notification(request, notification_id):
+    """Toggle notification active status"""
+    import json
+    data = json.loads(request.body)
+    active = data.get('active')
+    
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    notification.is_active = active
+    notification.save()
+    
+    status = 'activated' if active else 'deactivated'
+    log_admin_activity(
+        request.user, 'update', 'SystemNotification', notification.id,
+        f"Notification: {notification.title}", f"Notification {status}",
+        request.META.get('REMOTE_ADDR')
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'is_active': notification.is_active
+    })
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def delete_notification(request, notification_id):
+    """Delete notification"""
+    notification = get_object_or_404(SystemNotification, id=notification_id)
+    title = notification.title
+    
+    # Log the activity before deleting
+    log_admin_activity(
+        request.user, 'delete', 'SystemNotification', notification.id,
+        f"Notification: {title}", "Notification deleted",
+        request.META.get('REMOTE_ADDR')
+    )
+    
+    notification.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Notification "{title}" has been deleted'
+    })

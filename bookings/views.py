@@ -39,7 +39,7 @@ def cancel_booking(request, booking_id):
     else:
         messages.error(request, 'You do not have permission to cancel this booking.')
     
-    return redirect(request.META.get('HTTP_REFERER', reverse('client_dashboard')))
+    return redirect(request.META.get('HTTP_REFERER', reverse('bookings:client_dashboard')))
 
 # Photographer confirms a booking
 @login_required
@@ -118,7 +118,7 @@ def create_booking(request):
                 return render(request, 'bookings/create_booking.html', {'form': form})
             if not booking.photographer.email:
                 messages.error(request, 'This photographer does not have an email address set. Please choose another photographer or contact support.')
-                return redirect('client_dashboard')
+                return redirect('bookings:client_dashboard')
             booking.save()
             
             # Send professional email notifications

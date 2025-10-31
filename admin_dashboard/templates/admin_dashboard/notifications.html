@@ -1,43 +1,100 @@
 {% extends 'admin_dashboard/base_admin.html' %}
 
 {% block title %}Notifications Management{% endblock %}
-{% block page_title %}System Notifications{% endblock %}
+{% block page_title %}System Notifications & Email Campaigns{% endblock %}
 
 {% block content %}
+<!-- Display form errors -->
+{% if form.errors %}
+    <div class="alert alert-danger">
+        <h6><i class="fas fa-exclamation-triangle me-2"></i>Form Validation Errors:</h6>
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <div class="mb-1">
+                    <strong>{% if field == '__all__' %}General{% else %}{{ field|title }}{% endif %}:</strong> {{ error }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endif %}
+
 <!-- Create Notification Form -->
 <div class="data-table mb-4">
     <div class="table-header">
         <i class="fas fa-bell me-2"></i>Create New Notification
     </div>
     <div class="p-4">
-        <form method="post">
+        <form method="post" id="notificationForm">
             {% csrf_token %}
             <div class="row">
                 <div class="col-md-8 mb-3">
                     <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
                     {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.title.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="{{ form.notification_type.id_for_label }}" class="form-label">Type</label>
                     {{ form.notification_type }}
+                    {% if form.notification_type.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.notification_type.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             
             <div class="mb-3">
                 <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
                 {{ form.message }}
+                {% if form.message.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.message.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
             </div>
             
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="{{ form.target_users.id_for_label }}" class="form-label">Target Users</label>
                     {{ form.target_users }}
+                    <div id="recipientCount" class="text-muted small mt-1"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="{{ form.delivery_method.id_for_label }}" class="form-label">Delivery Method</label>
+                    {{ form.delivery_method }}
+                    <small class="form-text text-muted">{{ form.delivery_method.help_text }}</small>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="{{ form.expires_at.id_for_label }}" class="form-label">Expires At (Optional)</label>
                     {{ form.expires_at }}
+                    <small class="form-text text-muted">{{ form.expires_at.help_text }}</small>
+                </div>
+            </div>
+
+            <!-- Email Settings (shown when email delivery is selected) -->
+            <div id="emailSettings" class="row" style="display: none;">
+                <div class="col-md-8 mb-3">
+                    <label for="{{ form.email_subject.id_for_label }}" class="form-label">Email Subject (Optional)</label>
+                    {{ form.email_subject }}
+                    <small class="form-text text-muted">{{ form.email_subject.help_text }}</small>
                 </div>
                 <div class="col-md-4 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.send_immediately }}
+                        <label class="form-check-label" for="{{ form.send_immediately.id_for_label }}">
+                            Send Emails Immediately
+                        </label>
+                        <small class="form-text text-muted d-block">{{ form.send_immediately.help_text }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
                     <div class="form-check">
                         {{ form.is_active }}
                         <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
@@ -48,13 +105,38 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" id="previewEmailBtn" class="btn btn-outline-primary me-2" style="display: none;">
+                    <i class="fas fa-eye me-2"></i>Preview Email
+                </button>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Create Notification
+                    <i class="fas fa-plus me-2"></i>Create Notification
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Email Preview Modal -->
+<div class="modal fade" id="emailPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Email Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="emailPreviewContent">
+                <!-- Preview content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="sendEmailsBtn" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Send Emails
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Existing Notifications -->
 <div class="data-table">
@@ -72,6 +154,8 @@
                     <th>Title</th>
                     <th>Type</th>
                     <th>Target</th>
+                    <th>Delivery</th>
+                    <th>Email Status</th>
                     <th>Status</th>
                     <th>Created</th>
                     <th>Expires</th>
@@ -96,6 +180,43 @@
                             <span class="badge bg-secondary">
                                 {{ notification.get_target_users_display }}
                             </span>
+                            <br>
+                            <small class="text-muted">
+                                {{ notification.get_target_users_queryset.count }} recipients
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if notification.delivery_method == 'email' %}primary{% elif notification.delivery_method == 'both' %}success{% else %}secondary{% endif %}">
+                                {{ notification.get_delivery_method_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if notification.delivery_method == 'email' or notification.delivery_method == 'both' %}
+                                {% if notification.email_status == 'sent' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Sent
+                                    </span>
+                                    {% if notification.email_sent_at %}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ notification.email_sent_at|date:"M d, H:i" }}
+                                        </small>
+                                    {% endif %}
+                                    {% if notification.email_status == 'failed' %}
+                                        <br>
+                                        <small class="text-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Error
+                                        </small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>Pending
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if notification.is_active %}
@@ -132,17 +253,40 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 
+                                <!-- Email Actions -->
+                                {% if notification.delivery_method == 'email' or notification.delivery_method == 'both' %}
+                                    {% if notification.email_status != 'sent' %}
+                                        <button type="button" class="btn btn-outline-success btn-sm"
+                                                onclick="previewAndSendEmail({{ notification.id }})"
+                                                title="Preview and Send Email">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-outline-info btn-sm"
+                                                onclick="resendEmail({{ notification.id }})"
+                                                title="Resend Email">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                
                                 <button type="button" class="btn btn-outline-{% if notification.is_active %}warning{% else %}success{% endif %} btn-sm"
-                                        onclick="toggleNotification({{ notification.id }}, {{ notification.is_active|yesno:'true,false' }})"
+                                        onclick="toggleNotificationStatus({{ notification.id }}, {{ notification.is_active|yesno:'true,false' }})"
                                         title="{% if notification.is_active %}Deactivate{% else %}Activate{% endif %} Notification">
                                     <i class="fas fa-{% if notification.is_active %}pause{% else %}play{% endif %}"></i>
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="deleteNotification({{ notification.id }})"
+                                        title="Delete Notification">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="9" class="text-center text-muted py-4">
                             <i class="fas fa-bell-slash fa-2x mb-2 d-block"></i>
                             No notifications created yet
                         </td>
@@ -215,6 +359,114 @@
 
 {% block extra_js %}
 <script>
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Form elements
+    const deliveryMethodSelect = document.getElementById('id_delivery_method');
+    const emailSettings = document.getElementById('emailSettings');
+    const previewEmailBtn = document.getElementById('previewEmailBtn');
+    const notificationForm = document.getElementById('notificationForm');
+    const targetUsersSelect = document.getElementById('id_target_users');
+    const recipientCountDiv = document.getElementById('recipientCount');
+    
+    // Update recipient count when target users changes
+    if (targetUsersSelect) {
+        targetUsersSelect.addEventListener('change', updateRecipientCount);
+        updateRecipientCount(); // Initial load
+    }
+    
+    // Show/hide email settings based on delivery method
+    if (deliveryMethodSelect) {
+        deliveryMethodSelect.addEventListener('change', function() {
+            const isEmailDelivery = this.value === 'email' || this.value === 'both';
+            emailSettings.style.display = isEmailDelivery ? 'block' : 'none';
+            previewEmailBtn.style.display = isEmailDelivery ? 'inline-block' : 'none';
+        });
+        
+        // Initial state
+        const isEmailDelivery = deliveryMethodSelect.value === 'email' || deliveryMethodSelect.value === 'both';
+        emailSettings.style.display = isEmailDelivery ? 'block' : 'none';
+        previewEmailBtn.style.display = isEmailDelivery ? 'inline-block' : 'none';
+    }
+    
+    // Preview email functionality
+    if (previewEmailBtn) {
+        previewEmailBtn.addEventListener('click', function() {
+            const formData = new FormData(notificationForm);
+            
+            fetch('{% url "admin_dashboard:preview_notification_email" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('emailPreviewContent').innerHTML = data.preview_html;
+                    const modal = new bootstrap.Modal(document.getElementById('emailPreviewModal'));
+                    modal.show();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate email preview.');
+            });
+        });
+    }
+    
+    // Send emails from preview modal
+    document.getElementById('sendEmailsBtn').addEventListener('click', function() {
+        const formData = new FormData(notificationForm);
+        
+        if (confirm('Are you sure you want to send this notification email to all targeted recipients?')) {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            
+            fetch('{% url "admin_dashboard:send_notification_email" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Emails sent successfully to ' + data.sent_count + ' recipients!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to send emails.');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Emails';
+            });
+        }
+    });
+    
+    function updateRecipientCount() {
+        const selectedValue = targetUsersSelect.value;
+        
+        fetch('{% url "admin_dashboard:get_recipient_count" %}?target=' + selectedValue)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                recipientCountDiv.textContent = data.count + ' recipients will receive this notification';
+            }
+        })
+        .catch(error => console.error('Error fetching recipient count:', error));
+    }
+    
     function viewNotification(id, title, message) {
         document.getElementById('notificationTitle').textContent = title;
         document.getElementById('notificationMessage').textContent = message;
@@ -222,13 +474,130 @@
         const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
         modal.show();
     }
-
-    function toggleNotification(notificationId, currentStatus) {
+    
+    function toggleNotificationStatus(notificationId, currentStatus) {
         const action = currentStatus ? 'deactivate' : 'activate';
         if (confirm(`Are you sure you want to ${action} this notification?`)) {
-            // This would require implementing the toggle endpoint in views
-            // For now, just reload the page
-            alert('Feature not implemented yet. Please use Django admin for now.');
+            fetch(`{% url "admin_dashboard:notifications_management" %}${notificationId}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    'notification_id': notificationId,
+                    'active': !currentStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update notification status.');
+            });
+        }
+    }
+    
+    function previewAndSendEmail(notificationId) {
+        fetch(`{% url "admin_dashboard:notifications_management" %}${notificationId}/preview-existing/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({'notification_id': notificationId})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('emailPreviewContent').innerHTML = data.preview_html;
+                
+                // Update send button to send this specific notification
+                const sendBtn = document.getElementById('sendEmailsBtn');
+                sendBtn.onclick = function() {
+                    sendExistingNotificationEmail(notificationId);
+                };
+                
+                const modal = new bootstrap.Modal(document.getElementById('emailPreviewModal'));
+                modal.show();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to generate email preview.');
+        });
+    }
+    
+    function sendExistingNotificationEmail(notificationId) {
+        if (confirm('Are you sure you want to send this notification email?')) {
+            const sendBtn = document.getElementById('sendEmailsBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            
+            fetch(`{% url "admin_dashboard:notifications_management" %}${notificationId}/send-existing/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({'notification_id': notificationId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Emails sent successfully to ' + data.sent_count + ' recipients!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to send emails.');
+            })
+            .finally(() => {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Emails';
+            });
+        }
+    }
+    
+    function resendEmail(notificationId) {
+        if (confirm('Are you sure you want to resend this notification email to all recipients?')) {
+            sendExistingNotificationEmail(notificationId);
+        }
+    }
+    
+    function deleteNotification(notificationId) {
+        if (confirm('Are you sure you want to delete this notification? This action cannot be undone.')) {
+            fetch(`{% url "admin_dashboard:notifications_management" %}${notificationId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({'notification_id': notificationId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete notification.');
+            });
         }
     }
 </script>

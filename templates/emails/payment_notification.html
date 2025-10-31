@@ -14,7 +14,7 @@
     <h3>Payment Details:</h3>
     <ul>
         <li><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</li>
-        <li><strong>Amount:</strong> ${{ transaction.amount }}</li>
+        <li><strong>Amount:</strong> Rwf {{ transaction.amount }}</li>
         <li><strong>Payment Method:</strong> {{ transaction.payment_method }}</li>
         <li><strong>Date:</strong> {{ transaction.created_at|date:"F d, Y at g:i A" }}</li>
         <li><strong>Service:</strong> {{ booking.service_type }}</li>

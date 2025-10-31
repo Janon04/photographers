@@ -34,7 +34,7 @@
     
     <div class="col-md-3 mb-4">
         <div class="stats-card danger">
-            <div class="stats-number text-info">${{ total_revenue|floatformat:2 }}</div>
+            <div class="stats-number text-info">Rwf {{ total_revenue|floatformat:2 }}</div>
             <div class="stats-label">Total Revenue</div>
             <small class="text-muted">Platform earnings</small>
         </div>
@@ -43,17 +43,27 @@
 
 <!-- Charts Row -->
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="chart-container">
-            <h5 class="mb-3">User Registration Trends (Last 7 Days)</h5>
-            <canvas id="userGrowthChart" height="300"></canvas>
+            <h5 class="mb-3">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                User Registration Trends (Last 7 Days)
+            </h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
         </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="chart-container">
-            <h5 class="mb-3">Booking Status Distribution</h5>
-            <canvas id="bookingStatusChart"></canvas>
+            <h5 class="mb-3">
+                <i class="fas fa-chart-pie me-2 text-success"></i>
+                Booking Status Distribution
+            </h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="bookingStatusChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -198,7 +208,7 @@
 
 {% block extra_js %}
 <script>
-    // User Growth Chart
+    // User Growth Chart (Line Chart)
     const userGrowthData = {{ user_growth|safe }};
     const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
     new Chart(userGrowthCtx, {
@@ -210,30 +220,70 @@
                 data: userGrowthData.map(item => item.count),
                 borderColor: '#3498db',
                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderWidth: 2,
                 tension: 0.4,
-                fill: true
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#3498db',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
             scales: {
+                x: {
+                    display: true,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    display: true,
+                    grid: {
+                        color: '#e3e6f0',
+                        borderDash: [2, 2]
+                    },
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        font: {
+                            size: 11
+                        }
                     }
                 }
             },
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleFont: {
+                        size: 12
+                    },
+                    bodyFont: {
+                        size: 11
+                    },
+                    padding: 10,
+                    cornerRadius: 6
                 }
             }
         }
     });
 
-    // Booking Status Chart
+    // Booking Status Chart (Doughnut Chart)
     const bookingStatusData = {{ booking_stats|safe }};
     const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
     new Chart(bookingStatusCtx, {
@@ -248,19 +298,48 @@
                     bookingStatusData.cancelled
                 ],
                 backgroundColor: [
-                    '#f39c12',
-                    '#3498db',
-                    '#27ae60',
-                    '#e74c3c'
-                ]
+                    '#f39c12',  // Orange for Pending
+                    '#3498db',  // Blue for Confirmed
+                    '#27ae60',  // Green for Completed
+                    '#e74c3c'   // Red for Cancelled
+                ],
+                borderWidth: 0,
+                hoverBorderWidth: 2,
+                hoverBorderColor: '#ffffff'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '60%',
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleFont: {
+                        size: 12
+                    },
+                    bodyFont: {
+                        size: 11
+                    },
+                    padding: 10,
+                    cornerRadius: 6,
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
                 }
             }
         }

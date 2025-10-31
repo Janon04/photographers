@@ -102,8 +102,8 @@ class PhotoRwAIDemo:
             print(f"   Duration: {scenario['duration']} hours")
             print(f"   Experience: {scenario['experience'].title()}")
             print(f"   Location: {scenario['location'].title()}")
-            print(f"   🤖 AI Suggested Price: ${pricing['suggested_price']}")
-            print(f"   📊 Price Range: ${pricing['min_price']} - ${pricing['max_price']}")
+            print(f"   🤖 AI Suggested Price: Rwf {pricing['suggested_price']}")
+            print(f"   📊 Price Range: Rwf {pricing['min_price']} - Rwf {pricing['max_price']}")
             print(f"   🎯 Market Position: {pricing['market_position']}")
             print(f"   💡 Recommendation: {pricing['recommendation']}")
         

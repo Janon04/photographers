@@ -1,97 +1,234 @@
 {% extends 'admin_dashboard/base_admin.html' %}
 
-{% block title %}Analytics{% endblock %}
-{% block page_title %}Platform Analytics{% endblock %}
+{% block title %}Analytics Dashboard{% endblock %}
+{% block page_title %}Platform Analytics & Insights{% endblock %}
 
 {% block content %}
-<!-- Period Filter -->
-<div class="search-filters">
-    <form method="get" class="row g-3">
-        <div class="col-md-3">
-            <label for="period" class="form-label">Time Period</label>
-            <select class="form-control" id="period" name="period">
-                <option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
-                <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option>
-                <option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
-                <option value="365" {% if period == '365' %}selected{% endif %}>Last year</option>
-            </select>
+<!-- Analytics Header with Filters -->
+<div class="analytics-header">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="analytics-title">
+                <i class="fas fa-chart-line me-3"></i>
+                Analytics Dashboard
+            </h2>
+            <p class="analytics-subtitle">Comprehensive platform performance metrics and insights</p>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-chart-line"></i> Update
-            </button>
+        <div class="col-md-6">
+            <div class="analytics-filters">
+                <form method="get" class="d-flex gap-3 align-items-end">
+                    <div class="flex-grow-1">
+                        <label for="period" class="form-label small text-muted">Time Period</label>
+                        <select class="form-select form-select-sm" id="period" name="period">
+                            <option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
+                            <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option>
+                            <option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
+                            <option value="365" {% if period == '365' %}selected{% endif %}>Last year</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-sync-alt me-1"></i> Update
+                    </button>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 
-<!-- Charts Section -->
+<!-- Key Metrics Overview -->
+<div class="row analytics-metrics">
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon bg-primary">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value">{{ total_users|default:0 }}</h3>
+                <p class="metric-label">Total Users</p>
+                <small class="metric-trend">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    +{{ new_users|default:0 }} this period
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon bg-success">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value">{{ total_bookings|default:0 }}</h3>
+                <p class="metric-label">Total Bookings</p>
+                <small class="metric-trend">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    +{{ new_bookings|default:0 }} this period
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon bg-warning">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value">Rwf {{ total_revenue|default:0|floatformat:0 }}</h3>
+                <p class="metric-label">Total Revenue</p>
+                <small class="metric-trend">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    +Rwf {{ period_revenue|default:0|floatformat:0 }} this period
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="metric-card">
+            <div class="metric-icon bg-info">
+                <i class="fas fa-camera"></i>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value">{{ total_photographers|default:0 }}</h3>
+                <p class="metric-label">Photographers</p>
+                <small class="metric-trend">
+                    <i class="fas fa-arrow-up text-success"></i>
+                    +{{ new_photographers|default:0 }} this period
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Primary Charts Section -->
 <div class="row">
-    <div class="col-md-6">
-        <div class="chart-container">
-            <h5 class="mb-3">User Registration Trends</h5>
-            <canvas id="userRegistrationChart" height="300"></canvas>
+    <div class="col-lg-8">
+        <div class="analytics-chart-container">
+            <div class="chart-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    User Registration Trends
+                </h5>
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-color bg-primary"></span>All Users</span>
+                    <span class="legend-item"><span class="legend-color bg-danger"></span>Photographers</span>
+                    <span class="legend-item"><span class="legend-color bg-success"></span>Clients</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="userRegistrationChart"></canvas>
+            </div>
         </div>
     </div>
     
-    <div class="col-md-6">
-        <div class="chart-container">
-            <h5 class="mb-3">Booking Trends</h5>
-            <canvas id="bookingTrendsChart" height="300"></canvas>
+    <div class="col-lg-4">
+        <div class="analytics-chart-container">
+            <div class="chart-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    User Distribution
+                </h5>
+            </div>
+            <div class="chart-body">
+                <canvas id="userDistributionChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="chart-container">
-            <h5 class="mb-3">Revenue Trends</h5>
-            <canvas id="revenueTrendsChart" height="300"></canvas>
+<!-- Secondary Charts Section -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="analytics-chart-container">
+            <div class="chart-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Booking Trends
+                </h5>
+            </div>
+            <div class="chart-body">
+                <canvas id="bookingTrendsChart"></canvas>
+            </div>
         </div>
     </div>
     
-    <div class="col-md-6">
-        <div class="data-table">
+    <div class="col-lg-6">
+        <div class="analytics-chart-container">
+            <div class="chart-header">
+                <h5 class="chart-title">
+                    <i class="fas fa-chart-area me-2"></i>
+                    Revenue Trends
+                </h5>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Tables Section -->
+<div class="row">
+    <div class="col-lg-7">
+        <div class="analytics-table-container">
             <div class="table-header">
-                <i class="fas fa-trophy me-2"></i>Top Photographers
+                <h5 class="table-title">
+                    <i class="fas fa-trophy me-2"></i>
+                    Top Performing Photographers
+                </h5>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table analytics-table">
+                    <thead>
                         <tr>
+                            <th>Rank</th>
                             <th>Photographer</th>
-                            <th>Bookings</th>
+                            <th>Total Bookings</th>
                             <th>Completed</th>
+                            <th>Success Rate</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for photographer in top_photographers %}
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
+                                    <span class="rank-badge">{{ forloop.counter }}</span>
+                                </td>
+                                <td>
+                                    <div class="photographer-info">
                                         {% if photographer.profile_picture %}
-                                            <img src="{{ photographer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                            <img src="{{ photographer.profile_picture.url }}" alt="Avatar" class="photographer-avatar">
                                         {% else %}
-                                            <div class="user-avatar me-2 bg-primary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                            <div class="photographer-avatar photographer-avatar-placeholder">
                                                 {{ photographer.first_name|first|default:photographer.email|first|upper }}
                                             </div>
                                         {% endif %}
-                                        <div>
-                                            <div class="fw-bold">{{ photographer.get_full_name|default:photographer.username }}</div>
-                                            <small class="text-muted">{{ photographer.email }}</small>
+                                        <div class="photographer-details">
+                                            <div class="photographer-name">{{ photographer.get_full_name|default:photographer.username }}</div>
+                                            <div class="photographer-email">{{ photographer.email }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary">{{ photographer.booking_count }}</span>
+                                    <span class="metric-badge bg-primary">{{ photographer.booking_count }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success">{{ photographer.completed_bookings }}</span>
+                                    <span class="metric-badge bg-success">{{ photographer.completed_bookings }}</span>
+                                </td>
+                                <td>
+                                    {% widthratio photographer.completed_bookings photographer.booking_count 100 as success_rate %}
+                                    <div class="progress-container">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: {{ success_rate }}%"></div>
+                                        </div>
+                                        <span class="progress-text">{{ success_rate }}%</span>
+                                    </div>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-3">
-                                    No photographers found
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No photographer data available for this period
                                 </td>
                             </tr>
                         {% endfor %}
@@ -100,41 +237,49 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Service Popularity -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="data-table">
+    
+    <div class="col-lg-5">
+        <div class="analytics-table-container">
             <div class="table-header">
-                <i class="fas fa-camera me-2"></i>Popular Services
+                <h5 class="table-title">
+                    <i class="fas fa-fire me-2"></i>
+                    Popular Services
+                </h5>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table analytics-table">
+                    <thead>
                         <tr>
                             <th>Service Type</th>
-                            <th>Total Bookings</th>
-                            <th>Percentage</th>
+                            <th>Bookings</th>
+                            <th>Popularity</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for service in service_popularity %}
                             <tr>
-                                <td>{{ service.service_type|title }}</td>
-                                <td>{{ service.count }}</td>
                                 <td>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" 
-                                             style="width: {{ service.count|floatformat:0 }}%">
-                                            {{ service.count|floatformat:0 }}%
+                                    <div class="service-info">
+                                        <span class="service-name">{{ service.service_type|title }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="metric-badge bg-info">{{ service.count }}</span>
+                                </td>
+                                <td>
+                                    {% widthratio service.count total_bookings 100 as popularity %}
+                                    <div class="progress-container">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" style="width: {{ popularity }}%"></div>
                                         </div>
+                                        <span class="progress-text">{{ popularity }}%</span>
                                     </div>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-3">
+                                <td colspan="3" class="text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>
                                     No service data available
                                 </td>
                             </tr>
@@ -149,7 +294,12 @@
 
 {% block extra_js %}
 <script>
-    // User Registration Chart
+    // Chart.js Global Configuration
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.color = '#6B6B6B';
+    Chart.defaults.borderColor = '#e9e1d6';
+
+    // User Registration Trends Chart
     const userRegistrationData = {{ user_registrations|safe }};
     const userRegistrationCtx = document.getElementById('userRegistrationChart').getContext('2d');
     new Chart(userRegistrationCtx, {
@@ -160,37 +310,133 @@
                 {
                     label: 'All Users',
                     data: userRegistrationData.map(item => item.count),
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderColor: '#A67C52',
+                    backgroundColor: 'rgba(166, 124, 82, 0.1)',
+                    borderWidth: 3,
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#A67C52',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
                 },
                 {
                     label: 'Photographers',
                     data: {{ photographer_registrations|safe }}.map(item => item.count),
-                    borderColor: '#e74c3c',
-                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderColor: '#FFD700',
+                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                    borderWidth: 2,
                     tension: 0.4,
-                    fill: false
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#FFD700',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
                 },
                 {
                     label: 'Clients',
                     data: {{ client_registrations|safe }}.map(item => item.count),
-                    borderColor: '#27ae60',
-                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderColor: '#3A2A1B',
+                    backgroundColor: 'rgba(58, 42, 27, 0.1)',
+                    borderWidth: 2,
                     tension: 0.4,
-                    fill: false
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#3A2A1B',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
             scales: {
+                x: {
+                    display: true,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: { size: 11 }
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: '#F5F3F0',
+                        borderDash: [2, 2]
+                    },
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        font: { size: 11 }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#A67C52',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12
+                }
+            }
+        }
+    });
+
+    // User Distribution Pie Chart
+    const totalUsers = {{ total_users|default:1 }};
+    const totalPhotographers = {{ total_photographers|default:0 }};
+    const totalClients = totalUsers - totalPhotographers;
+    
+    const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(userDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Photographers', 'Clients'],
+            datasets: [{
+                data: [totalPhotographers, totalClients],
+                backgroundColor: ['#FFD700', '#A67C52'],
+                borderWidth: 0,
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#A67C52',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
                     }
                 }
             }
@@ -207,20 +453,49 @@
             datasets: [{
                 label: 'Bookings',
                 data: bookingTrendsData.map(item => item.count),
-                backgroundColor: '#f39c12',
-                borderColor: '#e67e22',
-                borderWidth: 1
+                backgroundColor: 'rgba(243, 156, 18, 0.8)',
+                borderColor: '#f39c12',
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: { size: 11 }
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: '#f8f9fa',
+                        borderDash: [2, 2]
+                    },
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        font: { size: 11 }
                     }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#f39c12',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12
                 }
             }
         }
@@ -234,23 +509,65 @@
         data: {
             labels: revenueTrendsData.map(item => item.date),
             datasets: [{
-                label: 'Revenue ($)',
+                label: 'Revenue (Rwf)',
                 data: revenueTrendsData.map(item => item.amount),
                 borderColor: '#27ae60',
                 backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                borderWidth: 3,
                 tension: 0.4,
-                fill: true
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#27ae60',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
             scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: { size: 11 }
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: '#f8f9fa',
+                        borderDash: [2, 2]
+                    },
                     ticks: {
+                        font: { size: 11 },
                         callback: function(value) {
-                            return '$' + value.toFixed(2);
+                            return 'Rwf ' + value.toFixed(0);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#27ae60',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Revenue: Rwf ' + context.parsed.y.toFixed(2);
                         }
                     }
                 }

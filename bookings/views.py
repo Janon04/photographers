@@ -228,7 +228,7 @@ def pricing_calculator(request):
 					"Consider offering package deals for multiple sessions",
 					"Add rush delivery fee (20-30%) for quick turnaround",
 					"Include travel fees for locations over 30 miles",
-					"Offer payment plans for bookings over $1000"
+					"Offer payment plans for bookings over Rwf 1,000,000"
 				]
 			}
 			

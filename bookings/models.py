@@ -137,7 +137,7 @@ class Booking(models.Model):
 			'suggested_price': base_price,
 			'price_range': {'min': int(base_price * 0.8), 'max': int(base_price * 1.2)},
 			'factors_considered': [
-				f"Base {self.service_type} rate: ${base_price}",
+				f"Base {self.service_type} rate: Rwf {base_price}",
 				"Market analysis applied",
 				"Experience level considered"
 			],

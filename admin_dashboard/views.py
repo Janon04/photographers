@@ -409,6 +409,24 @@ def analytics_dashboard(request):
         count=Count('id')
     ).order_by('-count')[:10]
     
+    # Calculate totals and period metrics
+    total_users = User.objects.count()
+    total_photographers = User.objects.filter(role=User.Roles.PHOTOGRAPHER).count()
+    total_bookings = Booking.objects.count()
+    total_revenue = Transaction.objects.filter(status='paid').aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+    
+    # Period-specific metrics
+    new_users = User.objects.filter(date_joined__gte=start_date).count()
+    new_photographers = User.objects.filter(
+        date_joined__gte=start_date, role=User.Roles.PHOTOGRAPHER
+    ).count()
+    new_bookings = Booking.objects.filter(created_at__gte=start_date).count()
+    period_revenue = Transaction.objects.filter(
+        created_at__gte=start_date, status='paid'
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
     context = {
         'period': period,
         'user_registrations': json.dumps(user_registrations),
@@ -418,6 +436,16 @@ def analytics_dashboard(request):
         'revenue_trends': json.dumps(revenue_trends),
         'top_photographers': top_photographers,
         'service_popularity': service_popularity,
+        # Totals
+        'total_users': total_users,
+        'total_photographers': total_photographers,
+        'total_bookings': total_bookings,
+        'total_revenue': total_revenue,
+        # Period metrics
+        'new_users': new_users,
+        'new_photographers': new_photographers,
+        'new_bookings': new_bookings,
+        'period_revenue': period_revenue,
     }
     
     return render(request, 'admin_dashboard/analytics.html', context)

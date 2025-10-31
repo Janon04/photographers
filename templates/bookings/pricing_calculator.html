@@ -323,8 +323,8 @@
                 {% if calculation_results %}
                 <div class="pricing-results">
                     <h2 style="color: #FFD700; margin-bottom: 1rem;">Recommended Pricing</h2>
-                    <div class="suggested-price" id="suggestedPrice">${{ calculation_results.suggested_price|floatformat:0 }}</div>
-                    <div class="price-range" id="priceRange">Range: ${{ calculation_results.price_range.min|floatformat:0 }} - ${{ calculation_results.price_range.max|floatformat:0 }}</div>
+                    <div class="suggested-price" id="suggestedPrice">Rwf {{ calculation_results.suggested_price|floatformat:0 }}</div>
+                    <div class="price-range" id="priceRange">Range: Rwf {{ calculation_results.price_range.min|floatformat:0 }} - Rwf {{ calculation_results.price_range.max|floatformat:0 }}</div>
                     <p style="color: #cccccc;">Based on AI analysis of market data and your profile</p>
                 </div>
                 
@@ -364,8 +364,8 @@
                 {% else %}
                 <div class="pricing-results">
                     <h2 style="color: #FFD700; margin-bottom: 1rem;">Recommended Pricing</h2>
-                    <div class="suggested-price" id="suggestedPrice">$750</div>
-                    <div class="price-range" id="priceRange">Range: $600 - $900</div>
+                    <div class="suggested-price" id="suggestedPrice">Rwf 750,000</div>
+                    <div class="price-range" id="priceRange">Range: Rwf 600,000 - Rwf 900,000</div>
                     <p style="color: #cccccc;">Based on AI analysis of market data and your profile</p>
                 </div>
                 
@@ -373,7 +373,7 @@
                     <div class="factor-card">
                         <h4>🎯 Pricing Factors</h4>
                         <ul class="factor-list" id="pricingFactors">
-                            <li>Base wedding rate: $500</li>
+                            <li>Base wedding rate: Rwf 500,000</li>
                             <li>Experience level (Advanced): 1.3x</li>
                             <li>Peak season demand: 1.2x</li>
                             <li>Duration (6h): 1.1x</li>
@@ -458,9 +458,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function updateResults(data) {
-        document.getElementById('suggestedPrice').textContent = `$${data.suggested_price}`;
+        document.getElementById('suggestedPrice').textContent = `Rwf ${data.suggested_price}`;
         document.getElementById('priceRange').textContent = 
-            `Range: $${data.price_range.min} - $${data.price_range.max}`;
+            `Range: Rwf ${data.price_range.min} - Rwf ${data.price_range.max}`;
         
         // Update pricing factors
         const factorsList = document.getElementById('pricingFactors');

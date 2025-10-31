@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -663,10 +664,9 @@
                     <h1 class="h4 mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h1>
                 </div>
                 
-                <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center">
                     <span class="me-3">Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
-                    <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
-                         alt="Avatar" class="user-avatar">
+                    <img src="{{ request.user.get_medium_avatar_url }}" alt="Avatar" class="user-avatar">
                 </div>
             </header>
 

@@ -60,6 +60,35 @@ class User(AbstractUser):
 		if reviews.exists():
 			return round(sum(r.rating for r in reviews) / reviews.count(), 2)
 		return None
+
+	def get_gravatar_url(self, size=40):
+		"""Generate a Gravatar URL for this user's email"""
+		import hashlib
+		if not self.email:
+			return f"https://www.gravatar.com/avatar/?d=identicon&s={size}"
+		
+		email_clean = self.email.strip().lower().encode('utf-8')
+		h = hashlib.md5(email_clean).hexdigest()
+		return f"https://www.gravatar.com/avatar/{h}?d=identicon&s={size}"
+
+	def get_avatar_url(self, size=40):
+		"""Get either profile picture URL or Gravatar URL"""
+		if self.profile_picture:
+			return self.profile_picture.url
+		return self.get_gravatar_url(size)
+
+	def get_small_avatar_url(self):
+		"""Get avatar URL for small displays (24px)"""
+		return self.get_avatar_url(24)
+
+	def get_medium_avatar_url(self):
+		"""Get avatar URL for medium displays (40px)"""
+		return self.get_avatar_url(40)
+
+	def get_large_avatar_url(self):
+		"""Get avatar URL for large displays (64px)"""
+		return self.get_avatar_url(64)
+
 	def __str__(self):
 		if self.role == self.Roles.PHOTOGRAPHER:
 			full_name = f"{self.first_name} {self.last_name}".strip()

@@ -462,7 +462,7 @@
                         {% elif story.image %}
                             <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}">
                         {% else %}
-                            <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Story by {{ story.photographer.username }}">
+                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}">
                         {% endif %}
                     </div>
                     <div class="story-label">{{ story.photographer.username }}</div>
@@ -502,9 +502,9 @@
             {% for post in posts %}
                 <article class="post-card">
                     <div class="post-header">
-                        <div class="post-avatar">
-                            <img src="{{ post.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="Profile picture of {{ post.photographer.username }}">
-                        </div>
+                            <div class="post-avatar">
+                                <img src="{{ post.photographer.get_medium_avatar_url }}" alt="Profile picture of {{ post.photographer.username }}">
+                            </div>
                         <div class="post-user-info">
                             <div class="post-username">{{ post.photographer.username }}</div>
                             <div class="post-time">{{ post.uploaded_at|localtime|timesince }} ago</div>

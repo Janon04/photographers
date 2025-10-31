@@ -115,8 +115,7 @@
                     <h6 class="mb-2">New Users</h6>
                     {% for user in recent_users %}
                         <div class="d-flex align-items-center mb-2">
-                            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
-                                 alt="Avatar" class="user-avatar me-2" style="width: 24px; height: 24px;">
+                            <img src="{{ user.get_small_avatar_url }}" alt="Avatar" class="user-avatar me-2" style="width: 24px; height: 24px;">
                             <span class="flex-grow-1">{{ user.get_full_name|default:user.email }}</span>
                             <small class="text-muted">{{ user.role|title }}</small>
                         </div>
@@ -162,15 +161,14 @@
                         {% for user in recent_users %}
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
-                                             alt="Avatar" class="user-avatar me-2">
-                                        <div>
-                                            <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
-                                            <small class="text-muted">{{ user.email }}</small>
-                                        </div>
-                                    </div>
-                                </td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ user.get_medium_avatar_url }}" alt="Avatar" class="user-avatar me-2">
+                                                <div>
+                                                    <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                                    <small class="text-muted">{{ user.email }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
                                 <td>
                                     <span class="badge bg-{{ user.role|yesno:'primary,success' }}">
                                         {{ user.get_role_display }}

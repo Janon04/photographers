@@ -11,7 +11,7 @@
 <div class="feed-container" style="max-width:400px;margin-top:3rem;text-align:center;">
   <div style="margin-bottom:1rem;">
     <div class="post-avatar" style="display:inline-block;vertical-align:middle;">
-      <img src="{{ story.photographer.profile_picture.url|default:'/static/img/default-avatar.png' }}" alt="{{ story.photographer.username }}">
+      <img src="{{ story.photographer.get_large_avatar_url }}" alt="{{ story.photographer.username }}">
     </div>
     <span style="font-weight:bold;color:#c19a6b;font-size:1.1rem;margin-left:0.5rem;">{{ story.photographer.username }}</span>
   </div>

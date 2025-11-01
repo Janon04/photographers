@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ photographer.get_full_name }} - Reviews{% endblock %}
+
+{% block content %}
+<div style="max-width:1200px;margin:3.5rem auto 0 auto;padding:0 1rem;">
+  <!-- Photographer Header -->
+  <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;background:white;padding:1.5rem;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+    {% if photographer.profile_picture %}
+      <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.get_full_name }}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #ffd700;">
+    {% else %}
+      <div style="width:80px;height:80px;border-radius:50%;background:#f8f6f3;border:3px solid #ffd700;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#a67c52;">
+        {{ photographer.first_name|first|upper }}
+      </div>
+    {% endif %}
+    <div style="flex:1;">
+      <h1 style="font-size:2rem;font-weight:700;color:#2d2013;margin-bottom:0.5rem;">{{ photographer.get_full_name }}</h1>
+      <p style="color:#666;margin-bottom:0.5rem;">{{ photographer.bio|truncatewords:20 }}</p>
+      <div style="display:flex;gap:1rem;align-items:center;">
+        <div style="display:flex;align-items:center;gap:0.3rem;">
+          {% for i in "12345" %}
+            {% if forloop.counter <= average_rating %}
+              <span style="color:#ffd700;font-size:1.2rem;">★</span>
+            {% else %}
+              <span style="color:#ddd;font-size:1.2rem;">★</span>
+            {% endif %}
+          {% endfor %}
+          <span style="color:#666;margin-left:0.5rem;">{{ average_rating|floatformat:1 }} ({{ total_reviews }} review{{ total_reviews|pluralize }})</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      {% if user.is_authenticated and user != photographer %}
+        <a href="{% url 'reviews:add_review' %}?photographer={{ photographer.id }}" style="background:#a67c52;color:white;padding:0.75rem 1.5rem;border-radius:25px;text-decoration:none;font-weight:600;">
+          ✍️ Write a Review
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <div style="display:flex;flex-direction:column;gap:2rem;">
+    {% if reviews %}
+      {% for review in reviews %}
+        <div style="background:white;border-radius:15px;padding:2rem;box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:1rem;">
+              {% if review.reviewer.profile_picture %}
+                <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.get_full_name }}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+              {% else %}
+                <div style="width:50px;height:50px;border-radius:50%;background:#f8f6f3;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#a67c52;">
+                  {{ review.reviewer.first_name|first|upper }}
+                </div>
+              {% endif %}
+              <div>
+                <h4 style="color:#2d2013;margin-bottom:0.2rem;">{{ review.reviewer.get_full_name }}</h4>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.overall_rating %}
+                      <span style="color:#ffd700;font-size:1rem;">★</span>
+                    {% else %}
+                      <span style="color:#ddd;font-size:1rem;">★</span>
+                    {% endif %}
+                  {% endfor %}
+                  <small style="color:#666;">{{ review.created_at|date:"M d, Y" }}</small>
+                </div>
+              </div>
+            </div>
+            {% if review.ai_sentiment %}
+              <div style="padding:0.2rem 0.6rem;border-radius:15px;font-size:0.8rem;font-weight:600;
+                {% if review.ai_sentiment == 'positive' %}background:#e8f5e8;color:#4caf50;
+                {% elif review.ai_sentiment == 'negative' %}background:#ffebee;color:#f44336;
+                {% else %}background:#fff3e0;color:#ff9800;{% endif %}">
+                {{ review.get_sentiment_emoji }} {{ review.ai_sentiment|title }}
+              </div>
+            {% endif %}
+          </div>
+          
+          {% if review.title %}
+            <h3 style="color:#a67c52;margin-bottom:0.5rem;">{{ review.title }}</h3>
+          {% endif %}
+          
+          <p style="color:#444;line-height:1.6;margin-bottom:1rem;">"{{ review.comment }}"</p>
+          
+          <!-- Detailed Ratings -->
+          {% if review.quality_rating or review.professionalism_rating or review.communication_rating or review.value_rating %}
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #eee;">
+            {% if review.quality_rating %}
+              <div style="text-align:center;">
+                <small style="color:#666;display:block;">Quality</small>
+                <div>
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.quality_rating %}
+                      <span style="color:#ffd700;font-size:0.9rem;">★</span>
+                    {% else %}
+                      <span style="color:#ddd;font-size:0.9rem;">★</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+            {% if review.professionalism_rating %}
+              <div style="text-align:center;">
+                <small style="color:#666;display:block;">Professionalism</small>
+                <div>
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.professionalism_rating %}
+                      <span style="color:#ffd700;font-size:0.9rem;">★</span>
+                    {% else %}
+                      <span style="color:#ddd;font-size:0.9rem;">★</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+            {% if review.communication_rating %}
+              <div style="text-align:center;">
+                <small style="color:#666;display:block;">Communication</small>
+                <div>
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.communication_rating %}
+                      <span style="color:#ffd700;font-size:0.9rem;">★</span>
+                    {% else %}
+                      <span style="color:#ddd;font-size:0.9rem;">★</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+            {% if review.value_rating %}
+              <div style="text-align:center;">
+                <small style="color:#666;display:block;">Value</small>
+                <div>
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.value_rating %}
+                      <span style="color:#ffd700;font-size:0.9rem;">★</span>
+                    {% else %}
+                      <span style="color:#ddd;font-size:0.9rem;">★</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+          
+          <!-- Categories -->
+          {% if review.categories.all %}
+          <div style="margin-top:1rem;">
+            {% for category in review.categories.all %}
+              <span style="background:#f0f0f0;color:#666;padding:0.2rem 0.6rem;border-radius:10px;font-size:0.8rem;margin-right:0.5rem;">{{ category.name }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          
+          <div style="text-align:right;margin-top:1rem;">
+            <a href="{% url 'reviews:review_detail' review.id %}" style="color:#a67c52;text-decoration:none;font-size:0.9rem;">Read Full Review →</a>
+          </div>
+        </div>
+      {% endfor %}
+      
+      <!-- Pagination -->
+      {% if is_paginated %}
+      <div style="display:flex;justify-content:center;margin:2rem 0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          {% if page_obj.has_previous %}
+            <a href="?page=1" style="padding:0.5rem 1rem;background:white;border:2px solid #e0d7c3;border-radius:8px;color:#a67c52;text-decoration:none;">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" style="padding:0.5rem 1rem;background:white;border:2px solid #e0d7c3;border-radius:8px;color:#a67c52;text-decoration:none;">Previous</a>
+          {% endif %}
+          
+          <span style="padding:0.5rem 1rem;background:#a67c52;color:white;border-radius:8px;">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+          
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" style="padding:0.5rem 1rem;background:white;border:2px solid #e0d7c3;border-radius:8px;color:#a67c52;text-decoration:none;">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" style="padding:0.5rem 1rem;background:white;border:2px solid #e0d7c3;border-radius:8px;color:#a67c52;text-decoration:none;">Last</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+      <div style="text-align:center;padding:4rem;background:white;border-radius:15px;">
+        <h3>No Reviews Yet</h3>
+        <p style="color:#666;margin-bottom:1.5rem;">Be the first to share your experience with {{ photographer.get_full_name }}!</p>
+        {% if user.is_authenticated and user != photographer %}
+          <a href="{% url 'reviews:add_review' %}?photographer={{ photographer.id }}" style="background:#a67c52;color:white;padding:1rem 2rem;border-radius:25px;text-decoration:none;font-weight:600;">
+            ✍️ Write the First Review
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

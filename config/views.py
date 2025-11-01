@@ -8,6 +8,7 @@ def home(request):
     # Import models here to avoid circular imports
     from portfolio.models import Story, Photo
     from community.models import Post
+    from reviews.models import Review
     from django.utils import timezone
     from django.db.models import Count, Q
     # Get all active stories (last 24h)
@@ -21,11 +22,16 @@ def home(request):
     featured_photos = Photo.objects.filter(is_approved=True).annotate(
         num_likes=Count('likes', filter=Q(likes__is_like=True))
     ).order_by('-num_likes', '-uploaded_at')[:6]
+    # Recent reviews for homepage showcase
+    recent_reviews = Review.objects.filter(is_approved=True).select_related(
+        'reviewer', 'photographer'
+    ).order_by('-created_at')[:6]
     return render(request, 'home.html', {
         'stories': stories,
         'photos': photos,
         'posts': posts,
         'featured_photos': featured_photos,
+        'recent_reviews': recent_reviews,
     })
     
 from portfolio.models import PrivacyPolicy, TermsOfService

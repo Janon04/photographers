@@ -1,9 +1,438 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Review - Photography Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+.review-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(199,161,122,0.15);
+    overflow: hidden;
+}
+
+.review-header {
+    background: linear-gradient(135deg, #a67c52 0%, #8b6332 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.review-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.review-form {
+    padding: 2.5rem;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: #f8f6f3;
+    border-radius: 10px;
+    border-left: 4px solid #a67c52;
+}
+
+.form-section h3 {
+    color: #2d2013;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.star-rating-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.star-rating-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.star-rating-item label {
+    font-weight: 600;
+    color: #2d2013;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.star {
+    font-size: 1.8rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star:hover,
+.star.active {
+    color: #ffd700;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0d7c3;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: #a67c52;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(166,124,82,0.1);
+}
+
+.quick-review-section {
+    background: #e8f4f8;
+    border-left-color: #2196F3;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #a67c52 0%, #8b6332 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(166,124,82,0.3);
+}
+
+.quick-booking-card {
+    background: white;
+    border: 2px solid #e0d7c3;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-booking-card:hover,
+.quick-booking-card.selected {
+    border-color: #a67c52;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(166,124,82,0.2);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.help-text {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.no-bookings {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.no-bookings i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .star-rating-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-container {
+        margin: 1rem;
+    }
+    
+    .review-form {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Add Review</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Submit Review</button>
-</form>
+<div class="review-container">
+    <div class="review-header">
+        <h1>Share Your Experience</h1>
+        <p>Help others by writing a detailed review</p>
+    </div>
+
+    {% if completed_bookings %}
+        <div class="review-form">
+            <!-- Detailed Review Form -->
+            <form method="post" id="detailedReviewForm">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="detailed">
+                
+                <div class="form-section">
+                    <h3>📋 Select Booking</h3>
+                    {{ form.booking }}
+                    {% if form.booking.errors %}
+                        <div class="error-message">{{ form.booking.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.booking.help_text }}</div>
+                </div>
+
+                <div class="form-section">
+                    <h3>✏️ Review Title</h3>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="error-message">{{ form.title.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.title.help_text }}</div>
+                </div>
+
+                <div class="form-section">
+                    <h3>⭐ Rate Your Experience</h3>
+                    <div class="star-rating-group">
+                        <div class="star-rating-item">
+                            <label>Overall Rating</label>
+                            <div class="star-rating" data-rating="overall_rating">
+                                {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.overall_rating }}
+                        </div>
+                        
+                        <div class="star-rating-item">
+                            <label>Photo Quality</label>
+                            <div class="star-rating" data-rating="quality_rating">
+                                {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.quality_rating }}
+                        </div>
+                        
+                        <div class="star-rating-item">
+                            <label>Professionalism</label>
+                            <div class="star-rating" data-rating="professionalism_rating">
+                                {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.professionalism_rating }}
+                        </div>
+                        
+                        <div class="star-rating-item">
+                            <label>Communication</label>
+                            <div class="star-rating" data-rating="communication_rating">
+                                {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.communication_rating }}
+                        </div>
+                        
+                        <div class="star-rating-item">
+                            <label>Value for Money</label>
+                            <div class="star-rating" data-rating="value_rating">
+                                {% for i in "12345" %}
+                                    <span class="star" data-value="{{ forloop.counter }}">★</span>
+                                {% endfor %}
+                            </div>
+                            {{ form.value_rating }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>💬 Detailed Review</h3>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                        <div class="error-message">{{ form.comment.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.comment.help_text }}</div>
+                </div>
+
+                {% if form.categories %}
+                <div class="form-section">
+                    <h3>🏷️ Categories (Optional)</h3>
+                    <div class="category-grid">
+                        {% for choice in form.categories %}
+                            <div class="category-item">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="help-text">{{ form.categories.help_text }}</div>
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn-submit">
+                    🌟 Submit Detailed Review
+                </button>
+            </form>
+
+            <!-- Quick Review Section -->
+            {% if quick_review_bookings %}
+            <div class="form-section quick-review-section" style="margin-top: 3rem;">
+                <h3>⚡ Quick Review</h3>
+                <p>Or leave a quick review for one of these recent bookings:</p>
+                
+                {% for booking in quick_review_bookings %}
+                <div class="quick-booking-card" onclick="selectQuickBooking({{ booking.id }}, '{{ booking.photographer.get_full_name }}', '{{ booking.service_type }}')">
+                    <strong>{{ booking.photographer.get_full_name }}</strong><br>
+                    <small>{{ booking.service_type }} - {{ booking.created_at|date:"M d, Y" }}</small>
+                </div>
+                {% endfor %}
+
+                <form method="post" id="quickReviewForm" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="quick">
+                    <input type="hidden" name="booking_id" id="quickBookingId">
+                    
+                    <div style="margin: 1rem 0;">
+                        <label>Quick Rating:</label>
+                        <div class="star-rating" data-rating="quick_rating" style="justify-content: center; margin: 0.5rem 0;">
+                            {% for i in "12345" %}
+                                <span class="star" data-value="{{ forloop.counter }}">★</span>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="overall_rating" id="quickRating">
+                    </div>
+                    
+                    <div style="margin: 1rem 0;">
+                        <textarea name="comment" placeholder="Quick thoughts about your experience..." 
+                                  class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        ⚡ Submit Quick Review
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="no-bookings">
+            <i class="fas fa-camera"></i>
+            <h3>No Completed Bookings</h3>
+            <p>You need to have completed bookings to write reviews.</p>
+            <a href="{% url 'bookings:list' %}" class="btn-submit" style="display: inline-block; width: auto; margin-top: 1rem;">
+                View Your Bookings
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Star rating functionality
+document.querySelectorAll('.star-rating').forEach(ratingGroup => {
+    const stars = ratingGroup.querySelectorAll('.star');
+    const fieldName = ratingGroup.dataset.rating;
+    const hiddenInput = document.querySelector(`input[name="${fieldName}"]`);
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            const rating = index + 1;
+            
+            // Update hidden input
+            if (hiddenInput) {
+                hiddenInput.value = rating;
+            }
+            
+            // Update visual stars
+            stars.forEach((s, i) => {
+                if (i <= index) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseenter', () => {
+            stars.forEach((s, i) => {
+                if (i <= index) {
+                    s.style.color = '#ffd700';
+                } else {
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+    });
+    
+    ratingGroup.addEventListener('mouseleave', () => {
+        const currentRating = hiddenInput ? hiddenInput.value : 0;
+        stars.forEach((s, i) => {
+            if (i < currentRating) {
+                s.style.color = '#ffd700';
+            } else {
+                s.style.color = '#ddd';
+            }
+        });
+    });
+});
+
+// Quick review functionality
+function selectQuickBooking(bookingId, photographerName, serviceType) {
+    document.getElementById('quickBookingId').value = bookingId;
+    document.getElementById('quickReviewForm').style.display = 'block';
+    
+    // Update form header
+    const formSection = document.querySelector('.quick-review-section h3');
+    formSection.textContent = `⚡ Quick Review for ${photographerName} (${serviceType})`;
+    
+    // Highlight selected booking
+    document.querySelectorAll('.quick-booking-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.target.closest('.quick-booking-card').classList.add('selected');
+    
+    // Scroll to form
+    document.getElementById('quickReviewForm').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
 {% endblock %}

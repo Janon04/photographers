@@ -233,6 +233,63 @@ window.onclick = function(event) {
     {% endfor %}
   </div>
 </div>
+
+<!-- Reviews Section -->
+<div style="max-width:900px;margin:3rem auto;background:white;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+  <div style="background:linear-gradient(135deg,#a67c52 0%,#8b6332 100%);color:white;padding:1.5rem;display:flex;justify-content:space-between;align-items:center;">
+    <h3 style="font-size:1.5rem;font-weight:700;margin:0;">Customer Reviews</h3>
+    <a href="{% url 'reviews:photographer_reviews' photographer.id %}" style="color:white;text-decoration:none;font-size:0.9rem;opacity:0.9;">View All Reviews →</a>
+  </div>
+  
+  <div style="padding:2rem;">
+    {% if photographer.review_set.all %}
+      {% for review in photographer.review_set.all|slice:":3" %}
+        <div style="{% if not forloop.last %}border-bottom:1px solid #eee;padding-bottom:1.5rem;margin-bottom:1.5rem;{% endif %}">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <strong style="color:#2d2013;">{{ review.reviewer.get_full_name }}</strong>
+              <div>
+                {% for i in "12345" %}
+                  {% if forloop.counter <= review.overall_rating %}
+                    <span style="color:#ffd700;font-size:0.9rem;">★</span>
+                  {% else %}
+                    <span style="color:#ddd;font-size:0.9rem;">★</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <small style="color:#666;">{{ review.created_at|date:"M d, Y" }}</small>
+          </div>
+          {% if review.title %}
+            <h4 style="color:#a67c52;margin-bottom:0.5rem;font-size:1rem;">{{ review.title }}</h4>
+          {% endif %}
+          <p style="color:#444;line-height:1.5;">"{{ review.comment|truncatewords:25 }}"</p>
+        </div>
+      {% endfor %}
+      
+      <div style="text-align:center;margin-top:1.5rem;">
+        <a href="{% url 'reviews:photographer_reviews' photographer.id %}" style="background:#a67c52;color:white;padding:0.75rem 1.5rem;border-radius:25px;text-decoration:none;font-weight:600;">
+          View All Reviews ({{ photographer.review_set.count }})
+        </a>
+        {% if user.is_authenticated and user != photographer %}
+          <a href="{% url 'reviews:add_review' %}?photographer={{ photographer.id }}" style="background:transparent;color:#a67c52;border:2px solid #a67c52;padding:0.7rem 1.5rem;border-radius:25px;text-decoration:none;font-weight:600;margin-left:1rem;">
+            ✍️ Write a Review
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      <div style="text-align:center;padding:2rem;">
+        <p style="color:#666;margin-bottom:1rem;">No reviews yet. Be the first to share your experience!</p>
+        {% if user.is_authenticated and user != photographer %}
+          <a href="{% url 'reviews:add_review' %}?photographer={{ photographer.id }}" style="background:#a67c52;color:white;padding:1rem 2rem;border-radius:25px;text-decoration:none;font-weight:600;">
+            ✍️ Write the First Review
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 <script>
 function copyProfileLink() {
   const url = window.location.href;

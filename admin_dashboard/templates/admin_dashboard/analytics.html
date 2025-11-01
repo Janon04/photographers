@@ -617,7 +617,7 @@
                     ticks: {
                         font: { size: 11 },
                         callback: function(value) {
-                            return 'Rwf ' + value.toFixed(0);
+                            return 'Rwf ' + value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         }
                     }
                 }
@@ -636,7 +636,7 @@
                     padding: 12,
                     callbacks: {
                         label: function(context) {
-                            return 'Revenue: Rwf ' + context.parsed.y.toFixed(2);
+                            return 'Revenue: Rwf ' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         }
                     }
                 }
@@ -677,4 +677,22 @@
         }
     });
 </script>
+
+<style>
+    .rank-badge {
+        background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
+        color: var(--gold);
+        padding: 6px 10px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 30px;
+        height: 30px;
+        box-shadow: 0 2px 4px rgba(45, 32, 19, 0.3);
+        border: 2px solid var(--gold);
+    }
+</style>
 {% endblock %}

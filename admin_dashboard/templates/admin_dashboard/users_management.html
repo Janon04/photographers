@@ -4,10 +4,34 @@
 {% block page_title %}Users Management{% endblock %}
 
 {% block content %}
+<!-- Date Filter Section -->
+{% if filter_date %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="date-filter-container" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: var(--gold); font-weight: bold;">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Filtered by Date: {{ filter_date_formatted }}
+                    </h6>
+                    <p class="mb-0" style="color: white; opacity: 0.9; font-size: 13px;">
+                        Showing users who registered on this specific date.
+                    </p>
+                </div>
+                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-sm" style="background: #FF6B6B; color: white; border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
+                    <i class="fas fa-times me-1"></i> Clear Filter
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Search and Filter Section -->
 <div class="search-filters">
     <form method="get" class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label for="search" class="form-label">Search Users</label>
             <input type="text" class="form-control" id="search" name="search" 
                    value="{{ search_query }}" placeholder="Email, name, or username...">
@@ -31,28 +55,30 @@
                 <option value="false" {% if is_verified_filter == 'false' %}selected{% endif %}>Unverified</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary me-2">
-                <i class="fas fa-search"></i> Search
-            </button>
-            <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-times"></i> Clear
-            </a>
+        <div class="col-md-2">
+            <label for="filter_date" class="form-label">Registration Date</label>
+            <input type="date" class="form-control" id="filter_date" name="filter_date" 
+                   value="{{ filter_date }}" title="Filter by registration date">
         </div>
         <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn me-2" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
             <a href="{% url 'admin_dashboard:export_data' %}?type=users" class="btn btn-success">
-                <i class="fas fa-download"></i> Export CSV
+                <i class="fas fa-download"></i> Export
             </a>
         </div>
     </form>
 </div>
 
 <!-- Users Table -->
-<div class="data-table">
-    <div class="table-header d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-users me-2"></i>Users ({{ page_obj.paginator.count }} total)</span>
+<div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
+    <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+        <span style="color: var(--gold); font-weight: bold;"><i class="fas fa-users me-2"></i>Users ({{ page_obj.paginator.count }} total)</span>
         <div>
-            <span class="text-light">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+            <span style="color: white; opacity: 0.9;">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
         </div>
     </div>
     
@@ -87,7 +113,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge bg-{% if user.role == 'photographer' %}primary{% elif user.role == 'client' %}success{% else %}warning{% endif %}">
+                            <span class="badge" style="{% if user.role == 'photographer' %}background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold);{% elif user.role == 'client' %}background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark);{% else %}background: linear-gradient(135deg, #8B4513, #A0522D); color: white;{% endif %} padding: 6px 12px; border-radius: 6px; font-weight: 500; font-size: 12px;">
                                 {{ user.get_role_display }}
                             </span>
                         </td>
@@ -125,17 +151,17 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="{% url 'admin_dashboard:user_detail' user.id %}" 
-                                   class="btn btn-outline-primary btn-sm" title="View Details">
+                                   class="btn btn-sm" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: 1px solid var(--chocolate-medium); padding: 4px 8px; border-radius: 4px;" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
-                                <button type="button" class="btn btn-outline-{% if user.is_verified %}warning{% else %}success{% endif %} btn-sm"
+                                <button type="button" class="btn btn-sm" style="{% if user.is_verified %}background: linear-gradient(135deg, #FFA500, var(--gold)); color: var(--chocolate-dark); border: 1px solid #FFA500;{% else %}background: linear-gradient(135deg, #4ECDC4, #45B7AF); color: white; border: 1px solid #4ECDC4;{% endif %} padding: 4px 8px; border-radius: 4px; margin-left: 2px;"
                                         onclick="toggleVerification({{ user.id }}, {{ user.is_verified|yesno:'true,false' }})"
                                         title="{% if user.is_verified %}Unverify{% else %}Verify{% endif %} User">
                                     <i class="fas fa-{% if user.is_verified %}times{% else %}check{% endif %}"></i>
                                 </button>
                                 
-                                <button type="button" class="btn btn-outline-{% if user.is_active %}danger{% else %}success{% endif %} btn-sm"
+                                <button type="button" class="btn btn-sm" style="{% if user.is_active %}background: linear-gradient(135deg, #FF6B6B, #E74C3C); color: white; border: 1px solid #FF6B6B;{% else %}background: linear-gradient(135deg, #4ECDC4, #45B7AF); color: white; border: 1px solid #4ECDC4;{% endif %} padding: 4px 8px; border-radius: 4px; margin-left: 2px;"
                                         onclick="toggleSuspension({{ user.id }}, {{ user.is_active|yesno:'true,false' }})"
                                         title="{% if user.is_active %}Suspend{% else %}Activate{% endif %} User">
                                     <i class="fas fa-{% if user.is_active %}ban{% else %}check-circle{% endif %}"></i>

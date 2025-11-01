@@ -237,47 +237,19 @@ class NotificationEmailService:
             except:
                 recipient_count = 0
             
-            # Generate preview HTML with tabs for HTML and text versions
+            # Generate clean preview HTML without tabs or sample data text
             preview_html = f"""
             <div class="email-preview">
-                <div class="row mb-3">
-                    <div class="col-md-8">
-                        <h6><strong>Subject:</strong> {subject}</h6>
-                        <p class="text-muted mb-0"><strong>Recipients:</strong> {recipient_count} users</p>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <small class="text-muted">Preview with sample user data</small>
-                    </div>
+                <div class="mb-3">
+                    <h6><strong>Subject:</strong> {subject}</h6>
+                    <p class="text-muted mb-0"><strong>Recipients:</strong> {recipient_count} users</p>
                 </div>
                 
-                <!-- Email Content Tabs -->
-                <ul class="nav nav-tabs" id="emailPreviewTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="html-tab" data-bs-toggle="tab" data-bs-target="#html-content" 
-                                type="button" role="tab" aria-controls="html-content" aria-selected="true">
-                            HTML Version
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-content" 
-                                type="button" role="tab" aria-controls="text-content" aria-selected="false">
-                            Text Version
-                        </button>
-                    </li>
-                </ul>
-                
-                <div class="tab-content" id="emailPreviewTabsContent">
-                    <div class="tab-pane fade show active" id="html-content" role="tabpanel" aria-labelledby="html-tab">
-                        <div class="border rounded p-3 mt-3" style="max-height: 400px; overflow-y: auto;">
-                            {html_content}
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="text-content" role="tabpanel" aria-labelledby="text-tab">
-                        <div class="border rounded p-3 mt-3" style="max-height: 400px; overflow-y: auto;">
-                            <pre class="mb-0" style="white-space: pre-wrap; font-family: monospace;">{text_content}</pre>
-                        </div>
-                    </div>
+                <!-- Clean Email Preview -->
+                <div class="border rounded p-3" style="max-height: 500px; overflow-y: auto;">
+                    {html_content}
                 </div>
+            </div>
             </div>
             """
             

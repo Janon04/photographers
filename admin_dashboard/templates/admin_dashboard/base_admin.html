@@ -16,23 +16,28 @@
     <style>
         :root {
             --sidebar-width: 250px;
-            /* Photography Theme Colors - Consistent with main project */
-            --primary-dark: #2D2013;
-            --primary: #3A2A1B;
-            --accent: #A67C52;
-            --accent-light: #C7A17A;
+            /* Consistent Chocolate Theme Colors */
+            --chocolate-dark: #2D2013;
+            --chocolate: #3A2A1B;
+            --chocolate-medium: #8B4513;
+            --chocolate-light: #A0522D;
+            --chocolate-accent: #D2691E;
             --gold: #FFD700;
+            --gold-light: #FFF8DC;
+            --white: #FFFFFF;
+            --soft-black: #2C2C2C;
+            --soft-black-light: #4A4A4A;
             --surface: #FFFFFF;
-            --surface-alt: #F8F6F3;
-            --surface-light: #F5F3F0;
-            --text-main: #2D2013;
+            --surface-alt: #FFF8DC;
+            --surface-light: #FFFACD;
+            --text-main: #2C2C2C;
             --text-light: #6B6B6B;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #A67C52;
-            --border: #e9e1d6;
-            --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+            --success: #D2691E;
+            --warning: #FFD700;
+            --danger: #8B4513;
+            --info: #A0522D;
+            --border: #DEB887;
+            --shadow: 0 4px 20px rgba(44, 44, 44, 0.1);
             --transition: all 0.3s ease;
         }
 
@@ -50,7 +55,7 @@
 
         .admin-sidebar {
             width: var(--sidebar-width);
-            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
+            background: linear-gradient(180deg, var(--chocolate-dark) 0%, var(--chocolate) 100%);
             color: white;
             position: fixed;
             height: 100vh;
@@ -65,12 +70,63 @@
         }
 
         .admin-header {
-            background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(44, 44, 44, 0.15);
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-header h1 {
+            color: #FFF8DC;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.5rem;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .admin-header .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #FFF8DC;
+        }
+
+        .admin-header .welcome-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: rgba(255, 248, 220, 0.9);
+        }
+
+        .admin-header .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+        }
+
+        .admin-header .user-avatar:hover {
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+        .admin-header .sidebar-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            transition: var(--transition);
+        }
+
+        .admin-header .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
         }
 
         .admin-main {
@@ -108,7 +164,7 @@
 
         .nav-link:hover,
         .nav-link.active {
-            background: var(--accent);
+            background: var(--chocolate-accent);
             color: white;
             text-decoration: none;
             transform: translateX(4px);
@@ -121,66 +177,131 @@
         }
 
         .stats-card {
-            background: var(--surface);
+            background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--accent);
+            box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);
+            border: none;
             transition: var(--transition);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 1.5rem;
         }
 
         .stats-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(45, 32, 19, 0.15);
+            box-shadow: 0 12px 24px rgba(45, 32, 19, 0.3);
         }
 
         .stats-card.success {
-            border-left-color: var(--success);
+            background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
         }
 
         .stats-card.warning {
-            border-left-color: var(--warning);
+            background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
         }
 
         .stats-card.danger {
-            border-left-color: var(--danger);
+            background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
         }
 
         .stats-card.info {
-            border-left-color: var(--info);
+            background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
         }
 
+        /* Add decorative icon in top-right corner */
+        .stats-card::before {
+            content: "";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        /* Revenue card specific styling */
+        .stats-number.revenue-number {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gold);
+            line-height: 1.2;
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-currency {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gold);
+            opacity: 0.9;
+        }
+
+        .revenue-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: -0.5px;
+        }
+
+        /* Make all stats numbers more compact */
         .stats-number {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--text-main);
+            color: var(--gold);
+            letter-spacing: -0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .stats-label {
-            color: var(--text-light);
+            color: white;
+            opacity: 0.9;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Override Bootstrap's text-muted class for stats cards */
+        .stats-card .text-muted {
+            color: var(--gold) !important;
+            opacity: 0.8;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
         }
 
         .chart-container {
-            background: var(--surface);
+            background: var(--white);
             border-radius: 12px;
             padding: 1.5rem;
             box-shadow: var(--shadow);
-            margin-top: 2rem;
-            height: 350px;
+            margin-bottom: 2rem;
+            height: 380px;
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
         }
 
         .chart-container h5 {
-            margin-bottom: 1rem;
-            color: var(--text-main);
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--chocolate-accent) 100%);
             font-weight: 600;
             font-size: 1.1rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         @media (max-width: 768px) {
@@ -497,6 +618,7 @@
             overflow: hidden;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            margin-bottom: 2rem;
         }
 
         .table-header {
@@ -542,6 +664,111 @@
         .btn-edit {
             background: var(--accent-color);
             color: white;
+        }
+
+        /* Custom Chocolate Theme Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--chocolate-accent) 100%);
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--chocolate-accent) 0%, var(--gold) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--chocolate-accent) 0%, var(--gold) 100%);
+            border: none;
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--gold) 0%, #FFE55C 100%);
+            border: none;
+            color: var(--chocolate-dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            border: none;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--soft-black-light) 0%, var(--soft-black) 100%);
+            border: none;
+            color: white;
+        }
+
+        /* Section Headers with Chocolate Background */
+        .section-header,
+        .card-header,
+        .modal-header:not(.email-preview-modal .modal-header) {
+            background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--chocolate-accent) 100%);
+            color: var(--white);
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--chocolate-light) 0%, var(--chocolate-accent) 100%);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Data Table Headers */
+        .data-table {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .data-table .table-header {
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .data-table .table-header i {
+            color: var(--gold-light);
+        }
+
+        /* Table Headers */
+        table th,
+        .table th {
+            background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--chocolate-accent) 100%);
+            color: var(--white);
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            color: var(--white);
+            font-weight: 600;
+            border-color: rgba(255,255,255,0.2);
         }
 
         .search-filters {
@@ -658,14 +885,20 @@
             <!-- Header -->
             <header class="admin-header">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-link d-md-none me-3" id="sidebarToggle">
+                    <button class="btn sidebar-toggle d-md-none me-3" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="h4 mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+                    <div>
+                        <h1 class="h3 mb-0">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+                        <small style="opacity: 0.8; font-size: 0.85rem;">PhotoRw Platform Management</small>
+                    </div>
                 </div>
                 
-                    <div class="d-flex align-items-center">
-                    <span class="me-3">Welcome, {{ request.user.get_full_name|default:request.user.username }}</span>
+                <div class="welcome-section">
+                    <div class="text-end">
+                        <div class="welcome-text">Welcome back,</div>
+                        <div style="font-weight: 600; font-size: 1rem;">{{ request.user.get_full_name|default:request.user.username }}</div>
+                    </div>
                     <img src="{{ request.user.get_medium_avatar_url }}" alt="Avatar" class="user-avatar">
                 </div>
             </header>

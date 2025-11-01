@@ -29,6 +29,37 @@ def is_admin(user):
     """Check if user is admin"""
     return user.is_authenticated and user.role == User.Roles.ADMIN
 
+def parse_filter_date(date_str):
+    """
+    Helper function to properly parse date string and handle timezone conversion
+    """
+    if not date_str:
+        return None
+    
+    try:
+        # Parse the date string
+        filter_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        return filter_date
+    except ValueError:
+        return None
+
+def get_date_range_for_filter(filter_date):
+    """
+    Helper function to get timezone-aware datetime range for a given date
+    """
+    if not filter_date:
+        return None, None
+    
+    # Create start and end datetime for the date using timezone.make_aware
+    start_datetime = timezone.make_aware(
+        datetime.combine(filter_date, datetime.min.time())
+    )
+    end_datetime = timezone.make_aware(
+        datetime.combine(filter_date, datetime.max.time())
+    )
+    
+    return start_datetime, end_datetime
+
 def log_admin_activity(admin_user, action, target_model, target_id, target_description, details="", ip_address=None):
     """Log admin activity for audit trail"""
     AdminActivityLog.objects.create(
@@ -45,49 +76,125 @@ def log_admin_activity(admin_user, action, target_model, target_id, target_descr
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     """Main admin dashboard with overview stats"""
+    # Get filter date from request, default to today
+    filter_date_str = request.GET.get('filter_date', '')
+    filter_date = parse_filter_date(filter_date_str)
+    
+    if not filter_date:
+        filter_date = timezone.now().date()
+    
     # Get current date for analytics
     today = timezone.now().date()
     
-    # Basic stats
-    total_users = User.objects.count()
-    total_photographers = User.objects.filter(role=User.Roles.PHOTOGRAPHER).count()
-    total_clients = User.objects.filter(role=User.Roles.CLIENT).count()
-    total_bookings = Booking.objects.count()
-    completed_bookings = Booking.objects.filter(status='completed').count()
-    pending_bookings = Booking.objects.filter(status='pending').count()
+    # Basic stats (filtered by date if provided)
+    if filter_date_str:
+        # Get timezone-aware datetime range for the filter date
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        
+        # Filter by specific date
+        total_users = User.objects.filter(date_joined__lte=end_datetime).count()
+        total_photographers = User.objects.filter(
+            role=User.Roles.PHOTOGRAPHER, 
+            date_joined__lte=end_datetime
+        ).count()
+        total_clients = User.objects.filter(
+            role=User.Roles.CLIENT, 
+            date_joined__lte=end_datetime
+        ).count()
+        total_bookings = Booking.objects.filter(created_at__lte=end_datetime).count()
+        completed_bookings = Booking.objects.filter(
+            status='completed', 
+            created_at__lte=end_datetime
+        ).count()
+        pending_bookings = Booking.objects.filter(
+            status='pending', 
+            created_at__lte=end_datetime
+        ).count()
+        
+        # Revenue stats for specific date
+        total_revenue = Transaction.objects.filter(
+            status='paid', 
+            created_at__lte=end_datetime
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Activity for the specific date (range from start to end of day)
+        new_users_30d = User.objects.filter(
+            date_joined__gte=start_datetime, 
+            date_joined__lte=end_datetime
+        ).count()
+        new_bookings_30d = Booking.objects.filter(
+            created_at__gte=start_datetime, 
+            created_at__lte=end_datetime
+        ).count()
+        
+        # Recent activities for the specific date
+        recent_users = User.objects.filter(
+            date_joined__gte=start_datetime, 
+            date_joined__lte=end_datetime
+        ).order_by('-date_joined')[:5]
+        recent_bookings = Booking.objects.filter(
+            created_at__gte=start_datetime, 
+            created_at__lte=end_datetime
+        ).order_by('-created_at')[:5]
+        recent_reviews = Review.objects.filter(
+            created_at__gte=start_datetime, 
+            created_at__lte=end_datetime
+        ).order_by('-created_at')[:5]
+        
+    else:
+        # Default behavior - all time stats
+        total_users = User.objects.count()
+        total_photographers = User.objects.filter(role=User.Roles.PHOTOGRAPHER).count()
+        total_clients = User.objects.filter(role=User.Roles.CLIENT).count()
+        total_bookings = Booking.objects.count()
+        completed_bookings = Booking.objects.filter(status='completed').count()
+        pending_bookings = Booking.objects.filter(status='pending').count()
+        
+        # Revenue stats
+        total_revenue = Transaction.objects.filter(status='paid').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        # Recent activity stats
+        last_30_days = timezone.now() - timedelta(days=30)
+        new_users_30d = User.objects.filter(date_joined__gte=last_30_days).count()
+        new_bookings_30d = Booking.objects.filter(created_at__gte=last_30_days).count()
+        
+        # Recent activities
+        recent_users = User.objects.order_by('-date_joined')[:5]
+        recent_bookings = Booking.objects.order_by('-created_at')[:5]
+        recent_reviews = Review.objects.order_by('-created_at')[:5]
     
-    # Revenue stats
-    total_revenue = Transaction.objects.filter(status='paid').aggregate(
-        total=Sum('amount')
-    )['total'] or 0
-    
-    # Recent activity stats
-    last_30_days = today - timedelta(days=30)
-    new_users_30d = User.objects.filter(date_joined__gte=last_30_days).count()
-    new_bookings_30d = Booking.objects.filter(created_at__gte=last_30_days).count()
-    
-    # User growth chart data (last 7 days)
+    # User growth chart data (last 7 days from filter_date or today)
+    chart_base_date = filter_date if filter_date_str else today
     user_growth = []
     for i in range(6, -1, -1):
-        date = today - timedelta(days=i)
-        count = User.objects.filter(date_joined__date=date).count()
+        date = chart_base_date - timedelta(days=i)
+        start_dt, end_dt = get_date_range_for_filter(date)
+        count = User.objects.filter(
+            date_joined__gte=start_dt, 
+            date_joined__lte=end_dt
+        ).count()
         user_growth.append({
             'date': date.strftime('%m/%d'),
             'count': count
         })
     
-    # Booking status distribution
-    booking_stats = {
-        'pending': Booking.objects.filter(status='pending').count(),
-        'confirmed': Booking.objects.filter(status='confirmed').count(),
-        'completed': Booking.objects.filter(status='completed').count(),
-        'cancelled': Booking.objects.filter(status='cancelled').count(),
-    }
-    
-    # Recent activities
-    recent_users = User.objects.order_by('-date_joined')[:5]
-    recent_bookings = Booking.objects.order_by('-created_at')[:5]
-    recent_reviews = Review.objects.order_by('-created_at')[:5]
+    # Booking status distribution (filtered by date if provided)
+    if filter_date_str:
+        booking_stats = {
+            'pending': Booking.objects.filter(status='pending', created_at__date__lte=filter_date).count(),
+            'confirmed': Booking.objects.filter(status='confirmed', created_at__date__lte=filter_date).count(),
+            'completed': Booking.objects.filter(status='completed', created_at__date__lte=filter_date).count(),
+            'cancelled': Booking.objects.filter(status='cancelled', created_at__date__lte=filter_date).count(),
+        }
+    else:
+        booking_stats = {
+            'pending': Booking.objects.filter(status='pending').count(),
+            'confirmed': Booking.objects.filter(status='confirmed').count(),
+            'completed': Booking.objects.filter(status='completed').count(),
+            'cancelled': Booking.objects.filter(status='cancelled').count(),
+        }
     
     # Pending approvals
     pending_reviews = Review.objects.filter(is_approved=False).count()
@@ -111,6 +218,8 @@ def admin_dashboard(request):
         'recent_reviews': recent_reviews,
         'pending_reviews': pending_reviews,
         'total_contact_messages': total_contact_messages,
+        'filter_date': filter_date_str,  # Add filter date to context
+        'filter_date_formatted': filter_date.strftime('%B %d, %Y') if filter_date_str else '',
     }
     
     return render(request, 'admin_dashboard/dashboard.html', context)
@@ -122,6 +231,10 @@ def users_management(request):
     search_query = request.GET.get('search', '')
     role_filter = request.GET.get('role', '')
     is_verified_filter = request.GET.get('verified', '')
+    filter_date_str = request.GET.get('filter_date', '')
+    
+    # Handle date filtering with timezone awareness
+    filter_date = parse_filter_date(filter_date_str)
     
     users = User.objects.all()
     
@@ -140,6 +253,11 @@ def users_management(request):
         is_verified = is_verified_filter.lower() == 'true'
         users = users.filter(is_verified=is_verified)
     
+    # Apply date filter if provided with timezone awareness
+    if filter_date:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        users = users.filter(date_joined__gte=start_datetime, date_joined__lte=end_datetime)
+    
     users = users.order_by('-date_joined')
     
     # Pagination
@@ -153,6 +271,8 @@ def users_management(request):
         'role_filter': role_filter,
         'is_verified_filter': is_verified_filter,
         'user_roles': User.Roles.choices,
+        'filter_date': filter_date_str,
+        'filter_date_formatted': filter_date.strftime('%B %d, %Y') if filter_date else '',
     }
     
     return render(request, 'admin_dashboard/users_management.html', context)
@@ -256,8 +376,15 @@ def bookings_management(request):
     status_filter = request.GET.get('status', '')
     payment_filter = request.GET.get('payment', '')
     search_query = request.GET.get('search', '')
+    filter_date_str = request.GET.get('filter_date', '')
     
     bookings = Booking.objects.select_related('client', 'photographer')
+    
+    # Handle date filtering with timezone awareness
+    filter_date = parse_filter_date(filter_date_str)
+    if filter_date:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        bookings = bookings.filter(created_at__gte=start_datetime, created_at__lte=end_datetime)
     
     if status_filter:
         bookings = bookings.filter(status=status_filter)
@@ -285,6 +412,7 @@ def bookings_management(request):
         'status_filter': status_filter,
         'payment_filter': payment_filter,
         'search_query': search_query,
+        'filter_date': filter_date_str,
         'booking_statuses': Booking.STATUS_CHOICES,
         'payment_statuses': Booking.PAYMENT_STATUS_CHOICES,
     }
@@ -297,8 +425,15 @@ def reviews_management(request):
     """Manage all reviews"""
     approval_filter = request.GET.get('approved', '')
     search_query = request.GET.get('search', '')
+    filter_date_str = request.GET.get('filter_date', '')
     
     reviews = Review.objects.select_related('reviewer', 'photographer', 'booking')
+    
+    # Handle date filtering with timezone awareness
+    filter_date = parse_filter_date(filter_date_str)
+    if filter_date:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        reviews = reviews.filter(created_at__gte=start_datetime, created_at__lte=end_datetime)
     
     if approval_filter:
         is_approved = approval_filter.lower() == 'true'
@@ -322,6 +457,7 @@ def reviews_management(request):
         'page_obj': page_obj,
         'approval_filter': approval_filter,
         'search_query': search_query,
+        'filter_date': filter_date_str,
     }
     
     return render(request, 'admin_dashboard/reviews_management.html', context)
@@ -353,13 +489,24 @@ def analytics_dashboard(request):
     """Advanced analytics dashboard"""
     # Time period filter
     period = request.GET.get('period', '30')  # days
+    filter_date_str = request.GET.get('filter_date', '')
+    
     try:
         days = int(period)
     except (ValueError, TypeError):
         days = 30
     
-    end_date = timezone.now().date()
-    start_date = end_date - timedelta(days=days)
+    # Handle date filtering with timezone awareness
+    filter_date = parse_filter_date(filter_date_str)
+    
+    if filter_date:
+        # If specific date is selected, show data for that date and period around it
+        end_date = filter_date
+        start_date = filter_date - timedelta(days=days)
+    else:
+        # Default behavior
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=days)
     
     # User registration trends
     user_registrations = []
@@ -368,12 +515,21 @@ def analytics_dashboard(request):
     
     for i in range(days, -1, -1):
         date = end_date - timedelta(days=i)
-        users_count = User.objects.filter(date_joined__date=date).count()
+        start_dt, end_dt = get_date_range_for_filter(date)
+        
+        users_count = User.objects.filter(
+            date_joined__gte=start_dt, 
+            date_joined__lte=end_dt
+        ).count()
         photographers_count = User.objects.filter(
-            date_joined__date=date, role=User.Roles.PHOTOGRAPHER
+            date_joined__gte=start_dt, 
+            date_joined__lte=end_dt, 
+            role=User.Roles.PHOTOGRAPHER
         ).count()
         clients_count = User.objects.filter(
-            date_joined__date=date, role=User.Roles.CLIENT
+            date_joined__gte=start_dt, 
+            date_joined__lte=end_dt, 
+            role=User.Roles.CLIENT
         ).count()
         
         user_registrations.append({'date': date.strftime('%m/%d'), 'count': users_count})
@@ -386,9 +542,16 @@ def analytics_dashboard(request):
     
     for i in range(days, -1, -1):
         date = end_date - timedelta(days=i)
-        bookings_count = Booking.objects.filter(created_at__date=date).count()
+        start_dt, end_dt = get_date_range_for_filter(date)
+        
+        bookings_count = Booking.objects.filter(
+            created_at__gte=start_dt, 
+            created_at__lte=end_dt
+        ).count()
         revenue = Transaction.objects.filter(
-            created_at__date=date, status='paid'
+            created_at__gte=start_dt, 
+            created_at__lte=end_dt, 
+            status='paid'
         ).aggregate(total=Sum('amount'))['total'] or 0
         
         booking_trends.append({'date': date.strftime('%m/%d'), 'count': bookings_count})
@@ -405,27 +568,69 @@ def analytics_dashboard(request):
         )
     ).order_by('-booking_count')[:10]
     
-    # Service type popularity
-    service_popularity = Booking.objects.values('service_type').annotate(
-        count=Count('id')
-    ).order_by('-count')[:10]
+    # Create timezone-aware datetime objects for filtering
+    start_datetime = None
+    end_datetime = None
     
-    # Calculate totals and period metrics
-    total_users = User.objects.count()
-    total_photographers = User.objects.filter(role=User.Roles.PHOTOGRAPHER).count()
-    total_bookings = Booking.objects.count()
-    total_revenue = Transaction.objects.filter(status='paid').aggregate(
-        total=Sum('amount')
-    )['total'] or 0
+    if start_date:
+        start_datetime = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+    if end_date:
+        end_datetime = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
     
-    # Period-specific metrics
-    new_users = User.objects.filter(date_joined__gte=start_date).count()
+    # Service type popularity (filtered by date range)
+    if start_datetime and end_datetime:
+        service_popularity = Booking.objects.filter(
+            created_at__gte=start_datetime,
+            created_at__lte=end_datetime
+        ).values('service_type').annotate(
+            count=Count('id')
+        ).order_by('-count')[:10]
+    else:
+        service_popularity = Booking.objects.values('service_type').annotate(
+            count=Count('id')
+        ).order_by('-count')[:10]
+    
+    # Calculate totals filtered by date range
+    if start_datetime and end_datetime:
+        # Filter all metrics by the selected date range
+        total_users = User.objects.filter(
+            date_joined__gte=start_datetime,
+            date_joined__lte=end_datetime
+        ).count()
+        total_photographers = User.objects.filter(
+            date_joined__gte=start_datetime,
+            date_joined__lte=end_datetime,
+            role=User.Roles.PHOTOGRAPHER
+        ).count()
+        total_bookings = Booking.objects.filter(
+            created_at__gte=start_datetime,
+            created_at__lte=end_datetime
+        ).count()
+        total_revenue = Transaction.objects.filter(
+            created_at__gte=start_datetime,
+            created_at__lte=end_datetime,
+            status='paid'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+    else:
+        # Show all-time totals when no date filter is applied
+        total_users = User.objects.count()
+        total_photographers = User.objects.filter(role=User.Roles.PHOTOGRAPHER).count()
+        total_bookings = Booking.objects.count()
+        total_revenue = Transaction.objects.filter(status='paid').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+    
+    # Period-specific metrics for comparison (new vs total in period)
+    # Use the period start_date for "this period" calculations
+    period_start_datetime = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+    
+    new_users = User.objects.filter(date_joined__gte=period_start_datetime).count()
     new_photographers = User.objects.filter(
-        date_joined__gte=start_date, role=User.Roles.PHOTOGRAPHER
+        date_joined__gte=period_start_datetime, role=User.Roles.PHOTOGRAPHER
     ).count()
-    new_bookings = Booking.objects.filter(created_at__gte=start_date).count()
+    new_bookings = Booking.objects.filter(created_at__gte=period_start_datetime).count()
     period_revenue = Transaction.objects.filter(
-        created_at__gte=start_date, status='paid'
+        created_at__gte=period_start_datetime, status='paid'
     ).aggregate(total=Sum('amount'))['total'] or 0
     
     context = {
@@ -447,6 +652,9 @@ def analytics_dashboard(request):
         'new_photographers': new_photographers,
         'new_bookings': new_bookings,
         'period_revenue': period_revenue,
+        # Filter date
+        'filter_date': filter_date_str,
+        'filter_date_formatted': filter_date.strftime('%B %d, %Y') if filter_date else '',
     }
     
     return render(request, 'admin_dashboard/analytics.html', context)
@@ -518,7 +726,16 @@ def notifications_management(request):
     else:
         form = SystemNotificationForm()
     
-    notifications = SystemNotification.objects.order_by('-created_at')
+    # Handle date filtering with timezone awareness
+    filter_date_str = request.GET.get('filter_date', '')
+    notifications = SystemNotification.objects.all()
+    
+    filter_date = parse_filter_date(filter_date_str)
+    if filter_date:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        notifications = notifications.filter(created_at__gte=start_datetime, created_at__lte=end_datetime)
+    
+    notifications = notifications.order_by('-created_at')
     
     # Pagination
     paginator = Paginator(notifications, 20)
@@ -528,6 +745,7 @@ def notifications_management(request):
     context = {
         'form': form,
         'page_obj': page_obj,
+        'filter_date': filter_date_str,
     }
     
     return render(request, 'admin_dashboard/notifications.html', context)
@@ -613,8 +831,15 @@ def activity_logs(request):
     admin_filter = request.GET.get('admin', '')
     action_filter = request.GET.get('action', '')
     model_filter = request.GET.get('model', '')
+    filter_date_str = request.GET.get('filter_date', '')
     
     logs = AdminActivityLog.objects.select_related('admin_user')
+    
+    # Handle date filtering with timezone awareness
+    filter_date = parse_filter_date(filter_date_str)
+    if filter_date:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        logs = logs.filter(timestamp__gte=start_datetime, timestamp__lte=end_datetime)
     
     if admin_filter:
         logs = logs.filter(admin_user__email__icontains=admin_filter)
@@ -624,6 +849,8 @@ def activity_logs(request):
         
     if model_filter:
         logs = logs.filter(target_model__icontains=model_filter)
+    
+    logs = logs.order_by('-timestamp')
     
     # Pagination
     paginator = Paginator(logs, 50)
@@ -635,6 +862,7 @@ def activity_logs(request):
         'admin_filter': admin_filter,
         'action_filter': action_filter,
         'model_filter': model_filter,
+        'filter_date': filter_date_str,
         'action_choices': AdminActivityLog.ACTION_CHOICES,
     }
     

@@ -3,7 +3,319 @@
 {% block title %}Notifications Management{% endblock %}
 {% block page_title %}System Notifications & Email Campaigns{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Enhanced Email Preview Modal Styles */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #313a0d 0%, #b3910b 100%);
+    }
+    
+    /* Chocolate-themed Email Preview Modal */
+    .email-preview-modal .modal-header {
+        background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+        border-bottom: 2px solid rgba(139, 69, 19, 0.3);
+    }
+    
+    .email-preview-modal .modal-title {
+        color: #FFF;
+        font-weight: 600;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .email-preview-modal .btn-close-white {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .email-preview-modal .btn-close-white:hover {
+        opacity: 1;
+    }
+    
+    .email-preview-modal .modal-body {
+        background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C0 100%);
+    }
+    
+    .email-preview-modal .modal-footer {
+        background: #F8F6F3;
+        border-top: 1px solid #D2B48C;
+    }
+    
+    .email-preview-modal .btn-chocolate {
+        background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+        border: none;
+        color: white;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .email-preview-modal .btn-chocolate:hover {
+        background: linear-gradient(135deg, #A0522D 0%, #CD853F 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+        color: white;
+    }
+    
+    /* Compact Email Preview Content */
+    .email-preview-modal #emailPreviewContent {
+        font-size: 0.7rem;
+        line-height: 1.2;
+        max-height: none;
+        overflow: visible;
+    }
+    
+    .email-preview-modal #emailPreviewContent h1,
+    .email-preview-modal #emailPreviewContent h2,
+    .email-preview-modal #emailPreviewContent h3 {
+        font-size: 0.9rem !important;
+        margin: 0.2rem 0 !important;
+        line-height: 1.1 !important;
+    }
+    
+    .email-preview-modal #emailPreviewContent p {
+        font-size: 0.65rem !important;
+        margin: 0.1rem 0 !important;
+        line-height: 1.1 !important;
+    }
+    
+    .email-preview-modal #emailPreviewContent div[style*="padding"] {
+        padding: 0.3rem !important;
+    }
+    
+    .email-preview-modal #emailPreviewContent div[style*="margin"] {
+        margin: 0.2rem 0 !important;
+    }
+    
+    .email-preview-modal #emailPreviewContent a {
+        font-size: 0.6rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+    
+    .email-preview-modal .modal-body {
+        max-height: none;
+        overflow: visible;
+        padding: 0.5rem;
+    }
+    
+    .email-preview-modal .preview-container-compact {
+        padding: 0.5rem !important;
+    }
+    
+    .email-preview-modal .preview-container-compact .bg-white {
+        padding: 0.8rem !important;
+        font-size: 0.7rem;
+    }
+    
+    /* Override base email template spacing for compact preview */
+    .email-preview-modal .email-container {
+        box-shadow: none !important;
+        margin: 0 !important;
+    }
+    
+    .email-preview-modal .header {
+        padding: 8px 15px !important;
+    }
+    
+    .email-preview-modal .header h1 {
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
+    
+    .email-preview-modal .header .tagline {
+        font-size: 9px !important;
+        margin: 1px 0 0 0 !important;
+    }
+    
+    .email-preview-modal .content {
+        padding: 10px 8px !important;
+    }
+    
+    .email-preview-modal .content h2 {
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .email-preview-modal .content p {
+        font-size: 10px !important;
+        margin-bottom: 3px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .email-preview-modal .footer {
+        padding: 8px 15px !important;
+    }
+    
+    .email-preview-modal .footer p {
+        font-size: 9px !important;
+        margin: 1px 0 !important;
+    }
+    
+    .email-preview-modal .btn, 
+    .email-preview-modal a[style*="padding"] {
+        padding: 3px 8px !important;
+        font-size: 10px !important;
+    }
+    
+    /* Make modal height fit content without scroll */
+    .email-preview-modal .modal-dialog {
+        max-height: 90vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .email-preview-modal .modal-content {
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .email-preview-modal .modal-header {
+        padding: 0.75rem 1rem;
+        flex-shrink: 0;
+    }
+    
+    .email-preview-modal .modal-footer {
+        padding: 0.75rem 1rem;
+        flex-shrink: 0;
+    }
+    
+    .preview-container {
+        min-height: 300px;
+    }
+    
+    .email-preview-wrapper {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: transform 0.3s ease;
+    }
+    
+    .email-preview-wrapper:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .mobile-frame {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        position: relative;
+    }
+    
+    .mobile-frame::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: #666;
+        border-radius: 2px;
+    }
+    
+    .mobile-screen {
+        border: 2px solid #803b07;
+    }
+    
+    .btn-check:checked + .btn {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: white;
+    }
+    
+    .preview-info-item {
+        padding: 0.75rem;
+        border-radius: 0.375rem;
+        background: #f8f9fa;
+        margin-bottom: 0.5rem;
+        border-left: 3px solid var(--bs-primary);
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+    }
+    
+    /* Professional form styling */
+    .form-label {
+        font-weight: 600;
+        color: #bd520f;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #a05108;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    /* Enhanced table styling */
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #744710;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+    
+    /* Professional badges */
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Alert enhancements */
+    .alert {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+        color: white;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #51cf66, #40c057);
+        color: white;
+    }
+    
+    .alert-info {
+        background: linear-gradient(135deg, #74c0fc, #339af0);
+        color: white;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<!-- Date Filter Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card" style="background: var(--chocolate-light); border: 1px solid var(--chocolate-medium);">
+            <div class="card-body py-3">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <label for="filter_date" class="form-label mb-0" style="color: var(--chocolate-dark); font-weight: 600;">Filter Notifications by Date:</label>
+                    <input type="date" class="form-control" id="filter_date" name="filter_date" 
+                           value="{{ filter_date }}" style="max-width: 200px; border: 1px solid var(--chocolate-medium);">
+                    <button type="submit" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none;">
+                        <i class="fas fa-filter"></i> Apply Filter
+                    </button>
+                    {% if filter_date %}
+                        <a href="{% url 'admin_dashboard:notifications_management' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear Filter
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Display form errors -->
 {% if form.errors %}
     <div class="alert alert-danger">
@@ -105,7 +417,7 @@
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="button" id="previewEmailBtn" class="btn btn-outline-primary me-2" style="display: none;">
+                <button type="button" id="previewEmailBtn" class="btn btn-chocolate me-2" style="display: none;">
                     <i class="fas fa-eye me-2"></i>Preview Email
                 </button>
                 <button type="submit" class="btn btn-primary">
@@ -116,21 +428,39 @@
     </div>
 </div>
 
-<!-- Email Preview Modal -->
-<div class="modal fade" id="emailPreviewModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+<!-- Simple Professional Email Preview Modal -->
+<div class="modal fade email-preview-modal" id="emailPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Email Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2"></i>
+                    Email Preview
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="emailPreviewContent">
-                <!-- Preview content will be loaded here -->
+            
+            <div class="modal-body p-0">
+                <!-- Email Preview Container -->
+                <div class="preview-container-compact">
+                    <div class="bg-white rounded" style="max-width: 500px; margin: 0 auto; border: 1px solid #D2B48C;">
+                        <div id="emailPreviewContent">
+                            <!-- Email content will be loaded here -->
+                            <div class="text-center text-muted py-2">
+                                <i class="fas fa-envelope-open mb-1" style="color: #8B4513; font-size: 14px;"></i>
+                                <p style="color: #A0522D; font-size: 0.8rem; margin: 0;">Email preview will appear here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" id="sendEmailsBtn" class="btn btn-primary">
-                    <i class="fas fa-paper-plane me-2"></i>Send Emails
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-chocolate" id="sendEmailsBtn">
+                    <i class="fas fa-paper-plane me-2"></i>Send Email
                 </button>
             </div>
         </div>
@@ -390,7 +720,7 @@
         previewEmailBtn.style.display = isEmailDelivery ? 'inline-block' : 'none';
     }
     
-    // Preview email functionality
+    // Simple Preview email functionality
     if (previewEmailBtn) {
         previewEmailBtn.addEventListener('click', function() {
             const formData = new FormData(notificationForm);

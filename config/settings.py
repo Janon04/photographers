@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # Required for django-allauth
+    'django.contrib.humanize',  # For number formatting with commas
     # Django core apps
 
     # Third-party apps

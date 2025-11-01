@@ -1,52 +1,115 @@
 {% extends 'admin_dashboard/base_admin.html' %}
+st{% load humanize %}
 
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Platform Overview{% endblock %}
 
 {% block content %}
-<div class="row">
+<!-- Date Filter Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="date-filter-container" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-2" style="color: var(--gold); font-weight: bold;">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {% if filter_date %}
+                            Dashboard Analytics for {{ filter_date_formatted }}
+                        {% else %}
+                            Dashboard Analytics - All Time
+                        {% endif %}
+                    </h5>
+                    <p class="mb-0" style="color: white; opacity: 0.9; font-size: 14px;">
+                        Select a specific date to view activities and stats for that day, or leave blank for all-time data.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" class="d-flex gap-3 align-items-end">
+                        <div class="flex-grow-1">
+                            <label for="filter_date" class="form-label small" style="color: var(--gold); font-weight: 500;">Filter by Date</label>
+                            <input type="date" class="form-control" id="filter_date" name="filter_date" 
+                                   value="{{ filter_date }}" 
+                                   style="border: 2px solid var(--gold); background: white; color: var(--chocolate-dark);">
+                        </div>
+                        <button type="submit" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                            <i class="fas fa-filter me-1"></i> Apply Filter
+                        </button>
+                        {% if filter_date %}
+                        <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-sm" style="background: #FF6B6B; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Statistics Cards -->
+<div class="row mb-2">
     <!-- Key Statistics -->
     <div class="col-md-3 mb-4">
         <div class="stats-card">
-            <div class="stats-number text-primary">{{ total_users }}</div>
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);">{{ total_users|intcomma }}</div>
             <div class="stats-label">Total Users</div>
             <small class="text-muted">
-                <i class="fas fa-arrow-up text-success"></i> +{{ new_users_30d }} this month
+                <i class="fas fa-arrow-up" style="color: #90EE90;"></i> 
+                {% if filter_date %}
+                    +{{ new_users_30d|intcomma }} on {{ filter_date_formatted }}
+                {% else %}
+                    +{{ new_users_30d|intcomma }} this month
+                {% endif %}
             </small>
         </div>
     </div>
     
     <div class="col-md-3 mb-4">
         <div class="stats-card success">
-            <div class="stats-number text-success">{{ total_photographers }}</div>
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-camera"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);">{{ total_photographers|intcomma }}</div>
             <div class="stats-label">Photographers</div>
-            <small class="text-muted">{{ total_clients }} clients</small>
+            <small class="text-muted">{{ total_clients|intcomma }} clients</small>
         </div>
     </div>
     
     <div class="col-md-3 mb-4">
         <div class="stats-card warning">
-            <div class="stats-number text-warning">{{ total_bookings }}</div>
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);">{{ total_bookings|intcomma }}</div>
             <div class="stats-label">Total Bookings</div>
-            <small class="text-muted">{{ completed_bookings }} completed</small>
+            <small class="text-muted">{{ completed_bookings|intcomma }} completed</small>
         </div>
     </div>
     
     <div class="col-md-3 mb-4">
         <div class="stats-card danger">
-            <div class="stats-number text-info">Rwf {{ total_revenue|floatformat:2 }}</div>
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stats-number revenue-number">
+                <span class="revenue-currency">Rwf</span>
+                <span class="revenue-amount">{{ total_revenue|floatformat:0|intcomma }}</span>
+            </div>
             <div class="stats-label">Total Revenue</div>
             <small class="text-muted">Platform earnings</small>
         </div>
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row">
-    <div class="col-md-6">
+<!-- Charts Section -->
+<div class="row mb-5">
+    <div class="col-md-6 pe-md-5 mb-4 mb-md-0">
         <div class="chart-container">
             <h5 class="mb-3">
-                <i class="fas fa-chart-line me-2 text-primary"></i>
+                <i class="fas fa-chart-line me-2" style="color: var(--chocolate-medium);"></i>
                 User Registration Trends (Last 7 Days)
             </h5>
             <div style="height: 250px; position: relative;">
@@ -55,10 +118,10 @@
         </div>
     </div>
     
-    <div class="col-md-6">
+    <div class="col-md-6 ps-md-5">
         <div class="chart-container">
             <h5 class="mb-3">
-                <i class="fas fa-chart-pie me-2 text-success"></i>
+                <i class="fas fa-chart-pie me-2" style="color: var(--chocolate-accent);"></i>
                 Booking Status Distribution
             </h5>
             <div style="height: 250px; position: relative;">
@@ -69,7 +132,7 @@
 </div>
 
 <!-- Quick Actions and Recent Activity -->
-<div class="row mt-4">
+<div class="row">
     <div class="col-md-6">
         <div class="data-table">
             <div class="table-header">
@@ -108,11 +171,22 @@
     <div class="col-md-6">
         <div class="data-table">
             <div class="table-header">
-                <i class="fas fa-clock me-2"></i>Recent Activity
+                <i class="fas fa-clock me-2"></i>
+                {% if filter_date %}
+                    Activity for {{ filter_date_formatted }}
+                {% else %}
+                    Recent Activity
+                {% endif %}
             </div>
             <div class="p-3">
                 {% if recent_users %}
-                    <h6 class="mb-2">New Users</h6>
+                    <h6 class="mb-2">
+                        {% if filter_date %}
+                            Users Registered on {{ filter_date_formatted }}
+                        {% else %}
+                            New Users
+                        {% endif %}
+                    </h6>
                     {% for user in recent_users %}
                         <div class="d-flex align-items-center mb-2">
                             <img src="{{ user.get_small_avatar_url }}" alt="Avatar" class="user-avatar me-2" style="width: 24px; height: 24px;">
@@ -123,7 +197,13 @@
                 {% endif %}
                 
                 {% if recent_bookings %}
-                    <h6 class="mb-2 mt-3">Recent Bookings</h6>
+                    <h6 class="mb-2 mt-3">
+                        {% if filter_date %}
+                            Bookings for {{ filter_date_formatted }}
+                        {% else %}
+                            Recent Bookings
+                        {% endif %}
+                    </h6>
                     {% for booking in recent_bookings|slice:":3" %}
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="small">{{ booking.service_type|truncatechars:20 }}</span>
@@ -139,10 +219,17 @@
 <!-- Recent Users Table -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="data-table">
-            <div class="table-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-users me-2"></i>Recent User Registrations</span>
-                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-outline-light btn-sm">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
+            <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                <span style="color: var(--gold); font-weight: bold;">
+                    <i class="fas fa-users me-2"></i>
+                    {% if filter_date %}
+                        User Registrations for {{ filter_date_formatted }}
+                    {% else %}
+                        Recent User Registrations
+                    {% endif %}
+                </span>
+                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
                     View All <i class="fas fa-arrow-right ms-1"></i>
                 </a>
             </div>
@@ -170,7 +257,7 @@
                                             </div>
                                         </td>
                                 <td>
-                                    <span class="badge bg-{{ user.role|yesno:'primary,success' }}">
+                                    <span class="badge" style="{% if user.role == 'photographer' %}background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold);{% elif user.role == 'client' %}background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark);{% else %}background: linear-gradient(135deg, #8B4513, #A0522D); color: white;{% endif %} padding: 6px 12px; border-radius: 6px; font-weight: 500; font-size: 12px;">
                                         {{ user.get_role_display }}
                                     </span>
                                 </td>
@@ -184,7 +271,7 @@
                                 <td>{{ user.date_joined|date:"M d, Y" }}</td>
                                 <td>
                                     <a href="{% url 'admin_dashboard:user_detail' user.id %}" 
-                                       class="btn btn-outline-primary btn-sm">
+                                       class="btn btn-sm" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: 1px solid var(--chocolate-medium); padding: 4px 8px; border-radius: 4px;">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
@@ -216,14 +303,14 @@
             datasets: [{
                 label: 'New Users',
                 data: userGrowthData.map(item => item.count),
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderColor: '#8B4513',
+                backgroundColor: 'rgba(139, 69, 19, 0.1)',
                 borderWidth: 2,
                 tension: 0.4,
                 fill: true,
                 pointRadius: 4,
                 pointHoverRadius: 6,
-                pointBackgroundColor: '#3498db',
+                pointBackgroundColor: '#8B4513',
                 pointBorderColor: '#ffffff',
                 pointBorderWidth: 2
             }]

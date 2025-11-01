@@ -4,9 +4,48 @@
 {% block page_title %}Admin Activity Logs{% endblock %}
 
 {% block content %}
+<!-- Date Filter Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card" style="background: var(--chocolate-light); border: 1px solid var(--chocolate-medium);">
+            <div class="card-body py-3">
+                <form method="get" class="d-flex align-items-center gap-3">
+                    <!-- Preserve other filters -->
+                    {% if admin_filter %}
+                        <input type="hidden" name="admin" value="{{ admin_filter }}">
+                    {% endif %}
+                    {% if action_filter %}
+                        <input type="hidden" name="action" value="{{ action_filter }}">
+                    {% endif %}
+                    {% if model_filter %}
+                        <input type="hidden" name="model" value="{{ model_filter }}">
+                    {% endif %}
+                    
+                    <label for="filter_date" class="form-label mb-0" style="color: var(--chocolate-dark); font-weight: 600;">Filter by Date:</label>
+                    <input type="date" class="form-control" id="filter_date" name="filter_date" 
+                           value="{{ filter_date }}" style="max-width: 200px; border: 1px solid var(--chocolate-medium);">
+                    <button type="submit" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none;">
+                        <i class="fas fa-filter"></i> Apply Filter
+                    </button>
+                    {% if filter_date %}
+                        <a href="{% url 'admin_dashboard:activity_logs' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear Filter
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Search and Filter Section -->
 <div class="search-filters">
     <form method="get" class="row g-3">
+        <!-- Preserve date filter -->
+        {% if filter_date %}
+            <input type="hidden" name="filter_date" value="{{ filter_date }}">
+        {% endif %}
+        
         <div class="col-md-3">
             <label for="admin" class="form-label">Admin User</label>
             <input type="text" class="form-control" id="admin" name="admin" 

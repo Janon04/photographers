@@ -5,6 +5,9 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Sum, Count, Q
+from datetime import datetime, timedelta
+from decimal import Decimal
 from .models import Transaction
 from bookings.models import Booking
 from users.models import User
@@ -22,10 +25,85 @@ def transaction_history(request):
 @login_required
 def earnings_dashboard(request):
 	if request.user.role != 'photographer':
-		return render(request, 'payments/earnings_dashboard.html', {'total_earnings': 0, 'transactions': []})
-	transactions = Transaction.objects.filter(booking__photographer=request.user, status='paid')
-	total_earnings = sum(t.amount for t in transactions)
-	return render(request, 'payments/earnings_dashboard.html', {'total_earnings': total_earnings, 'transactions': transactions})
+		return render(request, 'payments/earnings_dashboard.html', {
+			'total_earnings': 0, 
+			'transactions': [],
+			'paid_count': 0,
+			'pending_count': 0,
+			'failed_count': 0,
+			'total_count': 0,
+			'success_rate': 0,
+			'average_per_transaction': 0,
+			'monthly_earnings': [],
+			'this_month_earnings': 0,
+			'currency_symbol': 'RWF',
+		})
+	
+	# Get all transactions for this photographer
+	all_transactions = Transaction.objects.filter(booking__photographer=request.user)
+	paid_transactions = all_transactions.filter(status='paid')
+	pending_transactions = all_transactions.filter(status='pending')
+	failed_transactions = all_transactions.filter(status='failed')
+	
+	# Calculate totals
+	total_earnings = paid_transactions.aggregate(total=Sum('amount'))['total'] or Decimal('0')
+	paid_count = paid_transactions.count()
+	pending_count = pending_transactions.count()
+	failed_count = failed_transactions.count()
+	total_count = all_transactions.count()
+	
+	# Calculate rates and averages
+	success_rate = (paid_count / total_count * 100) if total_count > 0 else 0
+	average_per_transaction = total_earnings / paid_count if paid_count > 0 else Decimal('0')
+	
+	# Calculate monthly earnings for the last 6 months
+	today = datetime.now()
+	monthly_earnings = []
+	month_names = []
+	
+	for i in range(5, -1, -1):  # Last 6 months
+		month_date = today - timedelta(days=30*i)
+		month_start = month_date.replace(day=1)
+		
+		if i == 0:  # Next month
+			next_month = month_start.replace(month=month_start.month + 1) if month_start.month < 12 else month_start.replace(year=month_start.year + 1, month=1)
+			month_end = next_month - timedelta(days=1)
+		else:
+			next_month = month_start.replace(month=month_start.month + 1) if month_start.month < 12 else month_start.replace(year=month_start.year + 1, month=1)
+			month_end = next_month - timedelta(days=1)
+		
+		month_earnings = paid_transactions.filter(
+			created_at__gte=month_start,
+			created_at__lte=month_end
+		).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+		
+		monthly_earnings.append(float(month_earnings))
+		month_names.append(month_date.strftime('%b'))
+	
+	# This month's earnings
+	current_month_start = today.replace(day=1)
+	this_month_earnings = paid_transactions.filter(
+		created_at__gte=current_month_start
+	).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+	
+	# Get recent transactions (limit to 10 for display)
+	recent_transactions = paid_transactions.order_by('-created_at')[:10]
+	
+	return render(request, 'payments/earnings_dashboard.html', {
+		'total_earnings': total_earnings,
+		'transactions': recent_transactions,
+		'all_transactions': all_transactions,
+		'paid_count': paid_count,
+		'pending_count': pending_count,
+		'failed_count': failed_count,
+		'total_count': total_count,
+		'success_rate': success_rate,
+		'average_per_transaction': average_per_transaction,
+		'monthly_earnings': monthly_earnings,
+		'month_names': month_names,
+		'this_month_earnings': this_month_earnings,
+		'currency_symbol': 'RWF',
+	})
 
 @csrf_exempt
 @require_POST

@@ -1,36 +1,269 @@
 
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container" style="max-width:1100px;margin:2rem auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-    <h2 style="font-size:2rem;font-weight:900;color:#1a120b;">Explore Gallery</h2>
-    {% if user.is_authenticated and user.role == 'photographer' %}
-      <a href="{% url 'portfolio:upload_photo' %}" class="btn btn-primary" style="padding:0.7rem 1.3rem;font-size:1.1rem;font-weight:700;border-radius:0.7rem;background:#7c5c3a;color:#fff;box-shadow:0 2px 8px rgba(199,161,122,0.13);">+ Upload Photo</a>
+<div class="container-fluid" style="max-width: 1400px; margin: 3.5rem auto 0; padding: 0 1rem;">
+  
+  <!-- Header Section -->
+  <section class="hero-section" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2); border-radius: 20px;"></div>
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+        <i class="fas fa-camera-retro" style="margin-right: 0.75rem; color: #FFD700;"></i>
+        Photography Gallery
+      </h1>
+      <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300;">
+        Discover stunning photography work from our talented community
+      </p>
+      
+      {% if user.is_authenticated and user.role == 'photographer' %}
+        <a href="{% url 'portfolio:upload_photo' %}" 
+           class="btn-upload-photo"
+           style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; border: none;">
+          <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+          Upload Photo
+        </a>
+      {% else %}
+        <a href="{% url 'users:register' %}" 
+           style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+          <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+          Join as Photographer
+        </a>
+      {% endif %}
+    </div>
+  </section>
+  <!-- Photos Grid -->
+  <div class="photos-container">
+    {% if photos %}
+      <div style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); margin-bottom: 3rem;">
+        {% for photo in photos %}
+          <div class="photo-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; position: relative;">
+            
+            <!-- Photo Image -->
+            <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
+              <img src="{{ photo.image.url }}" 
+                   alt="{{ photo.title }}" 
+                   style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"
+                   loading="lazy">
+              
+              <!-- Category Badge -->
+              {% if photo.category %}
+                <div style="position: absolute; top: 1rem; left: 1rem;">
+                  <span style="background: rgba(139,69,19,0.9); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; backdrop-filter: blur(10px);">
+                    <i class="fas fa-tag" style="margin-right: 0.3rem;"></i>
+                    {{ photo.category.name }}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Photo Details -->
+            <div style="padding: 1.5rem;">
+              <h4 style="color: #2c3e50; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.3;">
+                {{ photo.title }}
+              </h4>
+              
+              <!-- Photographer Info -->
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 35px; height: 35px; border-radius: 50%; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem;">
+                  {{ photo.photographer.first_name|first|default:photo.photographer.username|first|upper }}
+                </div>
+                
+                <div>
+                  <div style="color: #2c3e50; font-weight: 500; font-size: 0.95rem;">
+                    {{ photo.photographer.get_full_name|default:photo.photographer.username }}
+                  </div>
+                  <div style="color: #6c757d; font-size: 0.8rem;">
+                    <i class="fas fa-camera" style="margin-right: 0.3rem;"></i>
+                    Photographer
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+                <button onclick="sharePhoto('facebook', '{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" 
+                        style="background: #4267B2; color: white; border: none; border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: all 0.3s ease; flex: 1;">
+                  <i class="fab fa-facebook-f"></i>
+                </button>
+                
+                <button onclick="sharePhoto('twitter', '{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" 
+                        style="background: #1DA1F2; color: white; border: none; border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: all 0.3s ease; flex: 1;">
+                  <i class="fab fa-twitter"></i>
+                </button>
+                
+                <button onclick="sharePhoto('whatsapp', '{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" 
+                        style="background: #25D366; color: white; border: none; border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: all 0.3s ease; flex: 1;">
+                  <i class="fab fa-whatsapp"></i>
+                </button>
+                
+                <button onclick="copyPhotoLink('{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" 
+                        style="background: #6c757d; color: white; border: none; border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: all 0.3s ease; flex: 1;">
+                  <i class="fas fa-link"></i>
+                </button>
+              </div>
+              
+              <!-- View Profile Button -->
+              <div style="margin-top: 1rem; text-align: center;">
+                <a href="{% url 'portfolio:photographer_detail' photo.photographer.pk %}" 
+                   style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.3s ease; display: inline-flex; align-items: center; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+                  <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                  View Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- No Photos State -->
+      <div style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; margin-bottom: 3rem;">
+        <div style="margin-bottom: 2rem;">
+          <i class="fas fa-camera" style="font-size: 4rem; color: #e0e0e0;"></i>
+        </div>
+        <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Photos Yet</h3>
+        <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">
+          Be the first photographer to share your amazing work!
+        </p>
+        
+        {% if user.is_authenticated and user.role == 'photographer' %}
+          <a href="{% url 'portfolio:upload_photo' %}" 
+             style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+            <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+            Upload First Photo
+          </a>
+        {% else %}
+          <a href="{% url 'users:register' %}" 
+             style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+            <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+            Join as Photographer
+          </a>
+        {% endif %}
+      </div>
     {% endif %}
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;">
-    {% for photo in photos %}
-      <div style="background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.13);padding:1rem;display:flex;flex-direction:column;align-items:center;">
-        <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="max-width:100%;max-height:220px;border-radius:0.7rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(199,161,122,0.09);">
-        <div style="font-size:1.1rem;font-weight:700;color:#3e2723;margin-bottom:0.5rem;">{{ photo.title }}</div>
-        <div style="color:#7c5c3a;font-size:0.97rem;margin-bottom:0.5rem;">by {{ photo.photographer.username }}</div>
-        <div style="color:#388e3c;font-size:0.95rem;margin-bottom:0.5rem;">Category: {{ photo.category }}</div>
-        <button onclick="copyPhotoLink('{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" style="margin-top:0.5rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
-        <span style="margin-top:0.5rem;">
-          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on Facebook" style="margin-right:0.3rem;"><img src="/static/img/facebook-icon.png" alt="Facebook" style="width:22px;height:22px;vertical-align:middle;"></a>
-          <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on Twitter" style="margin-right:0.3rem;"><img src="/static/img/twitter-icon.png" alt="Twitter" style="width:22px;height:22px;vertical-align:middle;"></a>
-          <a href="https://wa.me/?text={{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}%23photo-{{ photo.id }}" target="_blank" title="Share on WhatsApp"><img src="/static/img/whatsapp-icon.png" alt="WhatsApp" style="width:22px;height:22px;vertical-align:middle;"></a>
-        </span>
+
+  <!-- Categories Section -->
+  {% if categories %}
+    <div style="background: #fff; border-radius: 16px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+      <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 600;">
+        <i class="fas fa-filter" style="margin-right: 0.5rem; color: #8B4513;"></i>
+        Browse by Category
+      </h3>
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+        <a href="{% url 'portfolio:photo_list' %}" 
+           style="background: #f8f9fa; color: #2c3e50; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; border: 2px solid transparent;">
+          <i class="fas fa-th" style="margin-right: 0.5rem;"></i>
+          All Photos
+        </a>
+        
+        {% for category in categories %}
+          <a href="{% url 'portfolio:category_photos' category.id %}" 
+             style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(139,69,19,0.2);">
+            <i class="fas fa-tag" style="margin-right: 0.5rem;"></i>
+            {{ category.name }}
+          </a>
+        {% endfor %}
       </div>
-    {% endfor %}
-  </div>
-  <h3 style="margin-top:2.5rem;font-size:1.3rem;color:#1a120b;font-weight:800;">Categories</h3>
-  <ul style="display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1rem;">
-    {% for category in categories %}
-      <li><a href="{% url 'portfolio:category_photos' category.id %}" style="color:#7c5c3a;font-weight:700;">{{ category.name }}</a></li>
-    {% endfor %}
-  </ul>
+    </div>
+  {% endif %}
 </div>
+
+<style>
+.photo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15) !important;
+}
+
+.photo-card:hover img {
+  transform: scale(1.05);
+}
+
+.btn-upload-photo:hover {
+  background: #fff !important;
+  color: #8B4513 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255,215,0,0.6) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3rem 1.5rem !important;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.2rem !important;
+  }
+  
+  .photos-container > div {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  }
+}
+</style>
+
+<script>
+function sharePhoto(platform, url) {
+  let shareUrl;
+  switch(platform) {
+    case 'facebook':
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+      break;
+    case 'twitter':
+      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
+      break;
+    case 'whatsapp':
+      shareUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+      break;
+  }
+  if (shareUrl) {
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  }
+}
+
+function copyPhotoLink(url) {
+  navigator.clipboard.writeText(url).then(function() {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>Photo link copied to clipboard!';
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideInRight 0.3s ease-out;
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.3s ease-in';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }, function() {
+    alert('Failed to copy link. Please try again.');
+  });
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+</script>
 {% endblock %}
 
 <script>

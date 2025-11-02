@@ -1,34 +1,487 @@
 {% extends 'base.html' %}
+
 {% block head %}
 {{ block.super }}
 <!-- FullCalendar CSS -->
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Professional Photographer Dashboard Styling */
+  .dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .dashboard-hero {
+    background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+    color: white;
+    padding: 4rem 2rem;
+    border-radius: 20px;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.1);
+    border-radius: 20px;
+  }
+
+  .dashboard-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .dashboard-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .dashboard-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #FFD700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-btn {
+    background: #FFD700;
+    color: #1a1a1a;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 6px 20px rgba(255,215,0,0.4);
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .dashboard-btn:hover {
+    background: #FFA000;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,215,0,0.5);
+    color: #1a1a1a;
+    text-decoration: none;
+  }
+
+  .dashboard-btn i {
+    margin-right: 0.75rem;
+  }
+
+  .dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .bookings-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(139, 69, 19, 0.1);
+    border: 1px solid rgba(139, 69, 19, 0.1);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #8B4513;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .booking-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #8B4513;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .booking-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(139, 69, 19, 0.15);
+    border-left-color: #FFD700;
+  }
+
+  .booking-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .client-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .booking-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .info-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .info-label {
+    color: #8B4513;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .info-value {
+    color: #2c3e50;
+    font-weight: 500;
+  }
+
+  .booking-status {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .status-confirmed { background: #10b981; }
+  .status-pending { background: #f59e0b; }
+  .status-cancelled { background: #e74c3c; }
+  .status-completed { background: #6366f1; }
+
+  .calendar-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(139, 69, 19, 0.1);
+    border: 1px solid rgba(139, 69, 19, 0.1);
+    position: sticky;
+    top: 2rem;
+  }
+
+  /* FullCalendar Styling */
+  #calendar {
+    min-height: 500px;
+    border-radius: 12px;
+  }
+
+  .fc-button-primary {
+    background: linear-gradient(135deg, #8B4513 0%, #654321 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .fc-button-primary:hover {
+    background: linear-gradient(135deg, #654321 0%, #8B4513 100%) !important;
+    transform: translateY(-2px) !important;
+  }
+
+  .fc-event {
+    background: linear-gradient(135deg, #8B4513 0%, #654321 100%) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+  }
+
+  .fc-event:hover {
+    background: linear-gradient(135deg, #654321 0%, #8B4513 100%) !important;
+    transform: scale(1.02) !important;
+  }
+
+  .fc-toolbar-title {
+    color: #8B4513 !important;
+    font-weight: 700 !important;
+  }
+
+  .fc-today .fc-daygrid-day-number {
+    background: #FFD700 !important;
+    color: #1a1a1a !important;
+    border-radius: 50% !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f8f9fa;
+    border-radius: 20px;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+  }
+
+  .empty-state h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .dashboard-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .calendar-section {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-title {
+      font-size: 2rem;
+    }
+    
+    .dashboard-subtitle {
+      font-size: 1.1rem;
+    }
+    
+    .dashboard-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
 {% endblock %}
+
 {% block content %}
-<h2>Photographer Dashboard</h2>
-<div id='calendar'></div>
-<ul>
-  {% for booking in bookings %}
-    <li>
-      Client: 
-      {% if booking.client %}
-        {{ booking.client.get_full_name|default:booking.client.email }}
-      {% elif booking.client_name %}
-        {{ booking.client_name }}
-      {% elif booking.client_email %}
-        {{ booking.client_email }}
-      {% else %}
-        Anonymous
-      {% endif %}<br>
-      Service: {{ booking.service_type }}<br>
-      Date: {{ booking.date }} {{ booking.time }}<br>
-      Location: {{ booking.location }}<br>
-      Status: {{ booking.status }} | Payment: {{ booking.payment_status }}
-    </li>
-  {% empty %}
-    <li>No bookings yet.</li>
-  {% endfor %}
-</ul>
+<div class="dashboard-container">
+  <!-- Professional Hero Section -->
+  <div class="dashboard-hero">
+    <div class="dashboard-hero-content">
+      <h1 class="dashboard-title">
+        <i class="fas fa-calendar-alt" style="margin-right: 1rem; color: #FFD700;"></i>
+        Photographer Dashboard
+      </h1>
+      <p class="dashboard-subtitle">
+        Welcome back, {{ user.get_full_name|default:user.username }}! Manage your bookings, schedule, and grow your photography business.
+      </p>
+      
+      <!-- Dashboard Statistics -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-number">{{ total_bookings|default:0 }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ confirmed_bookings|default:0 }}</div>
+          <div class="stat-label">Confirmed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ pending_bookings|default:0 }}</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ completed_bookings|default:0 }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ portfolio_count|default:0 }}</div>
+          <div class="stat-label">Portfolio Items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ review_count|default:0 }}</div>
+          <div class="stat-label">Reviews</div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="dashboard-actions">
+        <a href="{% url 'portfolio:upload_photo' %}" class="dashboard-btn">
+          <i class="fas fa-camera"></i>
+          Upload Photos
+        </a>
+        <a href="{% url 'portfolio:photographer_detail' user.pk %}" class="dashboard-btn">
+          <i class="fas fa-eye"></i>
+          View Profile
+        </a>
+        <a href="{% url 'payments:earnings' %}" class="dashboard-btn">
+          <i class="fas fa-chart-line"></i>
+          View Earnings
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div class="dashboard-content">
+    <!-- Bookings Section -->
+    <div class="bookings-section">
+      <h2 class="section-title">
+        <i class="fas fa-calendar-check"></i>
+        Recent Bookings
+      </h2>
+      
+      {% for booking in bookings %}
+        <div class="booking-card">
+          <div class="booking-header">
+            <div class="client-avatar">
+              {% if booking.client %}
+                {{ booking.client.first_name|first|default:booking.client.email|first|upper }}
+              {% elif booking.client_name %}
+                {{ booking.client_name|first|upper }}
+              {% elif booking.client_email %}
+                {{ booking.client_email|first|upper }}
+              {% else %}
+                A
+              {% endif %}
+            </div>
+            <div>
+              <h4 style="margin: 0; color: #2c3e50; font-weight: 600;">
+                {% if booking.client %}
+                  {{ booking.client.get_full_name|default:booking.client.email }}
+                {% elif booking.client_name %}
+                  {{ booking.client_name }}
+                {% elif booking.client_email %}
+                  {{ booking.client_email }}
+                {% else %}
+                  Anonymous Client
+                {% endif %}
+              </h4>
+              <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">{{ booking.service_type }}</p>
+            </div>
+          </div>
+
+          <div class="booking-info">
+            <div class="info-item">
+              <div class="info-label">
+                <i class="fas fa-calendar"></i>
+                DATE & TIME
+              </div>
+              <div class="info-value">{{ booking.date }} at {{ booking.time }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">
+                <i class="fas fa-map-marker-alt"></i>
+                LOCATION
+              </div>
+              <div class="info-value">{{ booking.location }}</div>
+            </div>
+          </div>
+
+          <div class="booking-status">
+            <span class="status-badge status-{{ booking.status }}">
+              <i class="fas fa-{% if booking.status == 'confirmed' %}check{% elif booking.status == 'pending' %}clock{% elif booking.status == 'completed' %}flag-checkered{% else %}times{% endif %}"></i>
+              {{ booking.status|title }}
+            </span>
+            <span class="status-badge status-{{ booking.payment_status }}">
+              <i class="fas fa-{% if booking.payment_status == 'paid' %}check-circle{% elif booking.payment_status == 'pending' %}clock{% else %}times-circle{% endif %}"></i>
+              Payment: {{ booking.payment_status|title }}
+            </span>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-calendar-times"></i>
+          <h3>No Bookings Yet</h3>
+          <p>Your booking requests will appear here. Share your profile to start receiving bookings!</p>
+          <a href="{% url 'portfolio:photographer_detail' user.pk %}" class="dashboard-btn">
+            <i class="fas fa-share-alt"></i>
+            Share Profile
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+      <h2 class="section-title">
+        <i class="fas fa-calendar"></i>
+        Schedule
+      </h2>
+      <div id='calendar'></div>
+    </div>
+  </div>
+</div>
+
 <!-- FullCalendar JS -->
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 <script>
@@ -38,9 +491,12 @@ var calendarEvents = [
     title: '{{ booking.service_type|escapejs }}',
     start: '{{ booking.date }}T{{ booking.time }}',
     description: 'Client: {% if booking.client %}{{ booking.client.get_full_name|default:booking.client.email|escapejs }}{% elif booking.client_name %}{{ booking.client_name|escapejs }}{% elif booking.client_email %}{{ booking.client_email|escapejs }}{% else %}Anonymous{% endif %}\nLocation: {{ booking.location|escapejs }}\nStatus: {{ booking.status|escapejs }}',
+    backgroundColor: '{% if booking.status == "confirmed" %}#10b981{% elif booking.status == "pending" %}#f59e0b{% elif booking.status == "completed" %}#6366f1{% else %}#e74c3c{% endif %}',
+    borderColor: '{% if booking.status == "confirmed" %}#10b981{% elif booking.status == "pending" %}#f59e0b{% elif booking.status == "completed" %}#6366f1{% else %}#e74c3c{% endif %}'
   }{% if not forloop.last %},{% endif %}
 {% endfor %}
 ];
+
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -48,19 +504,15 @@ document.addEventListener('DOMContentLoaded', function() {
     events: calendarEvents,
     eventClick: function(info) {
       alert(info.event.title + "\n" + info.event.extendedProps.description);
-    }
+    },
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    height: 'auto'
   });
   calendar.render();
 });
 </script>
 {% endblock %}
-<style>
-#calendar {
-  min-height: 500px;
-  border: 2px solid #FFD700;
-  margin-bottom: 2rem;
-  background: #fffbe6;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(199,161,122,0.13);
-}
-</style>

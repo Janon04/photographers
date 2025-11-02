@@ -1,53 +1,334 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Add Review - Photography Platform{% endblock %}
+{% block title %}Write Review - PhotoRw Platform{% endblock %}
 
-{% block extra_css %}
+{% block head %}
 <style>
-.review-container {
-    max-width: 800px;
-    margin: 3rem auto;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(199,161,122,0.15);
-    overflow: hidden;
+.review-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8B4513 0%, #2D2013 50%, #A67C52 100%);
+  padding: 2rem 1rem;
+}
+
+.review-card {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(45, 32, 19, 0.15);
+  padding: 3rem 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.review-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8B4513, #FFD700);
 }
 
 .review-header {
-    background: linear-gradient(135deg, #a67c52 0%, #8b6332 100%);
-    color: white;
-    padding: 2rem;
-    text-align: center;
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
-.review-header h1 {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-    font-family: 'Playfair Display', serif;
+.review-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #8B4513, #FFD700);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 8px 20px rgba(139, 69, 19, 0.3);
+  color: white;
+  font-size: 1.8rem;
+}
+
+.review-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2D2013;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.review-subtitle {
+  color: #6B6B6B;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .review-form {
-    padding: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .form-section {
-    margin-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #F8F6F3 0%, #e9e1d6 100%);
+  border-radius: 1rem;
+  border: 2px solid #e9e1d6;
+  position: relative;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #8B4513;
+  border-radius: 2px 0 0 2px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon {
+  width: 24px;
+  height: 24px;
+  color: #8B4513;
+}
+
+.section-title {
+  color: #2D2013;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #2D2013;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.required-star {
+  color: #e74c3c;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: 2px solid #e9e1d6;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  background: #fff;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #8B4513;
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.15);
+  background: #F8F6F3;
+}
+
+.form-input::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  color: #6B6B6B;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+  padding: 0.5rem;
+  background: rgba(139, 69, 19, 0.05);
+  border-radius: 5px;
+}
+
+.star-rating-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.star-rating-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 2px solid #e9e1d6;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.star-rating-item:hover {
+  border-color: #8B4513;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+}
+
+.rating-label {
+  font-weight: 600;
+  color: #2D2013;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.star:hover,
+.star.active {
+  color: #FFD700;
+  transform: scale(1.1);
+}
+
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #8B4513 0%, #A67C52 50%, #FFD700 100%);
+  color: white;
+  border: none;
+  padding: 1.2rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2rem;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(139, 69, 19, 0.4);
+  background: linear-gradient(135deg, #5a3513 0%, #8B4513 50%, #E6C200 100%);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.quick-booking-card {
+  background: white;
+  border: 2px solid #e9e1d6;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quick-booking-card:hover,
+.quick-booking-card.selected {
+  border-color: #8B4513;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: 5px;
+  border-left: 3px solid #e74c3c;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 3rem;
+  color: #6B6B6B;
+}
+
+.no-bookings i {
+  font-size: 4rem;
+  color: #e9e1d6;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .review-hero {
+    padding: 1rem 0.5rem;
+  }
+  
+  .review-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .star-rating-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .review-title {
+    font-size: 1.8rem;
+  }
+  
+  .form-section {
     padding: 1.5rem;
-    background: #f8f6f3;
-    border-radius: 10px;
-    border-left: 4px solid #a67c52;
+  }
 }
 
-.form-section h3 {
-    color: #2d2013;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
+@media (max-width: 480px) {
+  .review-title {
+    font-size: 1.6rem;
+  }
+  
+  .star-rating-item {
+    padding: 1rem;
+  }
+  
+  .star {
+    font-size: 1.25rem;
+  }
 }
-
-.star-rating-group {
+</style>
+{% endblock %}
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
@@ -197,22 +478,76 @@
     }
 }
 </style>
-{% endblock %}
 
 {% block content %}
-<div class="review-container">
-    <div class="review-header">
-        <h1>Share Your Experience</h1>
-        <p>Help others by writing a detailed review</p>
-    </div>
+<div class="review-hero">
+    <div class="review-card">
+        <div class="review-header">
+            <div class="review-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h1 class="review-title">Share Your Experience</h1>
+            <p class="review-subtitle">
+                {% if is_authenticated and completed_bookings %}
+                    Help others discover amazing photographers by sharing your detailed experience
+                {% else %}
+                    Your review helps build trust in our photography community
+                {% endif %}
+            </p>
+        </div>
 
-    {% if completed_bookings %}
-        <div class="review-form">
-            <!-- Detailed Review Form -->
-            <form method="post" id="detailedReviewForm">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="detailed">
-                
+        <form method="post" class="review-form" id="reviewForm">
+            {% csrf_token %}
+            
+            {% if not is_authenticated or not completed_bookings %}
+                <!-- Anonymous/General Review Form -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-user section-icon"></i>
+                        <h3 class="section-title">Your Information</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_anonymous_name" class="form-label">
+                            Your Name <span class="required-star">*</span>
+                        </label>
+                        <input type="text" name="anonymous_name" class="form-input" 
+                               placeholder="Enter your full name" required
+                               id="id_anonymous_name">
+                        <div class="help-text">Please enter your real name for authenticity</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_anonymous_email" class="form-label">
+                            Your Email (Optional)
+                        </label>
+                        <input type="email" name="anonymous_email" class="form-input" 
+                               placeholder="your@email.com"
+                               id="id_anonymous_email">
+                        <div class="help-text">We will not publish your email. Used only for verification.</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-camera section-icon"></i>
+                        <h3 class="section-title">Select Photographer</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="photographer_select" class="form-label">
+                            Photographer <span class="required-star">*</span>
+                        </label>
+                        <select name="photographer_id" class="form-input" required id="photographer_select">
+                            <option value="">Choose a photographer to review...</option>
+                            {% for photographer in photographers %}
+                                <option value="{{ photographer.id }}">{{ photographer.get_full_name|default:photographer.username }}</option>
+                            {% endfor %}
+                        </select>
+                    <div class="help-text">Select the photographer you want to review</div>
+                </div>
+            {% else %}
+                <!-- Authenticated User with Bookings -->
                 <div class="form-section">
                     <h3>📋 Select Booking</h3>
                     {{ form.booking }}
@@ -230,6 +565,7 @@
                     {% endif %}
                     <div class="help-text">{{ form.title.help_text }}</div>
                 </div>
+            {% endif %}
 
                 <div class="form-section">
                     <h3>⭐ Rate Your Experience</h3>
@@ -310,8 +646,9 @@
                 </div>
                 {% endif %}
 
-                <button type="submit" class="btn-submit">
-                    🌟 Submit Detailed Review
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-star"></i>
+                    Submit Review
                 </button>
             </form>
 
@@ -355,16 +692,7 @@
             </div>
             {% endif %}
         </div>
-    {% else %}
-        <div class="no-bookings">
-            <i class="fas fa-camera"></i>
-            <h3>No Completed Bookings</h3>
-            <p>You need to have completed bookings to write reviews.</p>
-            <a href="{% url 'bookings:list' %}" class="btn-submit" style="display: inline-block; width: auto; margin-top: 1rem;">
-                View Your Bookings
-            </a>
-        </div>
-    {% endif %}
+    </div>
 </div>
 
 <script>

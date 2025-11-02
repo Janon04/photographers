@@ -472,9 +472,11 @@ def approve_review(request, review_id):
     review.save()
     
     action = 'approve' if review.is_approved else 'reject'
+    # Handle both authenticated and anonymous reviews
+    reviewer_info = review.reviewer.email if review.reviewer else f"Anonymous user: {review.anonymous_name}"
     log_admin_activity(
         request.user, action, 'Review', review.id,
-        f"Review by {review.reviewer.email}", f"{'Approved' if review.is_approved else 'Rejected'} review",
+        f"Review by {reviewer_info}", f"{'Approved' if review.is_approved else 'Rejected'} review",
         request.META.get('REMOTE_ADDR')
     )
     

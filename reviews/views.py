@@ -14,7 +14,8 @@ import json
 from .models import Review, ReviewResponse, ReviewHelpfulness, ReviewAnalytics, ReviewCategory
 from .forms import (
     DetailedReviewForm, QuickReviewForm, ReviewResponseForm, 
-    ReviewHelpfulnessForm, ReviewSearchForm, ReviewAnalyticsFilterForm
+    ReviewHelpfulnessForm, ReviewSearchForm, ReviewAnalyticsFilterForm,
+    AnonymousReviewForm
 )
 from users.models import User
 from bookings.models import Booking
@@ -24,40 +25,54 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required
 def add_review(request):
-    """Enhanced review submission with detailed ratings"""
+    """Enhanced review submission with detailed ratings - supports both authenticated and anonymous users"""
     
-    # Check if user has completed bookings to review
-    completed_bookings = Booking.objects.filter(
-        client=request.user, 
-        status='completed'
-    ).exclude(review__isnull=False)
+    # For authenticated users, check completed bookings
+    completed_bookings = None
+    if request.user.is_authenticated:
+        completed_bookings = Booking.objects.filter(
+            client=request.user, 
+            status='completed'
+        ).exclude(review__isnull=False)
     
-    if not completed_bookings.exists():
-        messages.info(request, 'You have no completed bookings to review.')
-        return redirect('reviews:reviews_list')
+    # Get all photographers for anonymous users
+    from users.models import User
+    photographers = User.objects.filter(role='photographer', is_active=True)
     
     if request.method == 'POST':
-        form_type = request.POST.get('form_type', 'detailed')
+        # Determine if this is an authenticated or anonymous review
+        is_authenticated = request.user.is_authenticated
         
-        if form_type == 'quick':
-            form = QuickReviewForm(request.POST)
-            booking_id = request.POST.get('booking_id')
-            booking = get_object_or_404(Booking, id=booking_id, client=request.user)
-        else:
+        if is_authenticated and completed_bookings and completed_bookings.exists():
+            # Authenticated user with bookings - use detailed form
             form = DetailedReviewForm(user=request.user, data=request.POST)
-            booking = None
+        else:
+            # Anonymous user or authenticated user without bookings - use anonymous form
+            form = AnonymousReviewForm(data=request.POST)
         
         if form.is_valid():
             review = form.save(commit=False)
-            review.reviewer = request.user
             
-            if form_type == 'quick':
-                review.booking = booking
-                review.photographer = booking.photographer
+            # Set reviewer if authenticated
+            if is_authenticated:
+                review.reviewer = request.user
+                if hasattr(form, 'cleaned_data') and 'booking' in form.cleaned_data and form.cleaned_data['booking']:
+                    review.booking = form.cleaned_data['booking']
+                    review.photographer = review.booking.photographer
+                    review.is_verified = True  # Verified because it's based on actual booking
+                else:
+                    # Authenticated user but no booking selected
+                    review.photographer_id = request.POST.get('photographer_id')
+                    review.is_verified = False
             else:
-                review.photographer = review.booking.photographer
+                # Anonymous review
+                review.reviewer = None
+                review.photographer_id = request.POST.get('photographer_id')
+                review.is_verified = False
+                # Store anonymous reviewer info
+                review.anonymous_name = request.POST.get('anonymous_name', 'Anonymous')
+                review.anonymous_email = request.POST.get('anonymous_email', '')
             
             review.save()
             
@@ -77,17 +92,29 @@ def add_review(request):
             )
             analytics.update_analytics()
             
-            messages.success(request, 'Your review has been submitted successfully!')
-            logger.info(f"New review added by {request.user.email} for photographer {review.photographer.email}")
+            success_msg = 'Your review has been submitted successfully!'
+            if not is_authenticated or not review.is_verified:
+                success_msg += ' It will be reviewed before being published.'
+            
+            messages.success(request, success_msg)
+            
+            reviewer_info = request.user.email if is_authenticated else f"anonymous user ({review.anonymous_email})"
+            logger.info(f"New review added by {reviewer_info} for photographer {review.photographer.email}")
             
             return redirect('reviews:review_detail', review_id=review.id)
     else:
-        form = DetailedReviewForm(user=request.user)
+        # Initialize appropriate form based on user authentication
+        if request.user.is_authenticated and completed_bookings and completed_bookings.exists():
+            form = DetailedReviewForm(user=request.user)
+        else:
+            form = AnonymousReviewForm()
     
     context = {
         'form': form,
         'completed_bookings': completed_bookings,
-        'quick_review_bookings': completed_bookings[:3]  # Show first 3 for quick review
+        'photographers': photographers,
+        'is_authenticated': request.user.is_authenticated,
+        'quick_review_bookings': completed_bookings[:3] if completed_bookings else None
     }
     return render(request, 'reviews/add_review.html', context)
 
@@ -174,11 +201,16 @@ def reviews_list(request):
 def review_detail(request, review_id):
     """Detailed view of a single review"""
     
-    review = get_object_or_404(
-        Review.objects.select_related('reviewer', 'photographer', 'booking'),
-        id=review_id,
-        is_approved=True
-    )
+    try:
+        review = get_object_or_404(
+            Review.objects.select_related('reviewer', 'photographer', 'booking'),
+            id=review_id,
+            is_approved=True
+        )
+    except:
+        # Redirect to reviews list with helpful message for non-existent reviews
+        messages.error(request, f'Review #{review_id} not found. Here are all available reviews.')
+        return redirect('reviews:reviews_list')
     
     # Check if user can vote on helpfulness
     can_vote = request.user.is_authenticated and request.user != review.reviewer

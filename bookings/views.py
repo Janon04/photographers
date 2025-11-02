@@ -1,6 +1,6 @@
-# Email and URL imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
 from .models import Booking
 from users.models import User
 from django import forms
@@ -140,8 +140,39 @@ def client_dashboard(request):
 
 @login_required
 def photographer_dashboard(request):
-	bookings = Booking.objects.filter(photographer=request.user)
-	return render(request, 'bookings/photographer_dashboard.html', {'bookings': bookings})
+	# Get all bookings for this photographer
+	bookings = Booking.objects.filter(photographer=request.user).order_by('-created_at')
+	
+	# Calculate booking statistics
+	total_bookings = bookings.count()
+	confirmed_bookings = bookings.filter(status='confirmed').count()
+	pending_bookings = bookings.filter(status='pending').count()
+	completed_bookings = bookings.filter(status='completed').count()
+	cancelled_bookings = bookings.filter(status='cancelled').count()
+	
+	# Calculate portfolio and review counts
+	portfolio_count = getattr(request.user, 'portfolio_set', None)
+	portfolio_count = portfolio_count.count() if portfolio_count else 0
+	
+	# Get review count - check if reviews app exists
+	try:
+		from reviews.models import Review
+		review_count = Review.objects.filter(photographer=request.user).count()
+	except ImportError:
+		review_count = 0
+	
+	context = {
+		'bookings': bookings,
+		'total_bookings': total_bookings,
+		'confirmed_bookings': confirmed_bookings,
+		'pending_bookings': pending_bookings,
+		'completed_bookings': completed_bookings,
+		'cancelled_bookings': cancelled_bookings,
+		'portfolio_count': portfolio_count,
+		'review_count': review_count,
+	}
+	
+	return render(request, 'bookings/photographer_dashboard.html', context)
 
 
 @login_required

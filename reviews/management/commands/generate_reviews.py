@@ -161,6 +161,7 @@ class Command(BaseCommand):
                 communication_rating=communication_rating,
                 value_rating=value_rating,
                 comment=comment,
+                is_approved=True,  # Auto-approve sample reviews
                 created_at=created_date,
                 updated_at=created_date
             )

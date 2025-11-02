@@ -333,3 +333,137 @@ class ReviewAnalyticsFilterForm(forms.Form):
             'onchange': 'this.form.submit();'
         })
     )
+
+
+class AnonymousReviewForm(forms.ModelForm):
+    """Simplified review form for anonymous users"""
+    
+    # Anonymous user information - NAME IS REQUIRED
+    anonymous_name = forms.CharField(
+        max_length=100,
+        required=True,
+        label='Your Name *',
+        help_text='Please enter your name (required)',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your full name',
+            'style': 'margin-bottom: 1rem;',
+            'required': 'required'
+        })
+    )
+    
+    anonymous_email = forms.EmailField(
+        required=False,
+        label='Your Email (Optional)',
+        help_text='We will not publish your email. Used only for verification.',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'your@email.com',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    photographer_id = forms.IntegerField(
+        widget=forms.HiddenInput()
+    )
+    
+    # Star ratings
+    overall_rating = forms.IntegerField(
+        min_value=1, max_value=5,
+        label='Overall Rating',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control star-rating',
+            'data-rating': 'overall',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    quality_rating = forms.IntegerField(
+        min_value=1, max_value=5,
+        label='Photo Quality',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control star-rating',
+            'data-rating': 'quality',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    professionalism_rating = forms.IntegerField(
+        min_value=1, max_value=5,
+        label='Professionalism',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control star-rating',
+            'data-rating': 'professionalism',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    communication_rating = forms.IntegerField(
+        min_value=1, max_value=5,
+        label='Communication',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control star-rating',
+            'data-rating': 'communication',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    value_rating = forms.IntegerField(
+        min_value=1, max_value=5,
+        label='Value for Money',
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control star-rating',
+            'data-rating': 'value',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    comment = forms.CharField(
+        validators=[MinLengthValidator(20, 'Please provide at least 20 characters in your review.')],
+        label='Your Review',
+        help_text='Share your experience (minimum 20 characters)',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 6,
+            'placeholder': 'Tell others about your experience with this photographer...',
+            'style': 'margin-bottom: 1rem;'
+        })
+    )
+    
+    class Meta:
+        model = Review
+        fields = [
+            'overall_rating', 'quality_rating', 'professionalism_rating',
+            'communication_rating', 'value_rating', 'comment'
+        ]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Add helpful text
+        self.fields['overall_rating'].help_text = 'Rate your overall experience (1-5 stars)'
+        self.fields['quality_rating'].help_text = 'Rate the quality of photos received'
+        self.fields['professionalism_rating'].help_text = 'Rate photographer\'s professionalism'
+        self.fields['communication_rating'].help_text = 'Rate communication throughout the process'
+        self.fields['value_rating'].help_text = 'Rate value for money paid'
+        
+        # Make name field extra clear that it's required
+        self.fields['anonymous_name'].widget.attrs.update({
+            'data-validation': 'required',
+            'aria-required': 'true'
+        })
+    
+    def clean_anonymous_name(self):
+        """Custom validation for anonymous name field"""
+        name = self.cleaned_data.get('anonymous_name', '').strip()
+        
+        if not name:
+            raise forms.ValidationError('Name is required. Please enter your name.')
+        
+        if len(name) < 2:
+            raise forms.ValidationError('Name must be at least 2 characters long.')
+        
+        if name.lower() in ['anonymous', 'anon', 'guest', 'user', 'test']:
+            raise forms.ValidationError('Please enter your real name instead of a generic placeholder.')
+        
+        return name

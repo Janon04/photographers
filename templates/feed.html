@@ -438,81 +438,186 @@
         .post-actions {
             padding: 1rem;
         }
+        
+        .hero-section {
+            padding: 3rem 1.5rem !important;
+        }
+        
+        .hero-section h1 {
+            font-size: 2.2rem !important;
+        }
+    }
+    
+    /* Enhanced Hover Effects */
+    .post-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.15) !important;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.05);
+    }
+
+    .story-item:hover .story-avatar {
+        transform: scale(1.1);
+        border-color: #8B4513;
+    }
+
+    .btn-upload-photo:hover {
+        background: #fff !important;
+        color: #8B4513 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255,215,0,0.6) !important;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Social Share Animations */
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
     }
 </style>
 {% endblock %}
 {% block content %}
 
 <div class="feed-page">
+    <!-- Hero Section -->
+    <section class="hero-section" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2); border-radius: 20px;"></div>
+        <div style="position: relative; z-index: 2;">
+            <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                <i class="fas fa-rss" style="margin-right: 0.75rem; color: #FFD700;"></i>
+                Photography Feed
+            </h1>
+            <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300;">
+                Stay connected with the latest stories and posts from our photography community
+            </p>
+            
+            <!-- Stats Display -->
+            <div style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ posts.count }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Recent Posts</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ stories.count }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Active Stories</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ total_photographers }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Photographers</div>
+                </div>
+            </div>
+            
+            {% if user.is_authenticated and user.role == 'photographer' %}
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{% url 'portfolio:upload_photo' %}" 
+                       class="btn-upload-photo"
+                       style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; border: none;">
+                        <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+                        Share Photo
+                    </a>
+                    <a href="/stories/upload/" 
+                       style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                        <i class="fas fa-plus-circle" style="margin-right: 0.75rem;"></i>
+                        Add Story
+                    </a>
+                </div>
+            {% else %}
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{% url 'users:register' %}" 
+                       style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                        <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+                        Join as Photographer
+                    </a>
+                    <a href="/bookings/create/" 
+                       style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                        <i class="fas fa-calendar-check" style="margin-right: 0.75rem;"></i>
+                        Book Session
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
     <!-- Stories Section -->
-    <section class="stories-container">
+    <section class="stories-container" style="background: #fff; border-radius: 16px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
         <div class="section-header">
-            <h2 class="section-title">Recent Stories</h2>
-            <p class="section-subtitle">See what photographers in our community are sharing</p>
+            <h2 class="section-title" style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 1.8rem; font-weight: 600;">
+                <i class="fas fa-clock" style="margin-right: 0.5rem; color: #8B4513;"></i>
+                Recent Stories
+            </h2>
+            <p class="section-subtitle" style="color: #6c757d; font-size: 1.1rem; margin-bottom: 1.5rem;">See what photographers in our community are sharing</p>
         </div>
         
-        <div class="stories-scroll">
+        <div class="stories-scroll" style="display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0.5rem; scrollbar-width: thin;">
             {% for story in stories %}
-                <div class="story-item" data-story-index="{{ forloop.counter0 }}">
-                    <div class="story-avatar" title="{{ story.photographer.username }}">
+                <div class="story-item" data-story-index="{{ forloop.counter0 }}" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto; text-decoration: none;">
+                    <div class="story-avatar" title="{{ story.photographer.username }}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FFD700; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; margin-bottom: 0.8rem; position: relative; transition: all 0.3s ease;">
                         {% if story.video %}
-                            <video muted>
+                            <video muted style="width: 100%; height: 100%; object-fit: cover;">
                                 <source src="{{ story.video.url }}" type="video/mp4">
                             </video>
                         {% elif story.image %}
-                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}">
+                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
-                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}">
+                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% endif %}
                     </div>
-                    <div class="story-label">{{ story.photographer.username }}</div>
+                    <div class="story-label" style="font-size: 0.9rem; color: #2c3e50; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;">{{ story.photographer.username }}</div>
                 </div>
             {% empty %}
-                <div class="empty-state">No stories yet. Be the first to share your story!</div>
+                <div class="empty-state" style="text-align: center; padding: 3rem 2rem; color: #6c757d; font-style: italic;">
+                    <i class="fas fa-clock" style="font-size: 3rem; color: #e0e0e0; margin-bottom: 1rem; display: block;"></i>
+                    No stories yet. Be the first to share your story!
+                </div>
             {% endfor %}
             
             {% if user.is_authenticated and user.role == 'photographer' %}
-                <a href="/stories/upload/" class="story-item add-story">
-                    <div class="story-avatar">
-                        <span class="add-icon">+</span>
+                <a href="/stories/upload/" class="story-item add-story" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto; text-decoration: none;">
+                    <div class="story-avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 2px dashed #8B4513; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(139,69,19,0.1); margin-bottom: 0.8rem; position: relative; transition: all 0.3s ease;">
+                        <span class="add-icon" style="font-size: 2rem; color: #8B4513; font-weight: 600;">+</span>
                     </div>
-                    <div class="story-label">Add Story</div>
+                    <div class="story-label" style="font-size: 0.9rem; color: #8B4513; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;">Add Story</div>
                 </a>
             {% endif %}
         </div>
     </section>
 
-    <!-- CTA Section -->
-    {% if user.is_authenticated and user.role != 'photographer' %}
-    <div class="cta-container">
-        <a href="/bookings/create/" class="btn btn-accent">
-            <i class="fas fa-calendar-check"></i> Book a Photographer
-        </a>
-    </div>
-    {% endif %}
-
     <!-- Posts Section -->
     <section>
-        <div class="section-header">
-            <h2 class="section-title">Latest Posts</h2>
-            <p class="section-subtitle">Discover recent work from our photography community</p>
+        <div class="section-header" style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
+            <h2 class="section-title" style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 1.8rem; font-weight: 600;">
+                <i class="fas fa-images" style="margin-right: 0.5rem; color: #8B4513;"></i>
+                Latest Posts
+            </h2>
+            <p class="section-subtitle" style="color: #6c757d; font-size: 1.1rem; margin-bottom: 1.5rem;">Discover recent work from our photography community</p>
         </div>
         
         <div class="posts-grid">
             {% for post in posts %}
-                <article class="post-card">
-                    <div class="post-header">
-                            <div class="post-avatar">
-                                <img src="{{ post.photographer.get_medium_avatar_url }}" alt="Profile picture of {{ post.photographer.username }}">
-                            </div>
-                        <div class="post-user-info">
-                            <div class="post-username">{{ post.photographer.username }}</div>
-                            <div class="post-time">{{ post.uploaded_at|localtime|timesince }} ago</div>
+                <article class="post-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; position: relative;">
+                    <div class="post-header" style="display: flex; align-items: center; padding: 1.5rem; gap: 1rem; border-bottom: 1px solid #f8f9fa;">
+                        <div class="post-avatar" style="width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid #8B4513;">
+                            <img src="{{ post.photographer.get_medium_avatar_url }}" alt="Profile picture of {{ post.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="post-user-info" style="flex: 1;">
+                            <div class="post-username" style="font-weight: 600; color: #2c3e50; margin-bottom: 0.2rem;">{{ post.photographer.username }}</div>
+                            <div class="post-time" style="font-size: 0.85rem; color: #6c757d;">{{ post.uploaded_at|localtime|timesince }} ago</div>
                         </div>
                         {% if user.is_authenticated and user == post.photographer %}
                         <form method="post" action="{% url 'portfolio:delete_photo' post.id %}" style="margin-left:auto;">
                             {% csrf_token %}
-                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
+                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;padding: 0.5rem; border-radius: 50%; transition: all 0.3s ease;">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
@@ -520,54 +625,101 @@
                         {% if user.is_authenticated and user.is_superuser %}
                         <form method="post" action="{% url 'portfolio:delete_photo' post.id %}" style="margin-left:auto;">
                             {% csrf_token %}
-                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;">
+                            <button type="submit" title="Delete" style="background:none;border:none;color:#e74c3c;font-size:1.3rem;cursor:pointer;padding: 0.5rem; border-radius: 50%; transition: all 0.3s ease;">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
                         {% endif %}
                     </div>
-                    <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}">
                     
-                    <div class="post-content">
-                        <h3 class="post-title">{{ post.title }}</h3>
-                        <p class="post-description">{{ post.description }}</p>
+                    <!-- Post Image with Category Badge -->
+                    <div style="position: relative; overflow: hidden;">
+                        <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}" style="width: 100%; height: 300px; object-fit: cover; transition: transform 0.3s ease;">
+                        
+                        {% if post.category %}
+                        <div style="position: absolute; top: 1rem; left: 1rem;">
+                            <span style="background: rgba(139,69,19,0.9); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; backdrop-filter: blur(10px);">
+                                <i class="fas fa-tag" style="margin-right: 0.3rem;"></i>
+                                {{ post.category.name }}
+                            </span>
+                        </div>
+                        {% endif %}
                     </div>
                     
-                    <div class="post-actions">
-                        <button class="action-btn like-btn" title="Like" data-photo-id="{{ post.id }}">
-                            <i class="fas fa-heart"></i>
-                            <span class="like-count">{{ post.likes_count }}</span>
-                        </button>
-                        <button class="action-btn dislike-btn" title="Dislike" data-photo-id="{{ post.id }}">
-                            <i class="fas fa-thumbs-down"></i>
-                            <span class="dislike-count">{{ post.dislikes_count }}</span>
-                        </button>
-                        <button class="action-btn comment-btn" title="Comment" onclick="toggleCommentBox('{{ post.id }}')">
-                            <i class="fas fa-comment"></i>
-                        </button>
-                        <button class="action-btn share-btn" title="Share" data-photo-id="{{ post.id }}" onclick="copyPostLink('{{ post.id }}')">
-                            <i class="fas fa-share"></i>
-                            <span class="share-count">{{ post.share_count }}</span>
-                        </button>
+                    <div class="post-content" style="padding: 1.5rem;">
+                        <h3 class="post-title" style="color: #2c3e50; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.3;">{{ post.title }}</h3>
+                        <p class="post-description" style="color: #6c757d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">{{ post.description }}</p>
+                        
+                        <!-- Enhanced Action Buttons -->
+                        <div class="post-actions" style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #f8f9fa;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="action-btn like-btn" title="Like" data-photo-id="{{ post.id }}" style="background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-heart"></i>
+                                    <span class="like-count">{{ post.likes_count }}</span>
+                                </button>
+                                <button class="action-btn dislike-btn" title="Dislike" data-photo-id="{{ post.id }}" style="background: #6c757d; color: white; border: none; border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    <span class="dislike-count">{{ post.dislikes_count }}</span>
+                                </button>
+                                <button class="action-btn comment-btn" title="Comment" onclick="toggleCommentBox('{{ post.id }}')" style="background: #3498db; color: white; border: none; border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; transition: all 0.3s ease;">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="action-btn share-btn" title="Share" data-photo-id="{{ post.id }}" onclick="copyPostLink('{{ post.id }}')" style="background: #8B4513; color: white; border: none; border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-share"></i>
+                                    <span class="share-count">{{ post.share_count }}</span>
+                                </button>
+                                
+                                <!-- View Profile Button -->
+                                <a href="{% url 'portfolio:photographer_detail' post.photographer.pk %}" 
+                                   style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.85rem; transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                                    <i class="fas fa-user" style="margin-right: 0.3rem;"></i>
+                                    Profile
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="comments-section" id="comments-{{ post.id }}" style="display:none;margin-top:1rem;">
-                        <div class="comments-list">
+                    
+                    <div class="comments-section" id="comments-{{ post.id }}" style="display:none; padding: 0 1.5rem 1.5rem;">
+                        <div class="comments-list" style="background: #f8f9fa; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
                             {% for comment in post.comments.all|slice:':3' %}
-                                <div class="comment"><b>{{ comment.username|default:comment.user.username }}</b>: {{ comment.text }}</div>
+                                <div class="comment" style="margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 8px;"><b style="color: #8B4513;">{{ comment.username|default:comment.user.username }}</b>: {{ comment.text }}</div>
                             {% empty %}
-                                <div class="comment" style="color:#aaa;">No comments yet.</div>
+                                <div class="comment" style="color:#6c757d; text-align: center; font-style: italic;">No comments yet. Be the first to comment!</div>
                             {% endfor %}
                         </div>
-                        <form class="comment-form" data-photo-id="{{ post.id }}" onsubmit="return submitComment(event, '{{ post.id }}')" style="margin-top:0.7rem;display:flex;gap:0.5rem;">
+                        <form class="comment-form" data-photo-id="{{ post.id }}" onsubmit="return submitComment(event, '{{ post.id }}')" style="display:flex;gap:0.5rem;">
                             {% csrf_token %}
-                            <input type="text" name="text" placeholder="Add a comment..." style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid #ccc;">
-                            <button type="submit" style="background:#c7a17a;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:0.5rem;font-weight:600;">Post</button>
+                            <input type="text" name="text" placeholder="Add a comment..." style="flex:1;padding:0.75rem;border-radius:12px;border:2px solid #e9ecef; background: #fff;">
+                            <button type="submit" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600; transition: all 0.3s ease;">Post</button>
                         </form>
                     </div>
                 </article>
             {% empty %}
-                <div class="empty-state">
-                    No posts yet. <a href="/explore/">Explore content</a> or follow photographers to see their posts here.
+                <div class="empty-state" style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; margin-bottom: 3rem;">
+                    <div style="margin-bottom: 2rem;">
+                        <i class="fas fa-rss" style="font-size: 4rem; color: #e0e0e0;"></i>
+                    </div>
+                    <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Posts Yet</h3>
+                    <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">
+                        Follow photographers or <a href="/explore/" style="color: #8B4513; text-decoration: none; font-weight: 600;">explore content</a> to see posts here.
+                    </p>
+                    
+                    {% if user.is_authenticated and user.role == 'photographer' %}
+                        <a href="{% url 'portfolio:upload_photo' %}" 
+                           style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+                            <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+                            Share First Post
+                        </a>
+                    {% else %}
+                        <a href="{% url 'users:register' %}" 
+                           style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+                            <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+                            Join Community
+                        </a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>

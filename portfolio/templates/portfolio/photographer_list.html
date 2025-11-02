@@ -1,25 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
-<div style="display:flex;justify-content:flex-end;max-width:1100px;margin:2rem auto 0 auto;padding:0 1.5rem 0 1.5rem;">
-  <a href="/bookings/create/" style="background:#ffd700;color:#2d2013;padding:0.7rem 2rem;border-radius:1.2rem;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);transition:all 0.2s;">Book a Photographer</a>
-</div>
-
-<div style="max-width:1100px;margin:2.5rem auto 0 auto;padding:0 1.5rem;">
-  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:2rem;">Photographers</h2>
+<div class="container-fluid" style="max-width: 1400px; margin: 3.5rem auto 0; padding: 0 1rem;">
   
-  <!-- Filters and Search -->
-  <div style="margin-bottom:2rem;background:#f8f6f3;padding:1.5rem;border-radius:1rem;border:1px solid #e5e5e5;">
-    <form method="get" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+  <!-- Hero Section -->
+  <section class="hero-section" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2); border-radius: 20px;"></div>
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+        <i class="fas fa-camera-retro" style="margin-right: 0.75rem; color: #FFD700;"></i>
+        Professional Photographers
+      </h1>
+      <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300;">
+        Discover talented photographers across Rwanda and connect with creative professionals
+      </p>
+      
+      <!-- Stats Display -->
+      <div style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ photographers.count }}</div>
+          <div style="font-size: 1rem; opacity: 0.9;">Photographers</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ all_locations.count }}</div>
+          <div style="font-size: 1rem; opacity: 0.9;">Locations</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">100+</div>
+          <div style="font-size: 1rem; opacity: 0.9;">Projects Completed</div>
+        </div>
+      </div>
+      
+      <!-- Call to Action Buttons -->
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/bookings/create/" 
+           class="btn-book-photographer"
+           style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; border: none;">
+          <i class="fas fa-calendar-check" style="margin-right: 0.75rem;"></i>
+          Book a Photographer
+        </a>
+        {% if user.is_authenticated and user.role == 'photographer' %}
+          <a href="{% url 'portfolio:upload_photo' %}" 
+             style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+            <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+            Upload Photo
+          </a>
+        {% else %}
+          <a href="{% url 'users:register' %}" 
+             style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+            <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+            Join as Photographer
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Enhanced Search and Filters -->
+  <section style="background: #fff; border-radius: 16px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #2c3e50; font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem;">
+      <i class="fas fa-search" style="margin-right: 0.5rem; color: #8B4513;"></i>
+      Find Your Perfect Photographer
+    </h2>
+    
+    <form method="get" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.5rem; align-items: end;">
       <!-- Search Input -->
-      <div style="flex:1;min-width:250px;">
-        <label for="search" style="font-weight:600;color:#2d2013;display:block;margin-bottom:0.3rem;">Search Photographers:</label>
-        <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search by name or location..." style="width:100%;padding:0.6rem 1rem;border:2px solid #c7a17a;border-radius:0.7rem;background:#fff;color:#2d2013;font-size:1rem;">
+      <div>
+        <label for="search" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2c3e50;">Search Photographers</label>
+        <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search by name or specialization..." 
+               style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; transition: all 0.3s ease;">
       </div>
       
       <!-- Location Filter -->
-      <div style="min-width:200px;">
-        <label for="location" style="font-weight:600;color:#2d2013;display:block;margin-bottom:0.3rem;">Filter by Location:</label>
-        <select name="location" id="location" style="width:100%;padding:0.6rem 1rem;border:2px solid #c7a17a;border-radius:0.7rem;background:#fff;color:#2d2013;font-size:1rem;">
+      <div>
+        <label for="location" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2c3e50;">Location</label>
+        <select name="location" id="location" 
+                style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; transition: all 0.3s ease;">
           <option value="">All Locations</option>
           {% for location in all_locations %}
             <option value="{{ location }}" {% if location == selected_location %}selected{% endif %}>{{ location }}</option>
@@ -28,17 +83,26 @@
       </div>
       
       <!-- Action Buttons -->
-      <div style="display:flex;gap:0.5rem;align-items:end;height:fit-content;margin-top:1.8rem;">
-        <button type="submit" style="background:#ffd700;color:#2d2013;padding:0.6rem 1.5rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;font-size:1rem;">Search</button>
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" 
+                style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+          <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+          Search
+        </button>
         {% if selected_location or search_query %}
-          <a href="{% url 'portfolio:photographer_list' %}" style="background:#a67c52;color:#fff;padding:0.6rem 1rem;border-radius:0.7rem;text-decoration:none;font-size:1rem;">Clear</a>
+          <a href="{% url 'portfolio:photographer_list' %}" 
+             style="background: #6c757d; color: white; padding: 0.75rem 1rem; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+            <i class="fas fa-times" style="margin-right: 0.3rem;"></i>
+            Clear
+          </a>
         {% endif %}
       </div>
     </form>
     
     <!-- Results Info -->
     {% if selected_location or search_query %}
-      <div style="margin-top:1rem;padding:0.5rem 0;color:#666;font-size:0.9rem;">
+      <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 12px; color: #6c757d; text-align: center;">
+        <i class="fas fa-info-circle" style="margin-right: 0.5rem; color: #8B4513;"></i>
         Showing results for:
         {% if search_query %}<strong>"{{ search_query }}"</strong>{% endif %}
         {% if selected_location and search_query %} in {% endif %}
@@ -46,54 +110,194 @@
         ({{ photographers|length }} photographer{{ photographers|length|pluralize }} found)
       </div>
     {% endif %}
-  </div>
+  </section>
 
-  <div style="display:flex;flex-wrap:wrap;gap:2rem;">
-    {% for photographer in photographers %}
-      <div style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 18px rgba(199,161,122,0.10);padding:2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;text-align:center;display:flex;flex-direction:column;align-items:center;">
-        {% if photographer.profile_picture %}
-          <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:3px solid #ffd700;box-shadow:0 2px 8px rgba(199,161,122,0.10);margin-bottom:1rem;">
-        {% else %}
-          <div style="width:90px;height:90px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:3px solid #ffd700;font-size:2rem;color:#a67c52;margin-bottom:1rem;">{{ photographer.first_name|first|default:photographer.username|first|upper }}</div>
-        {% endif %}
-        <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" style="font-size:1.2rem;font-weight:700;color:#2d2013;text-decoration:none;margin-bottom:0.3rem;">{{ photographer.first_name }} {{ photographer.last_name }}</a>
-        {% with profile_url=window.location.origin|add:request.get_full_path %}
-        <button onclick="copyProfileLink('{{ profile_url }}')" style="margin-top:0.5rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>
-        {% endwith %}
-        <div style="color:#a67c52;font-size:1rem;margin-bottom:0.2rem;">{{ photographer.get_role_display }}</div>
-        <div style="color:#6b6b6b;font-size:0.98rem;">{{ photographer.location }}</div>
-      </div>
-    {% empty %}
-      <div style="color:#888;text-align:center;width:100%;padding:3rem;background:#f8f6f3;border-radius:1rem;border:2px dashed #c7a17a;">
-        <div style="font-size:3rem;margin-bottom:1rem;color:#c7a17a;">📸</div>
-        {% if selected_location or search_query %}
-          <h3 style="color:#2d2013;margin-bottom:0.5rem;">No photographers found</h3>
-          <p style="margin-bottom:1rem;">
-            {% if search_query and selected_location %}
-              No photographers match "{{ search_query }}" in {{ selected_location }}.
-            {% elif search_query %}
-              No photographers match "{{ search_query }}".
-            {% elif selected_location %}
-              No photographers found in {{ selected_location }}.
-            {% endif %}
-          </p>
-          <a href="{% url 'portfolio:photographer_list' %}" style="background:#ffd700;color:#2d2013;padding:0.7rem 1.5rem;border-radius:0.7rem;text-decoration:none;font-weight:600;">View All Photographers</a>
-        {% else %}
-          <h3 style="color:#2d2013;margin-bottom:0.5rem;">No photographers available</h3>
-          <p>Check back later for new photographers joining our platform.</p>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
+  <!-- Photographers Grid -->
+  <section>
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <h2 style="color: #2c3e50; font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem;">
+        <i class="fas fa-users" style="margin-right: 0.5rem; color: #8B4513;"></i>
+        Meet Our Photographers
+      </h2>
+      <p style="color: #6c757d; font-size: 1.1rem;">Professional photographers ready to capture your special moments</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+      {% for photographer in photographers %}
+        <div class="photographer-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2rem; text-align: center; transition: all 0.3s ease; position: relative;">
+          
+          <!-- Profile Picture -->
+          {% if photographer.profile_picture %}
+            <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" 
+                 style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 4px solid #8B4513; margin: 0 auto 1.5rem; transition: all 0.3s ease;">
+          {% else %}
+            <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 50%; font-size: 2.5rem; color: white; font-weight: 600; margin: 0 auto 1.5rem;">
+              {{ photographer.first_name|first|default:photographer.username|first|upper }}
+            </div>
+          {% endif %}
+          
+          <!-- Photographer Info -->
+          <h3 style="margin: 0 0 0.5rem;">
+            <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" 
+               style="color: #2c3e50; font-size: 1.3rem; font-weight: 600; text-decoration: none;">
+              {{ photographer.first_name }} {{ photographer.last_name }}
+            </a>
+          </h3>
+          
+          <div style="color: #8B4513; font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">
+            <i class="fas fa-camera" style="margin-right: 0.5rem;"></i>
+            {{ photographer.get_role_display }}
+          </div>
+          
+          {% if photographer.location %}
+            <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1.5rem;">
+              <i class="fas fa-map-marker-alt" style="margin-right: 0.5rem;"></i>
+              {{ photographer.location }}
+            </div>
+          {% endif %}
+          
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.5rem;">
+            <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" 
+               style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+              <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>
+              View Profile
+            </a>
+            
+            <button onclick="copyProfileLink('{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photographer.pk %}')" 
+                    style="background: #6c757d; color: white; padding: 0.75rem; border: none; border-radius: 25px; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fas fa-share-alt"></i>
+            </button>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; grid-column: 1 / -1;">
+          <div style="margin-bottom: 2rem;">
+            <i class="fas fa-camera-retro" style="font-size: 4rem; color: #e0e0e0;"></i>
+          </div>
+          
+          {% if selected_location or search_query %}
+            <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Photographers Found</h3>
+            <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">
+              {% if search_query and selected_location %}
+                No photographers match "{{ search_query }}" in {{ selected_location }}.
+              {% elif search_query %}
+                No photographers match "{{ search_query }}".
+              {% elif selected_location %}
+                No photographers found in {{ selected_location }}.
+              {% endif %}
+            </p>
+            <a href="{% url 'portfolio:photographer_list' %}" 
+               style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+              <i class="fas fa-users" style="margin-right: 0.75rem;"></i>
+              View All Photographers
+            </a>
+          {% else %}
+            <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Photographers Available</h3>
+            <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">
+              Check back later for new photographers joining our platform.
+            </p>
+            <a href="{% url 'users:register' %}" 
+               style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+              <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+              Join as Photographer
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
 </div>
-{% endblock %}
+
+<style>
+.photographer-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15) !important;
+}
+
+.photographer-card:hover img {
+  transform: scale(1.05);
+  border-color: #654321;
+}
+
+.btn-book-photographer:hover {
+  background: #fff !important;
+  color: #8B4513 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255,215,0,0.6) !important;
+}
+
+input:focus,
+select:focus {
+  border-color: #8B4513 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139,69,19,0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139,69,19,0.4) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3rem 1.5rem !important;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.2rem !important;
+  }
+  
+  form {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .photographer-card {
+    margin: 0 auto;
+  }
+}
+
+/* Toast notification for copy link */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #10b981;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+</style>
 
 <script>
 function copyProfileLink(url) {
   navigator.clipboard.writeText(url).then(function() {
-    alert('Profile link copied to clipboard!');
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>Profile link copied to clipboard!';
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.3s ease-in';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }, function() {
-    alert('Failed to copy link.');
+    alert('Failed to copy link. Please try again.');
   });
 }
 </script>
+{% endblock %}

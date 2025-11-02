@@ -99,17 +99,33 @@
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
-                                {% if review.reviewer.profile_picture %}
-                                    <img src="{{ review.reviewer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                {% if review.reviewer %}
+                                    {% if review.reviewer.profile_picture %}
+                                        <img src="{{ review.reviewer.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                    {% else %}
+                                        <div class="user-avatar me-2 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                            {{ review.reviewer.first_name|first|default:review.reviewer.email|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</div>
+                                        <small class="text-muted">{{ review.reviewer.email }}</small>
+                                    </div>
                                 {% else %}
-                                    <div class="user-avatar me-2 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                        {{ review.reviewer.first_name|first|default:review.reviewer.email|first|upper }}
+                                    <div class="user-avatar me-2 bg-warning d-flex align-items-center justify-content-center text-dark" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                        {{ review.anonymous_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ review.anonymous_name }}</div>
+                                        <small class="text-muted">
+                                            {% if review.anonymous_email %}
+                                                {{ review.anonymous_email }}
+                                            {% else %}
+                                                Anonymous Review
+                                            {% endif %}
+                                        </small>
                                     </div>
                                 {% endif %}
-                                <div>
-                                    <div class="fw-bold">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</div>
-                                    <small class="text-muted">{{ review.reviewer.email }}</small>
-                                </div>
                             </div>
                         </td>
                         <td>
@@ -129,10 +145,10 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <span class="me-2">{{ review.rating }}</span>
+                                <span class="me-2">{{ review.overall_rating }}</span>
                                 <div>
                                     {% for i in "12345" %}
-                                        {% if forloop.counter <= review.rating %}
+                                        {% if forloop.counter <= review.overall_rating %}
                                             <i class="fas fa-star text-warning"></i>
                                         {% else %}
                                             <i class="far fa-star text-muted"></i>
@@ -143,8 +159,8 @@
                         </td>
                         <td>
                             <div class="comment-preview">
-                                {{ review.comment|truncatechars:100 }}
-                                {% if review.comment|length > 100 %}
+                                {{ review.review_text|truncatechars:100 }}
+                                {% if review.review_text|length > 100 %}
                                     <button class="btn btn-link btn-sm p-0" onclick="showFullComment('{{ review.id }}')">
                                         Read more...
                                     </button>
@@ -155,7 +171,7 @@
                             <div id="full-comment-{{ review.id }}" class="d-none">
                                 <div class="p-3 bg-light rounded">
                                     <strong>Full Comment:</strong>
-                                    <p class="mt-2 mb-0">{{ review.comment }}</p>
+                                    <p class="mt-2 mb-0">{{ review.review_text }}</p>
                                 </div>
                             </div>
                         </td>

@@ -368,11 +368,26 @@ def photographer_detail(request, pk):
 	events = photographer.events.filter(date__gte=today).order_by('date')
 	# Get active stories (last 24h)
 	stories = photographer.stories.filter(created_at__gte=timezone.now()-timezone.timedelta(hours=24)).order_by('-created_at')
+	
+	# Get reviews for this photographer
+	from reviews.models import Review
+	reviews = Review.objects.filter(
+		photographer=photographer, 
+		is_approved=True
+	).select_related('reviewer', 'booking').order_by('-created_at')
+	
+	# Calculate average rating
+	from django.db.models import Avg
+	avg_rating = reviews.aggregate(Avg('overall_rating'))['overall_rating__avg']
+	
 	return render(request, 'portfolio/photographer_detail.html', {
 		'photographer': photographer,
 		'photos': photos,
 		'events': events,
 		'stories': stories,
+		'reviews': reviews,
+		'avg_rating': avg_rating,
+		'review_count': reviews.count(),
 	})
 
 def photo_list(request):

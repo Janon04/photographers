@@ -25,9 +25,13 @@ class Review(models.Model):
     """Enhanced Review model with comprehensive analysis capabilities"""
     
     # Core Review Information
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='review')
-    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_made')
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='review', null=True, blank=True)
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_made', null=True, blank=True)
     photographer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_received')
+    
+    # Anonymous reviewer fields
+    anonymous_name = models.CharField(max_length=100, blank=True, default='Anonymous', help_text="Name for anonymous reviews")
+    anonymous_email = models.EmailField(blank=True, help_text="Optional email for anonymous reviews")
     
     # Rating System
     overall_rating = models.PositiveSmallIntegerField(
@@ -293,7 +297,20 @@ class Review(models.Model):
         )
 
     def __str__(self):
-        return f'Review by {self.reviewer} for {self.photographer} - {self.overall_rating}★'
+        reviewer_name = self.reviewer.get_full_name() if self.reviewer else self.anonymous_name
+        return f'Review by {reviewer_name} for {self.photographer} - {self.overall_rating}★'
+    
+    @property
+    def reviewer_display_name(self):
+        """Get display name for reviewer (handles anonymous reviews)"""
+        if self.reviewer:
+            return self.reviewer.get_full_name() or self.reviewer.username
+        return self.anonymous_name or 'Anonymous'
+    
+    @property
+    def is_anonymous(self):
+        """Check if this is an anonymous review"""
+        return self.reviewer is None
 
 
 class ReviewHelpfulness(models.Model):

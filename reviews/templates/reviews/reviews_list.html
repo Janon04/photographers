@@ -1,51 +1,277 @@
 ﻿{% extends 'base.html' %}
 
 {% block content %}
-<div style="max-width:1200px;margin:3.5rem auto 0 auto;padding:0 1rem;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
-    <h2>Customer Reviews</h2>
-    {% if user.is_authenticated %}
-      <a href="{% url 'reviews:add_review' %}" style="background:#a67c52;color:white;padding:0.75rem 1.5rem;border-radius:25px;text-decoration:none;font-weight:600;box-shadow:0 4px 15px rgba(166,124,82,0.3);transition:all 0.2s;">
-        ✍️ Write a Review
-      </a>
-    {% endif %}
-  </div>
+<div class="container-fluid" style="max-width: 1200px; margin: 3.5rem auto 0; padding: 0 1rem;">
   
-  <div style="display:flex;flex-direction:column;gap:2.5rem;align-items:center;">
-    {% if page_obj %}
-      {% for review in page_obj %}
-        <div style="background:#fff;border-radius:1rem;box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:2rem;width:100%;max-width:800px;">
-          <h3>{{ review.title|default:"Review" }}</h3>
-          <div>
-            {% for i in "12345" %}
-              {% if forloop.counter <= review.overall_rating %}
-                <span style="color:#ffd700;"></span>
-              {% else %}
-                <span style="color:#ddd;"></span>
-              {% endif %}
-            {% endfor %}
-            ({{ review.overall_rating }})
-          </div>
-          <p><strong>{{ review.reviewer.first_name }} {{ review.reviewer.last_name }}</strong></p>
-          <p>"{{ review.comment }}"</p>
-          <small>{{ review.created_at|date:'M d, Y' }}</small>
+  <!-- Header Section -->
+  <section class="hero-section" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2); border-radius: 20px;"></div>
+    <div style="position: relative; z-index: 2;">
+      <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+        <i class="fas fa-star" style="margin-right: 0.75rem; color: #FFD700;"></i>
+        Customer Reviews
+      </h1>
+      <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300;">
+        Discover authentic experiences from our photography community
+      </p>
+      
+      <!-- Statistics -->
+      <div style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700;">{{ page_obj.paginator.count }}</div>
+          <div style="font-size: 0.9rem; opacity: 0.8;">Total Reviews</div>
         </div>
-      {% endfor %}
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700;">4.8</div>
+          <div style="font-size: 0.9rem; opacity: 0.8;">Average Rating</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 700; color: #FFD700;">98%</div>
+          <div style="font-size: 0.9rem; opacity: 0.8;">Satisfied Clients</div>
+        </div>
+      </div>
+      
+      {% if user.is_authenticated %}
+        <a href="{% url 'reviews:add_review' %}" 
+           class="btn-write-review"
+           style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; border: none;">
+          <i class="fas fa-edit" style="margin-right: 0.75rem;"></i>
+          Write a Review
+        </a>
+      {% else %}
+        <a href="{% url 'reviews:add_review' %}" 
+           style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+          <i class="fas fa-star" style="margin-right: 0.75rem;"></i>
+          Share Your Experience
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Reviews Grid -->
+  <div class="reviews-container">
+    {% if page_obj %}
+      <div style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); margin-bottom: 3rem;">
+        {% for review in page_obj %}
+          <div class="review-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2rem; transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden;">
+            
+            <!-- Review Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+              <div style="flex: 1;">
+                <!-- Star Rating -->
+                <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.overall_rating %}
+                      <i class="fas fa-star" style="color: #FFD700; font-size: 1.1rem; margin-right: 0.2rem;"></i>
+                    {% else %}
+                      <i class="far fa-star" style="color: #e0e0e0; font-size: 1.1rem; margin-right: 0.2rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span style="color: #666; margin-left: 0.5rem; font-weight: 500;">({{ review.overall_rating }}/5)</span>
+                </div>
+                
+                <!-- Reviewer Info -->
+                <h4 style="margin: 0 0 0.25rem 0; color: #2c3e50; font-size: 1.1rem; font-weight: 600;">
+                  {% if review.reviewer %}
+                    {{ review.reviewer.get_full_name|default:review.reviewer.username }}
+                  {% else %}
+                    {{ review.anonymous_name }}
+                    <span style="background: #e3f2fd; color: #1976d2; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 500; margin-left: 0.5rem;">Anonymous</span>
+                  {% endif %}
+                </h4>
+                
+                <!-- Photographer Info -->
+                <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">
+                  <i class="fas fa-camera" style="margin-right: 0.5rem; color: #8B4513;"></i>
+                  Review for {{ review.photographer.get_full_name|default:review.photographer.username }}
+                </p>
+              </div>
+              
+              <!-- Date -->
+              <div style="text-align: right;">
+                <small style="color: #95a5a6; font-size: 0.8rem; background: #f8f9fa; padding: 0.3rem 0.7rem; border-radius: 12px;">
+                  {{ review.created_at|date:'M d, Y' }}
+                </small>
+              </div>
+            </div>
+            
+            <!-- Review Content -->
+            <div style="margin-bottom: 1.5rem;">
+              {% if review.title and review.title != "Great Service" %}
+                <h5 style="color: #2c3e50; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.4;">
+                  "{{ review.title }}"
+                </h5>
+              {% endif %}
+              
+              <p style="color: #4a5568; line-height: 1.7; margin: 0; font-size: 0.95rem;">
+                {{ review.comment|truncatewords:25 }}
+                {% if review.comment|wordcount > 25 %}
+                  <span style="color: #8B4513;">...</span>
+                {% endif %}
+              </p>
+            </div>
+            
+            <!-- Detailed Ratings -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">Quality</span>
+                <div style="display: flex; align-items: center;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.quality_rating %}
+                      <i class="fas fa-circle" style="color: #FFD700; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% else %}
+                      <i class="far fa-circle" style="color: #e0e0e0; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span style="margin-left: 0.4rem; font-size: 0.8rem; font-weight: 600; color: #2c3e50;">{{ review.quality_rating }}</span>
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">Communication</span>
+                <div style="display: flex; align-items: center;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.communication_rating %}
+                      <i class="fas fa-circle" style="color: #FFD700; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% else %}
+                      <i class="far fa-circle" style="color: #e0e0e0; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span style="margin-left: 0.4rem; font-size: 0.8rem; font-weight: 600; color: #2c3e50;">{{ review.communication_rating }}</span>
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">Professional</span>
+                <div style="display: flex; align-items: center;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.professionalism_rating %}
+                      <i class="fas fa-circle" style="color: #FFD700; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% else %}
+                      <i class="far fa-circle" style="color: #e0e0e0; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span style="margin-left: 0.4rem; font-size: 0.8rem; font-weight: 600; color: #2c3e50;">{{ review.professionalism_rating }}</span>
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">Value</span>
+                <div style="display: flex; align-items: center;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.value_rating %}
+                      <i class="fas fa-circle" style="color: #FFD700; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% else %}
+                      <i class="far fa-circle" style="color: #e0e0e0; font-size: 0.4rem; margin-right: 0.1rem;"></i>
+                    {% endif %}
+                  {% endfor %}
+                  <span style="margin-left: 0.4rem; font-size: 0.8rem; font-weight: 600; color: #2c3e50;">{{ review.value_rating }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Action Button -->
+            <div style="text-align: center;">
+              <a href="{% url 'reviews:review_detail' review.id %}" 
+                 style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: all 0.3s ease; display: inline-flex; align-items: center; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+                <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>
+                Read Full Review
+              </a>
+            </div>
+            
+            <!-- Verification Badge -->
+            {% if review.is_verified %}
+              <div style="position: absolute; top: 1rem; right: 1rem;">
+                <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.2rem;" title="Verified Review"></i>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 3rem 0;">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               style="background: #8B4513; color: white; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease;">
+              <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i>
+              Previous
+            </a>
+          {% endif %}
+
+          <span style="color: #6c757d; font-weight: 500; padding: 0 1rem;">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               style="background: #8B4513; color: white; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s ease;">
+              Next
+              <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
     {% else %}
-      <div style="text-align:center;padding:4rem;">
-        <h3>No Reviews Found</h3>
-        <p>Be the first to share your experience!</p>
+      <!-- No Reviews State -->
+      <div style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; margin-bottom: 3rem;">
+        <div style="margin-bottom: 2rem;">
+          <i class="fas fa-star" style="font-size: 4rem; color: #e0e0e0;"></i>
+        </div>
+        <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Reviews Yet</h3>
+        <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">
+          Be the first to share your photography experience!
+        </p>
+        
         {% if user.is_authenticated %}
-          <a href="{% url 'reviews:add_review' %}" style="background:#a67c52;color:white;padding:1rem 2rem;border-radius:25px;text-decoration:none;font-weight:600;display:inline-block;margin-top:1rem;box-shadow:0 4px 15px rgba(166,124,82,0.3);">
-            ✍️ Write the First Review
+          <a href="{% url 'reviews:add_review' %}" 
+             style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+            <i class="fas fa-edit" style="margin-right: 0.75rem;"></i>
+            Write the First Review
           </a>
         {% else %}
-          <a href="{% url 'users:login' %}" style="background:#a67c52;color:white;padding:1rem 2rem;border-radius:25px;text-decoration:none;font-weight:600;display:inline-block;margin-top:1rem;">
-            Login to Write a Review
+          <a href="{% url 'reviews:add_review' %}" 
+             style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+            <i class="fas fa-star" style="margin-right: 0.75rem;"></i>
+            Share Your Experience
           </a>
         {% endif %}
       </div>
     {% endif %}
   </div>
 </div>
+
+<style>
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+}
+
+.btn-write-review:hover {
+  background: #fff !important;
+  color: #8B4513 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255,215,0,0.6) !important;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3rem 1.5rem !important;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.2rem !important;
+  }
+  
+  .reviews-container > div {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .review-card {
+    padding: 1.5rem !important;
+  }
+}
+</style>
 {% endblock %}

@@ -495,34 +495,137 @@ body {
         height: 50px;
     }
 }
+
+/* Enhanced Hover Effects */
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.15) !important;
+}
+
+.photo-card:hover .photo-img {
+    transform: scale(1.05);
+}
+
+.photo-card:hover .photo-overlay {
+    transform: translateY(0);
+}
+
+.photographer-card:hover .photographer-avatar {
+    transform: scale(1.1);
+    border-color: #654321;
+}
+
+.story-item:hover .story-avatar {
+    transform: scale(1.1);
+    border-color: #8B4513;
+}
+
+.tab-btn:hover:not(.active) {
+    background: rgba(139,69,19,0.1);
+    transform: translateY(-2px);
+}
+
+.search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139,69,19,0.4);
+}
+
+.search-input:focus,
+.search-select:focus {
+    border-color: #8B4513;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139,69,19,0.1);
+}
+
+/* Tab Switch Animation */
+.tab-content {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="explore-container">
-    <!-- Book Photographer Button -->
-    <div class="book-btn-container">
-        <a href="/bookings/create/" class="book-btn">📷 Book a Photographer</a>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Discover Rwanda's Creative Community</h1>
-        <p>Explore talented photographers, stunning photos, and engaging community content from across Rwanda</p>
+    <!-- Enhanced Hero Section -->
+    <section class="hero" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2); border-radius: 20px;"></div>
+        <div style="position: relative; z-index: 2;">
+            <h1 style="font-size: 3rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                <i class="fas fa-compass" style="margin-right: 0.75rem; color: #FFD700;"></i>
+                Discover Rwanda's Creative Community
+            </h1>
+            <p style="font-size: 1.3rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300;">
+                Explore talented photographers, stunning photos, and engaging community content from across Rwanda
+            </p>
+            
+            <!-- Stats Display -->
+            <div style="display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ photographers.count }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Photographers</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ photos.count }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Photos</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem;">{{ stories.count }}</div>
+                    <div style="font-size: 1rem; opacity: 0.9;">Stories</div>
+                </div>
+            </div>
+            
+            <!-- Call to Action Buttons -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/bookings/create/" 
+                   style="background: #FFD700; color: #1a1a1a; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(255,215,0,0.4); transition: all 0.3s ease; display: inline-flex; align-items: center; border: none;">
+                    <i class="fas fa-calendar-check" style="margin-right: 0.75rem;"></i>
+                    Book a Photographer
+                </a>
+                {% if user.is_authenticated and user.role == 'photographer' %}
+                    <a href="{% url 'portfolio:upload_photo' %}" 
+                       style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                        <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+                        Share Photo
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:register' %}" 
+                       style="background: rgba(255,255,255,0.2); color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                        <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+                        Join Community
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     </section>
 
-    <!-- Search Section -->
-    <section class="search-section">
-        <h2 class="search-title">Find Photographers & Photos</h2>
-        <form method="get" class="search-form">
+    <!-- Enhanced Search Section -->
+    <section class="search-section" style="background: #fff; border-radius: 16px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+        <h2 class="search-title" style="text-align: center; font-size: 1.8rem; color: #2c3e50; margin-bottom: 1.5rem; font-weight: 600;">
+            <i class="fas fa-search" style="margin-right: 0.5rem; color: #8B4513;"></i>
+            Find Photographers & Photos
+        </h2>
+        <form method="get" class="search-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; align-items: end;">
             <div class="form-group">
-                <label>Search</label>
-                <input type="text" name="q" value="{{ q }}" class="search-input" placeholder="Search by name or photo title">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2c3e50;">Search</label>
+                <input type="text" name="q" value="{{ q }}" class="search-input" placeholder="Search by name or photo title" 
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; transition: all 0.3s ease;">
             </div>
             
             <div class="form-group">
-                <label>Category</label>
-                <select name="category" class="search-select">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2c3e50;">Category</label>
+                <select name="category" class="search-select" 
+                        style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; transition: all 0.3s ease;">
                     <option value="">All Categories</option>
                     {% for cat in categories %}
                         <option value="{{ cat.id }}" {% if selected_category|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.name }}</option>
@@ -531,75 +634,166 @@ body {
             </div>
             
             <div class="form-group">
-                <label>Location</label>
-                <input type="text" name="location" value="{{ location }}" class="search-input" placeholder="Photographer location">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2c3e50;">Location</label>
+                <input type="text" name="location" value="{{ location }}" class="search-input" placeholder="Photographer location" 
+                       style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; transition: all 0.3s ease;">
             </div>
             
-            <button type="submit" class="search-btn">Search</button>
+            <button type="submit" class="search-btn" 
+                    style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 2rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+                <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                Search
+            </button>
         </form>
     </section>
 
-    <!-- Stories Section -->
-    <section class="stories-section">
-        <h2 class="section-title">Recent Stories</h2>
-        <div class="stories-container">
+    <!-- Enhanced Stories Section -->
+    <section class="stories-section" style="background: #fff; border-radius: 16px; padding: 2rem; margin-bottom: 3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+        <h2 class="section-title" style="text-align: center; font-size: 1.8rem; color: #2c3e50; margin-bottom: 1.5rem; font-weight: 600;">
+            <i class="fas fa-clock" style="margin-right: 0.5rem; color: #8B4513;"></i>
+            Recent Stories
+        </h2>
+        <div class="stories-container" style="display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0.5rem; scrollbar-width: thin;">
             {% for story in stories %}
-                <div class="story-item">
-                    <div class="story-avatar">
+                <div class="story-item" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto;">
+                    <div class="story-avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FFD700; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; margin-bottom: 0.8rem; position: relative; transition: all 0.3s ease;">
                         {% if story.image %}
-                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}">
+                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
-                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}">
+                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% endif %}
                     </div>
-                    <div class="story-username">{{ story.photographer.username }}</div>
+                    <div class="story-username" style="font-size: 0.9rem; color: #2c3e50; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;">{{ story.photographer.username }}</div>
                 </div>
             {% empty %}
-                <div class="empty-state">No stories yet. Be the first to share!</div>
+                <div class="empty-state" style="text-align: center; padding: 3rem 2rem; color: #6c757d; font-style: italic; grid-column: 1 / -1;">
+                    <i class="fas fa-clock" style="font-size: 3rem; color: #e0e0e0; margin-bottom: 1rem; display: block;"></i>
+                    No stories yet. Be the first to share!
+                </div>
             {% endfor %}
         </div>
     </section>
 
-    <!-- Content Tabs -->
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="photographers">Photographers</button>
-        <button class="tab-btn" data-tab="photos">Photos</button>
-        <button class="tab-btn" data-tab="events">Events</button>
-        <button class="tab-btn" data-tab="community">Community</button>
+    <!-- Enhanced Content Tabs -->
+    <div class="tabs" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+        <button class="tab-btn active" data-tab="photographers" 
+                style="padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border: 2px solid #8B4513; border-radius: 25px; font-weight: 600; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+            <i class="fas fa-users" style="margin-right: 0.5rem;"></i>
+            Photographers
+        </button>
+        <button class="tab-btn" data-tab="photos" 
+                style="padding: 0.8rem 1.5rem; background: transparent; border: 2px solid #8B4513; border-radius: 25px; font-weight: 500; color: #8B4513; cursor: pointer; transition: all 0.3s ease;">
+            <i class="fas fa-camera" style="margin-right: 0.5rem;"></i>
+            Photos
+        </button>
+        <button class="tab-btn" data-tab="events" 
+                style="padding: 0.8rem 1.5rem; background: transparent; border: 2px solid #8B4513; border-radius: 25px; font-weight: 500; color: #8B4513; cursor: pointer; transition: all 0.3s ease;">
+            <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+            Events
+        </button>
+        <button class="tab-btn" data-tab="community" 
+                style="padding: 0.8rem 1.5rem; background: transparent; border: 2px solid #8B4513; border-radius: 25px; font-weight: 500; color: #8B4513; cursor: pointer; transition: all 0.3s ease;">
+            <i class="fas fa-heart" style="margin-right: 0.5rem;"></i>
+            Community
+        </button>
     </div>
 
     <!-- Tab Contents -->
     <div id="photographers" class="tab-content active">
-        <div class="grid photographers-grid">
+        <div class="grid photographers-grid" style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); margin-bottom: 3rem;">
             {% for photographer in photographers %}
-            <div class="card photographer-card">
-                <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link">
+            <div class="card photographer-card" style="background: #fff; border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative;">
+                <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link" style="text-decoration: none; color: inherit;">
                     {% if photographer.profile_picture %}
-                        <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.first_name }} {{ photographer.last_name }}" class="photographer-avatar">
+                        <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.first_name }} {{ photographer.last_name }}" 
+                             class="photographer-avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.5rem; border: 3px solid #8B4513; transition: all 0.3s ease;">
                     {% else %}
-                        <div class="avatar-placeholder">{{ photographer.username|first|upper }}</div>
+                        <div class="avatar-placeholder" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; margin: 0 auto 1.5rem;">
+                            {{ photographer.username|first|upper }}
+                        </div>
                     {% endif %}
-                    <div class="photographer-name">{{ photographer.first_name }} {{ photographer.last_name }}</div>
+                    <div class="photographer-name" style="color: #2c3e50; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                        {{ photographer.first_name }} {{ photographer.last_name }}
+                    </div>
+                    <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1rem;">@{{ photographer.username }}</div>
+                    
+                    <!-- View Profile Button -->
+                    <div style="margin-top: 1.5rem;">
+                        <span style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; box-shadow: 0 4px 15px rgba(139,69,19,0.3);">
+                            <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                            View Profile
+                        </span>
+                    </div>
                 </a>
             </div>
             {% empty %}
-            <div class="empty-state">No photographers found. Join our community!</div>
+            <div class="empty-state" style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; grid-column: 1 / -1;">
+                <div style="margin-bottom: 2rem;">
+                    <i class="fas fa-users" style="font-size: 4rem; color: #e0e0e0;"></i>
+                </div>
+                <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Photographers Found</h3>
+                <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">Join our creative community!</p>
+                <a href="{% url 'users:register' %}" 
+                   style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+                    <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+                    Join Community
+                </a>
+            </div>
             {% endfor %}
         </div>
     </div>
 
     <div id="photos" class="tab-content">
-        <div class="grid photos-grid">
+        <div class="grid photos-grid" style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 3rem;">
             {% for photo in photos %}
-            <div class="card photo-card">
-                <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-img">
-                <div class="photo-overlay">
-                    <div class="photo-title">{{ photo.title }}</div>
-                    <div class="photo-author">by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</div>
+            <div class="card photo-card" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative;">
+                <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-img" 
+                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                    
+                    <!-- Category Badge -->
+                    {% if photo.category %}
+                    <div style="position: absolute; top: 1rem; left: 1rem;">
+                        <span style="background: rgba(139,69,19,0.9); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; backdrop-filter: blur(10px);">
+                            <i class="fas fa-tag" style="margin-right: 0.3rem;"></i>
+                            {{ photo.category.name }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Photo Overlay -->
+                    <div class="photo-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 2rem 1.5rem 1.5rem; transform: translateY(100%); transition: all 0.3s ease;">
+                        <div class="photo-title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">{{ photo.title }}</div>
+                        <div class="photo-author" style="font-size: 0.9rem; opacity: 0.9;">by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</div>
+                        <a href="{% url 'portfolio:photographer_detail' photo.photographer.pk %}" 
+                           style="background: #FFD700; color: #1a1a1a; padding: 0.5rem 1rem; border-radius: 15px; text-decoration: none; font-weight: 500; font-size: 0.85rem; margin-top: 0.75rem; display: inline-flex; align-items: center;">
+                            <i class="fas fa-user" style="margin-right: 0.3rem;"></i>
+                            View Profile
+                        </a>
+                    </div>
                 </div>
             </div>
             {% empty %}
-            <div class="empty-state">No photos found. Upload your amazing shots!</div>
+            <div class="empty-state" style="text-align: center; padding: 5rem 2rem; background: #f8f9fa; border-radius: 20px; grid-column: 1 / -1;">
+                <div style="margin-bottom: 2rem;">
+                    <i class="fas fa-camera" style="font-size: 4rem; color: #e0e0e0;"></i>
+                </div>
+                <h3 style="color: #2c3e50; margin-bottom: 1rem; font-size: 1.8rem;">No Photos Found</h3>
+                <p style="color: #6c757d; margin-bottom: 2rem; font-size: 1.1rem;">Be the first to share your creative work!</p>
+                {% if user.is_authenticated and user.role == 'photographer' %}
+                    <a href="{% url 'portfolio:upload_photo' %}" 
+                       style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-camera" style="margin-right: 0.75rem;"></i>
+                        Upload Photo
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:register' %}" 
+                       style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 1.1rem; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(139,69,19,0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-user-plus" style="margin-right: 0.75rem;"></i>
+                        Join as Photographer
+                    </a>
+                {% endif %}
+            </div>
             {% endfor %}
         </div>
     </div>

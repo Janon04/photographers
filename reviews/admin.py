@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Avg
-from .models import Review, ReviewCategory, ReviewResponse, ReviewHelpfulness, ReviewAnalytics
+from .models import Review, ReviewCategory, ReviewResponse, ReviewHelpfulness, ReviewAnalytics, ReviewComment, ReviewLikeStats
 
 
 @admin.register(ReviewCategory)
@@ -268,6 +268,69 @@ class ReviewAnalyticsAdmin(admin.ModelAdmin):
         if count > 0:
             self.message_user(request, f'Analytics recalculated for {count} photographers.')
     recalculate_analytics.short_description = "Recalculate analytics"
+
+
+@admin.register(ReviewComment)
+class ReviewCommentAdmin(admin.ModelAdmin):
+    list_display = ('commenter_display_name', 'review_title', 'comment_preview', 'created_at', 'is_approved', 'parent_comment')
+    list_filter = ('is_approved', 'created_at', 'commenter__role')
+    search_fields = ('comment_text', 'commenter__first_name', 'commenter__last_name', 'anonymous_name')
+    readonly_fields = ('created_at', 'updated_at')
+    raw_id_fields = ('review', 'commenter', 'parent_comment')
+    list_per_page = 25
+    
+    def commenter_display_name(self, obj):
+        return obj.commenter_display_name
+    commenter_display_name.short_description = 'Commenter'
+    
+    def review_title(self, obj):
+        return obj.review.title or f'Review #{obj.review.id}'
+    review_title.short_description = 'Review'
+    
+    def comment_preview(self, obj):
+        return obj.comment_text[:50] + '...' if len(obj.comment_text) > 50 else obj.comment_text
+    comment_preview.short_description = 'Comment Preview'
+    
+    actions = ['approve_comments', 'disapprove_comments']
+    
+    def approve_comments(self, request, queryset):
+        queryset.update(is_approved=True)
+        self.message_user(request, f"{queryset.count()} comments approved.")
+    approve_comments.short_description = "Approve selected comments"
+    
+    def disapprove_comments(self, request, queryset):
+        queryset.update(is_approved=False)
+        self.message_user(request, f"{queryset.count()} comments disapproved.")
+    disapprove_comments.short_description = "Disapprove selected comments"
+
+
+@admin.register(ReviewLikeStats)
+class ReviewLikeStatsAdmin(admin.ModelAdmin):
+    list_display = ('review_title', 'total_likes', 'total_dislikes', 'total_comments', 'engagement_ratio', 'last_updated')
+    list_filter = ('last_updated',)
+    search_fields = ('review__title', 'review__photographer__first_name', 'review__photographer__last_name')
+    readonly_fields = ('last_updated',)
+    raw_id_fields = ('review',)
+    
+    def review_title(self, obj):
+        return obj.review.title or f'Review #{obj.review.id}'
+    review_title.short_description = 'Review'
+    
+    def engagement_ratio(self, obj):
+        total_engagement = obj.total_likes + obj.total_dislikes + obj.total_comments
+        if total_engagement == 0:
+            return "0%"
+        like_ratio = (obj.total_likes / total_engagement) * 100
+        return f"{like_ratio:.1f}% positive"
+    engagement_ratio.short_description = 'Engagement Ratio'
+    
+    actions = ['refresh_stats']
+    
+    def refresh_stats(self, request, queryset):
+        for stats in queryset:
+            stats.update_stats()
+        self.message_user(request, f"Statistics refreshed for {queryset.count()} reviews.")
+    refresh_stats.short_description = "Refresh statistics"
 
 
 # Custom admin site configuration

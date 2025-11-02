@@ -479,7 +479,110 @@
                     <div class="widget-value">568</div>
                     <div class="widget-change positive"><i class="fas fa-arrow-up"></i> 8% from last week</div>
                 </div>
+                
+                <!-- Review Statistics Widgets -->
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-star"></i> Total Reviews</div>
+                    <div class="widget-value">{{ total_reviews }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Quality feedback</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-thumbs-up"></i> Review Likes</div>
+                    <div class="widget-value">{{ total_review_likes }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Positive engagement</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-thumbs-down"></i> Review Dislikes</div>
+                    <div class="widget-value">{{ total_review_dislikes }}</div>
+                    <div class="widget-change {% if total_review_dislikes == 0 %}positive{% else %}negative{% endif %}">
+                        {% if total_review_dislikes == 0 %}
+                            <i class="fas fa-check"></i> Great reputation
+                        {% else %}
+                            <i class="fas fa-arrow-down"></i> Room for improvement
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-comments"></i> All Comments</div>
+                    <div class="widget-value">{{ total_all_comments }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Reviews + Photos</div>
+                </div>
+                
+                <!-- Photo Statistics Widgets -->
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-camera"></i> Photo Likes</div>
+                    <div class="widget-value">{{ total_photo_likes }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Photo engagement</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-camera-retro"></i> Photo Comments</div>
+                    <div class="widget-value">{{ total_photo_comments }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Featured photos</div>
+                </div>
             </div>
+            
+            <!-- Review Statistics Summary Card -->
+            {% if total_reviews > 0 %}
+            <div class="dashboard-section" style="margin-bottom: 2rem;">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-bar"></i> Review Engagement Summary</h3>
+                    <a href="{% url 'reviews:photographer_reviews' user.id %}" class="view-all-link">View all reviews <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #f8f6f3 0%, #fff8f0 100%); border-radius: 12px; border: 1px solid #e8e5e0;">
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; color: #a67c52; margin-bottom: 0.5rem;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #2d2013;">{{ total_reviews }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Total Reviews</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; color: #4CAF50; margin-bottom: 0.5rem;">
+                            👍
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #2d2013;">{{ total_all_likes }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Total Likes</div>
+                        <div style="color: #888; font-size: 0.8rem;">Reviews: {{ total_review_likes }} | Photos: {{ total_photo_likes }}</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; color: #f44336; margin-bottom: 0.5rem;">
+                            👎
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #2d2013;">{{ total_all_dislikes }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Total Dislikes</div>
+                        <div style="color: #888; font-size: 0.8rem;">Reviews: {{ total_review_dislikes }} | Photos: {{ total_photo_dislikes }}</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; color: #2196F3; margin-bottom: 0.5rem;">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #2d2013;">{{ total_all_comments }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Total Comments</div>
+                        <div style="color: #888; font-size: 0.8rem;">Reviews: {{ total_review_comments }} | Photos: {{ total_photo_comments }}</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; color: #9C27B0; margin-bottom: 0.5rem;">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #2d2013;">
+                            {% if total_all_likes > 0 or total_all_dislikes > 0 %}
+                                {% widthratio total_all_likes total_all_likes|add:total_all_dislikes 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem;">Positive Rate</div>
+                        <div style="color: #888; font-size: 0.8rem;">All interactions combined</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #a67c52;">
+                    <p style="margin: 0; color: #666; font-size: 0.95rem;">
+                        <i class="fas fa-lightbulb" style="color: #a67c52; margin-right: 0.5rem;"></i>
+                        <strong>Tip:</strong> Reviews with high engagement (likes and comments) help improve your visibility and credibility with potential clients.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
             
             <div class="dashboard-section">
                 <div class="section-header">

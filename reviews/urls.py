@@ -18,6 +18,12 @@ urlpatterns = [
     path('<int:review_id>/vote/', views.vote_helpfulness, name='vote_helpfulness'),
     path('<int:review_id>/respond/', views.add_response, name='add_response'),
     
+    # Enhanced like/dislike and comment system
+    path('<int:review_id>/like/', views.toggle_review_like, name='toggle_like'),
+    path('<int:review_id>/dislike/', views.toggle_review_dislike, name='toggle_dislike'),
+    path('<int:review_id>/comment/', views.add_review_comment, name='add_comment'),
+    path('<int:review_id>/comments/', views.get_review_comments, name='get_comments'),
+    
     # Photographer-specific views
     path('photographer/<int:photographer_id>/', views.photographer_reviews, name='photographer_reviews'),
     path('photographer/<int:photographer_id>/public-analytics/', views.public_analytics, name='public_analytics'),

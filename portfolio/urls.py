@@ -25,6 +25,12 @@ urlpatterns = [
     path('add_comment/', views.add_comment, name='add_comment'),
     path('share_photo/', views.share_photo, name='share_photo'),
     
+    # New photo interaction endpoints
+    path('photo/<int:photo_id>/like/', views.toggle_photo_like, name='toggle_photo_like'),
+    path('photo/<int:photo_id>/dislike/', views.toggle_photo_dislike, name='toggle_photo_dislike'),
+    path('photo/<int:photo_id>/comment/', views.add_photo_comment, name='add_photo_comment'),
+    path('photo/<int:photo_id>/comments/', views.get_photo_comments, name='get_photo_comments'),
+    
     # AI-Powered Features
     path('ai-insights/', views.ai_insights, name='ai_insights'),
     path('auto-categorize/', views.auto_categorize_photos, name='auto_categorize'),

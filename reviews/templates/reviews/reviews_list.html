@@ -170,6 +170,59 @@
               </div>
             </div>
             
+            <!-- Like/Dislike and Comment Section -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 12px; border-top: 1px solid #e9ecef;">
+              <!-- Like/Dislike Buttons -->
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <button onclick="toggleLike({{ review.id }})" 
+                        id="like-btn-{{ review.id }}"
+                        style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: #10b981; font-weight: 500; transition: all 0.3s ease; padding: 0.5rem;">
+                  <i class="fas fa-thumbs-up"></i>
+                  <span id="like-count-{{ review.id }}">{{ review.get_like_count }}</span>
+                </button>
+                
+                <button onclick="toggleDislike({{ review.id }})" 
+                        id="dislike-btn-{{ review.id }}"
+                        style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: #e74c3c; font-weight: 500; transition: all 0.3s ease; padding: 0.5rem;">
+                  <i class="fas fa-thumbs-down"></i>
+                  <span id="dislike-count-{{ review.id }}">{{ review.get_dislike_count }}</span>
+                </button>
+              </div>
+              
+              <!-- Comment Button -->
+              <button onclick="toggleComments({{ review.id }})" 
+                      style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; color: #8B4513; font-weight: 500; transition: all 0.3s ease; padding: 0.5rem;">
+                <i class="fas fa-comment"></i>
+                <span id="comment-count-{{ review.id }}">{{ review.get_comment_count }}</span> Comments
+              </button>
+            </div>
+            
+            <!-- Comments Section (Initially Hidden) -->
+            <div id="comments-section-{{ review.id }}" style="display: none; margin-bottom: 1rem;">
+              <div id="comments-list-{{ review.id }}" style="margin-bottom: 1rem;">
+                <!-- Comments will be loaded here -->
+              </div>
+              
+              <!-- Add Comment Form -->
+              {% if user.is_authenticated %}
+                <form onsubmit="addComment(event, {{ review.id }})" style="display: flex; gap: 0.5rem;">
+                  <input type="text" 
+                         id="comment-input-{{ review.id }}" 
+                         placeholder="Add a comment..." 
+                         style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 8px;"
+                         maxlength="500">
+                  <button type="submit" 
+                          style="background: #8B4513; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </form>
+              {% else %}
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center; color: #6c757d;">
+                  <a href="{% url 'users:login' %}" style="color: #8B4513; text-decoration: none;">Login</a> to leave a comment
+                </div>
+              {% endif %}
+            </div>
+            
             <!-- Action Button -->
             <div style="text-align: center;">
               <a href="{% url 'reviews:review_detail' review.id %}" 
@@ -274,4 +327,194 @@
   }
 }
 </style>
+
+<script>
+// CSRF token for AJAX requests
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Toggle like function
+function toggleLike(reviewId) {
+    {% if user.is_authenticated %}
+    fetch(`/reviews/${reviewId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`like-count-${reviewId}`).textContent = data.like_count;
+            document.getElementById(`dislike-count-${reviewId}`).textContent = data.dislike_count;
+            
+            // Update button states
+            const likeBtn = document.getElementById(`like-btn-${reviewId}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${reviewId}`);
+            
+            likeBtn.classList.toggle('active', data.user_vote === 'like');
+            dislikeBtn.classList.toggle('active', data.user_vote === 'dislike');
+        } else {
+            alert(data.error || 'Something went wrong');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong');
+    });
+    {% else %}
+    alert('Please login to like reviews');
+    {% endif %}
+}
+
+// Toggle dislike function
+function toggleDislike(reviewId) {
+    {% if user.is_authenticated %}
+    fetch(`/reviews/${reviewId}/dislike/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`like-count-${reviewId}`).textContent = data.like_count;
+            document.getElementById(`dislike-count-${reviewId}`).textContent = data.dislike_count;
+            
+            // Update button states
+            const likeBtn = document.getElementById(`like-btn-${reviewId}`);
+            const dislikeBtn = document.getElementById(`dislike-btn-${reviewId}`);
+            
+            likeBtn.classList.toggle('active', data.user_vote === 'like');
+            dislikeBtn.classList.toggle('active', data.user_vote === 'dislike');
+        } else {
+            alert(data.error || 'Something went wrong');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong');
+    });
+    {% else %}
+    alert('Please login to dislike reviews');
+    {% endif %}
+}
+
+// Toggle comments visibility
+function toggleComments(reviewId) {
+    const commentsSection = document.getElementById(`comments-section-${reviewId}`);
+    if (commentsSection.style.display === 'none') {
+        commentsSection.style.display = 'block';
+        loadComments(reviewId);
+    } else {
+        commentsSection.style.display = 'none';
+    }
+}
+
+// Load comments for a review
+function loadComments(reviewId) {
+    fetch(`/reviews/${reviewId}/comments/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const commentsList = document.getElementById(`comments-list-${reviewId}`);
+            commentsList.innerHTML = '';
+            
+            data.comments.forEach(comment => {
+                const commentHtml = `
+                    <div style="padding: 0.75rem; background: white; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid #8B4513;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <strong style="color: #2c3e50;">${comment.commenter_name}</strong>
+                            <small style="color: #6c757d;">${comment.created_at}</small>
+                        </div>
+                        <p style="margin: 0; color: #4a5568; line-height: 1.5;">${comment.comment_text}</p>
+                        ${comment.replies.map(reply => `
+                            <div style="margin-left: 1rem; margin-top: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                    <strong style="color: #2c3e50; font-size: 0.9rem;">${reply.commenter_name}</strong>
+                                    <small style="color: #6c757d; font-size: 0.8rem;">${reply.created_at}</small>
+                                </div>
+                                <p style="margin: 0; color: #4a5568; line-height: 1.4; font-size: 0.9rem;">${reply.comment_text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                commentsList.innerHTML += commentHtml;
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading comments:', error);
+    });
+}
+
+// Add comment function
+function addComment(event, reviewId) {
+    event.preventDefault();
+    
+    const commentInput = document.getElementById(`comment-input-${reviewId}`);
+    const commentText = commentInput.value.trim();
+    
+    if (!commentText) {
+        alert('Please enter a comment');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('comment_text', commentText);
+    
+    fetch(`/reviews/${reviewId}/comment/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            commentInput.value = '';
+            loadComments(reviewId);
+            document.getElementById(`comment-count-${reviewId}`).textContent = data.comment_count;
+        } else {
+            alert(data.error || 'Something went wrong');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong');
+    });
+}
+
+// CSS for active buttons
+const style = document.createElement('style');
+style.textContent = `
+    .active {
+        background-color: rgba(139, 69, 19, 0.1) !important;
+        border-radius: 8px !important;
+    }
+    
+    button:hover {
+        background-color: rgba(139, 69, 19, 0.05) !important;
+        border-radius: 8px !important;
+    }
+`;
+document.head.appendChild(style);
+</script>
 {% endblock %}

@@ -195,6 +195,40 @@ def photographer_dashboard(request):
 	# Calculate total likes across all photos
 	total_likes = PhotoLike.objects.filter(photo__in=user_photos, is_like=True).count()
 	
+	# Get review statistics for this photographer
+	from reviews.models import Review, ReviewLikeStats, ReviewComment, ReviewHelpfulness
+	photographer_reviews = Review.objects.filter(photographer=request.user, is_approved=True)
+	total_reviews = photographer_reviews.count()
+	
+	# Calculate total review likes, dislikes, and comments
+	total_review_likes = 0
+	total_review_dislikes = 0 
+	total_review_comments = 0
+	
+	for review in photographer_reviews:
+		# Get or create stats for each review
+		stats, created = ReviewLikeStats.objects.get_or_create(review=review)
+		if created:
+			stats.update_stats()
+		total_review_likes += stats.total_likes
+		total_review_dislikes += stats.total_dislikes
+		total_review_comments += stats.total_comments
+	
+	# Get photo statistics for this photographer
+	from .models import Photo, PhotoComment, PhotoLike
+	photographer_photos = Photo.objects.filter(photographer=request.user)
+	total_photos_count = photographer_photos.count()
+	
+	# Calculate total photo likes, dislikes, and comments
+	total_photo_likes = PhotoLike.objects.filter(photo__photographer=request.user, is_like=True).count()
+	total_photo_dislikes = PhotoLike.objects.filter(photo__photographer=request.user, is_like=False).count()
+	total_photo_comments = PhotoComment.objects.filter(photo__photographer=request.user).count()
+	
+	# Combine totals for overall statistics
+	total_all_likes = total_review_likes + total_photo_likes
+	total_all_dislikes = total_review_dislikes + total_photo_dislikes
+	total_all_comments = total_review_comments + total_photo_comments
+	
 	# Profile views (if you have a profile view tracking model, otherwise calculate from related data)
 	# For now, use booking requests as a proxy for profile interest
 	profile_views = Booking.objects.filter(photographer=request.user).count() * 15  # Rough estimation
@@ -267,6 +301,22 @@ def photographer_dashboard(request):
 		'recent_activity': recent_activity,
 		'photos_growth': round(photos_growth, 1),
 		'likes_growth': round(likes_growth, 1),
+		
+		# Review statistics
+		'total_reviews': total_reviews,
+		'total_review_likes': total_review_likes,
+		'total_review_dislikes': total_review_dislikes,
+		'total_review_comments': total_review_comments,
+		
+		# Photo statistics  
+		'total_photo_likes': total_photo_likes,
+		'total_photo_dislikes': total_photo_dislikes,
+		'total_photo_comments': total_photo_comments,
+		
+		# Combined statistics
+		'total_all_likes': total_all_likes,
+		'total_all_dislikes': total_all_dislikes,
+		'total_all_comments': total_all_comments,
 	}
 	
 	return render(request, 'portfolio/photographer_dashboard.html', context)
@@ -809,3 +859,179 @@ def seo_optimizer(request):
 		logger.error(f"SEO optimizer error: {str(e)}")
 		messages.error(request, 'SEO optimization tool temporarily unavailable.')
 		return redirect('portfolio:photographer_dashboard')
+
+
+# Photo Like/Dislike and Comment System
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import Photo, PhotoLike, PhotoComment
+
+@require_POST
+@login_required
+def toggle_photo_like(request, photo_id):
+    """Toggle like on a photo"""
+    try:
+        photo = Photo.objects.get(id=photo_id)
+        
+        # Check if user already voted
+        existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
+        
+        if existing_vote:
+            if existing_vote.is_like:
+                # User already liked, remove the like
+                existing_vote.delete()
+                user_vote = None
+            else:
+                # User disliked, change to like
+                existing_vote.is_like = True
+                existing_vote.save()
+                user_vote = 'like'
+        else:
+            # Create new like
+            PhotoLike.objects.create(photo=photo, user=request.user, is_like=True)
+            user_vote = 'like'
+        
+        return JsonResponse({
+            'success': True,
+            'likes_count': photo.likes_count,
+            'dislikes_count': photo.dislikes_count,
+            'user_vote': user_vote
+        })
+    except Photo.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Photo not found'})
+
+@require_POST
+@login_required
+def toggle_photo_dislike(request, photo_id):
+    """Toggle dislike on a photo"""
+    try:
+        photo = Photo.objects.get(id=photo_id)
+        
+        # Check if user already voted
+        existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
+        
+        if existing_vote:
+            if not existing_vote.is_like:
+                # User already disliked, remove the dislike
+                existing_vote.delete()
+                user_vote = None
+            else:
+                # User liked, change to dislike
+                existing_vote.is_like = False
+                existing_vote.save()
+                user_vote = 'dislike'
+        else:
+            # Create new dislike
+            PhotoLike.objects.create(photo=photo, user=request.user, is_like=False)
+            user_vote = 'dislike'
+        
+        return JsonResponse({
+            'success': True,
+            'likes_count': photo.likes_count,
+            'dislikes_count': photo.dislikes_count,
+            'user_vote': user_vote
+        })
+    except Photo.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Photo not found'})
+
+@require_POST
+def add_photo_comment(request, photo_id):
+    """Add a comment to a photo - allows anonymous users"""
+    try:
+        photo = Photo.objects.get(id=photo_id)
+        comment_text = request.POST.get('comment_text', '').strip()
+        parent_id = request.POST.get('parent_id', '').strip()
+        
+        if not comment_text:
+            return JsonResponse({'success': False, 'error': 'Comment cannot be empty'})
+        
+        if len(comment_text) > 500:
+            return JsonResponse({'success': False, 'error': 'Comment too long (max 500 characters)'})
+        
+        # Handle parent comment for replies
+        parent_comment = None
+        if parent_id:
+            try:
+                parent_comment = PhotoComment.objects.get(id=parent_id, photo=photo)
+            except PhotoComment.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Parent comment not found'})
+        
+        # Create comment (works for both logged in and anonymous users)
+        if request.user.is_authenticated:
+            comment = PhotoComment.objects.create(
+                photo=photo,
+                user=request.user,
+                username=request.user.get_full_name() or request.user.username,
+                text=comment_text,
+                parent_comment=parent_comment
+            )
+        else:
+            # Anonymous user
+            username = request.POST.get('username', '').strip() or 'Anonymous'
+            anonymous_email = request.POST.get('email', '').strip()
+            
+            comment = PhotoComment.objects.create(
+                photo=photo,
+                user=None,
+                username=username,
+                anonymous_email=anonymous_email,
+                text=comment_text,
+                parent_comment=parent_comment
+            )
+        
+        return JsonResponse({
+            'success': True,
+            'comment_id': comment.id,
+            'comment_text': comment.text,
+            'username': comment.display_name,
+            'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            'comments_count': photo.comments_count,
+            'is_reply': parent_comment is not None,
+            'parent_id': parent_comment.id if parent_comment else None
+        })
+    except Photo.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Photo not found'})
+
+def get_photo_comments(request, photo_id):
+    """Get all comments for a photo with threaded replies"""
+    try:
+        photo = Photo.objects.get(id=photo_id)
+        # Get only top-level comments (no parent)
+        top_level_comments = photo.comments.filter(parent_comment=None).order_by('-created_at')
+        
+        comments_data = []
+        for comment in top_level_comments:
+            comment_data = {
+                'id': comment.id,
+                'text': comment.text,
+                'username': comment.display_name,
+                'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'is_anonymous': comment.is_anonymous,
+                'replies_count': comment.replies_count,
+                'replies': []
+            }
+            
+            # Get replies for this comment
+            replies = comment.replies.order_by('created_at')
+            for reply in replies:
+                reply_data = {
+                    'id': reply.id,
+                    'text': reply.text,
+                    'username': reply.display_name,
+                    'created_at': reply.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    'is_anonymous': reply.is_anonymous,
+                    'parent_id': comment.id
+                }
+                comment_data['replies'].append(reply_data)
+            
+            comments_data.append(comment_data)
+        
+        return JsonResponse({
+            'success': True,
+            'comments': comments_data,
+            'comments_count': len(comments_data),
+            'total_comments': photo.comments_count
+        })
+    except Photo.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Photo not found'})

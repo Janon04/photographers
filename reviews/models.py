@@ -295,6 +295,118 @@ class Review(models.Model):
             not self.rating_consistency or 
             self.overall_rating <= 2
         )
+    
+    # Like/Dislike and Comment Methods
+    def get_like_count(self):
+        """Get total number of likes"""
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        if created:
+            stats.update_stats()
+        return stats.total_likes
+    
+    def get_dislike_count(self):
+        """Get total number of dislikes"""
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        if created:
+            stats.update_stats()
+        return stats.total_dislikes
+    
+    def get_comment_count(self):
+        """Get total number of approved comments"""
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        if created:
+            stats.update_stats()
+        return stats.total_comments
+    
+    def get_user_vote(self, user):
+        """Get user's vote on this review"""
+        if not user.is_authenticated:
+            return None
+        try:
+            vote = ReviewHelpfulness.objects.get(review=self, user=user)
+            return vote.vote_type
+        except ReviewHelpfulness.DoesNotExist:
+            return None
+    
+    def toggle_like(self, user):
+        """Toggle like status for a user"""
+        if not user.is_authenticated:
+            return False
+        
+        vote, created = ReviewHelpfulness.objects.get_or_create(
+            review=self,
+            user=user,
+            defaults={'vote_type': 'like', 'is_helpful': True}
+        )
+        
+        if not created:
+            if vote.vote_type == 'like':
+                # Remove like
+                vote.delete()
+            else:
+                # Change to like
+                vote.vote_type = 'like'
+                vote.is_helpful = True
+                vote.save()
+        
+        # Update statistics
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        stats.update_stats()
+        
+        return True
+    
+    def toggle_dislike(self, user):
+        """Toggle dislike status for a user"""
+        if not user.is_authenticated:
+            return False
+        
+        vote, created = ReviewHelpfulness.objects.get_or_create(
+            review=self,
+            user=user,
+            defaults={'vote_type': 'dislike', 'is_helpful': False}
+        )
+        
+        if not created:
+            if vote.vote_type == 'dislike':
+                # Remove dislike
+                vote.delete()
+            else:
+                # Change to dislike
+                vote.vote_type = 'dislike'
+                vote.is_helpful = False
+                vote.save()
+        
+        # Update statistics
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        stats.update_stats()
+        
+        return True
+    
+    def add_comment(self, user, comment_text, parent_comment=None, anonymous_name=None, anonymous_email=None):
+        """Add a comment to this review"""
+        comment = ReviewComment.objects.create(
+            review=self,
+            commenter=user if user.is_authenticated else None,
+            comment_text=comment_text,
+            parent_comment=parent_comment,
+            anonymous_name=anonymous_name or '',
+            anonymous_email=anonymous_email or ''
+        )
+        
+        # Update statistics
+        stats, created = ReviewLikeStats.objects.get_or_create(review=self)
+        stats.update_stats()
+        
+        return comment
+    
+    def get_engagement_score(self):
+        """Calculate engagement score based on likes, dislikes, and comments"""
+        likes = self.get_like_count()
+        dislikes = self.get_dislike_count()
+        comments = self.get_comment_count()
+        
+        # Weighted engagement score
+        return (likes * 2) + (comments * 1.5) + (dislikes * 0.5)
 
     def __str__(self):
         reviewer_name = self.reviewer.get_full_name() if self.reviewer else self.anonymous_name
@@ -314,17 +426,109 @@ class Review(models.Model):
 
 
 class ReviewHelpfulness(models.Model):
-    """Track user votes on review helpfulness"""
+    """Track user votes on review helpfulness - Enhanced with like/dislike system"""
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='helpfulness_votes_detail')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_helpful = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     
+    # Enhanced fields for like/dislike system
+    vote_type = models.CharField(
+        max_length=15,
+        choices=[
+            ('like', 'Like'),
+            ('dislike', 'Dislike'),
+            ('helpful', 'Helpful'),
+            ('not_helpful', 'Not Helpful')
+        ],
+        default='helpful'
+    )
+    
     class Meta:
         unique_together = ('review', 'user')
+        indexes = [
+            models.Index(fields=['review', 'vote_type']),
+            models.Index(fields=['user', 'created_at']),
+        ]
     
     def __str__(self):
-        return f'{self.user} voted {"helpful" if self.is_helpful else "not helpful"} on {self.review}'
+        return f'{self.user} voted {self.vote_type} on {self.review}'
+
+
+class ReviewComment(models.Model):
+    """Comments on reviews - allowing discussion"""
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments')
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comments')
+    comment_text = models.TextField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_approved = models.BooleanField(default=True)
+    parent_comment = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='replies'
+    )
+    
+    # Anonymous commenter support
+    anonymous_name = models.CharField(max_length=100, blank=True)
+    anonymous_email = models.EmailField(blank=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['review', 'created_at']),
+            models.Index(fields=['commenter', 'created_at']),
+        ]
+    
+    def __str__(self):
+        commenter_name = self.commenter.get_full_name() if self.commenter else self.anonymous_name
+        return f'Comment by {commenter_name} on {self.review}'
+    
+    @property
+    def commenter_display_name(self):
+        """Get display name for commenter"""
+        if self.commenter:
+            return self.commenter.get_full_name() or self.commenter.username
+        return self.anonymous_name or 'Anonymous'
+    
+    @property
+    def is_anonymous(self):
+        """Check if this is an anonymous comment"""
+        return self.commenter is None
+
+
+class ReviewLikeStats(models.Model):
+    """Cached statistics for review likes/dislikes"""
+    review = models.OneToOneField(Review, on_delete=models.CASCADE, related_name='like_stats')
+    total_likes = models.PositiveIntegerField(default=0)
+    total_dislikes = models.PositiveIntegerField(default=0)
+    total_helpful_votes = models.PositiveIntegerField(default=0)
+    total_not_helpful_votes = models.PositiveIntegerField(default=0)
+    total_comments = models.PositiveIntegerField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['total_likes']),
+            models.Index(fields=['total_dislikes']),
+        ]
+    
+    def update_stats(self):
+        """Recalculate all statistics"""
+        votes = ReviewHelpfulness.objects.filter(review=self.review)
+        
+        self.total_likes = votes.filter(vote_type='like').count()
+        self.total_dislikes = votes.filter(vote_type='dislike').count()
+        self.total_helpful_votes = votes.filter(vote_type='helpful').count()
+        self.total_not_helpful_votes = votes.filter(vote_type='not_helpful').count()
+        self.total_comments = ReviewComment.objects.filter(review=self.review, is_approved=True).count()
+        
+        self.save()
+    
+    def __str__(self):
+        return f'Stats for {self.review}: {self.total_likes} likes, {self.total_dislikes} dislikes'
 
 
 class ReviewResponse(models.Model):

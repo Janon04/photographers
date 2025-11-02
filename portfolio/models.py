@@ -87,6 +87,20 @@ class Photo(models.Model):
 	def dislikes_count(self):
 		return self.likes.filter(is_like=False).count()
 
+	@property
+	def comments_count(self):
+		return self.comments.count()
+
+	def get_user_vote(self, user):
+		"""Get user's vote on this photo (like/dislike/none)"""
+		if not user.is_authenticated:
+			return None
+		try:
+			vote = self.likes.get(user=user)
+			return 'like' if vote.is_like else 'dislike'
+		except PhotoLike.DoesNotExist:
+			return None
+
 	class Meta:
 		ordering = ['-uploaded_at']
 class PhotoComment(models.Model):
@@ -95,9 +109,39 @@ class PhotoComment(models.Model):
 	username = models.CharField(max_length=100, blank=True, default='Anonymous')
 	text = models.TextField(max_length=500)
 	created_at = models.DateTimeField(auto_now_add=True)
+	parent_comment = models.ForeignKey(
+		'self', 
+		on_delete=models.CASCADE, 
+		null=True, 
+		blank=True, 
+		related_name='replies'
+	)
+	
+	# Anonymous commenter support
+	anonymous_email = models.EmailField(blank=True, help_text='Optional email for anonymous users')
 
 	def __str__(self):
 		return f"{self.username}: {self.text[:30]}"
+	
+	@property
+	def is_anonymous(self):
+		"""Check if this is an anonymous comment"""
+		return self.user is None
+	
+	@property
+	def display_name(self):
+		"""Get display name for commenter"""
+		if self.user:
+			return self.user.get_full_name() or self.user.username
+		return self.username or 'Anonymous'
+	
+	@property
+	def replies_count(self):
+		"""Get count of replies to this comment"""
+		return self.replies.count()
+
+	class Meta:
+		ordering = ['created_at']  # Show oldest first for threaded conversation
 
 
 # Story model for photographers

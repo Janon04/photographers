@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 
-from .models import Review, ReviewResponse, ReviewHelpfulness, ReviewAnalytics, ReviewCategory
+from .models import Review, ReviewResponse, ReviewHelpfulness, ReviewAnalytics, ReviewCategory, ReviewComment, ReviewLikeStats
 from .forms import (
     DetailedReviewForm, QuickReviewForm, ReviewResponseForm, 
     ReviewHelpfulnessForm, ReviewSearchForm, ReviewAnalyticsFilterForm,
@@ -547,3 +547,169 @@ def public_analytics(request, photographer_id):
     }
     
     return render(request, 'reviews/public_analytics.html', context)
+
+
+# Enhanced Like/Dislike and Comment System
+
+@require_POST
+def toggle_review_like(request, review_id):
+    """AJAX endpoint for toggling review likes"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    try:
+        review = get_object_or_404(Review, id=review_id, is_approved=True)
+        
+        # Users cannot like their own reviews
+        if request.user == review.reviewer:
+            return JsonResponse({'error': 'Cannot like your own review'}, status=400)
+        
+        review.toggle_like(request.user)
+        
+        return JsonResponse({
+            'success': True,
+            'like_count': review.get_like_count(),
+            'dislike_count': review.get_dislike_count(),
+            'user_vote': review.get_user_vote(request.user)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error toggling like for review {review_id}: {str(e)}")
+        return JsonResponse({'error': 'Something went wrong'}, status=500)
+
+
+@require_POST
+def toggle_review_dislike(request, review_id):
+    """AJAX endpoint for toggling review dislikes"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    try:
+        review = get_object_or_404(Review, id=review_id, is_approved=True)
+        
+        # Users cannot dislike their own reviews
+        if request.user == review.reviewer:
+            return JsonResponse({'error': 'Cannot dislike your own review'}, status=400)
+        
+        review.toggle_dislike(request.user)
+        
+        return JsonResponse({
+            'success': True,
+            'like_count': review.get_like_count(),
+            'dislike_count': review.get_dislike_count(),
+            'user_vote': review.get_user_vote(request.user)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error toggling dislike for review {review_id}: {str(e)}")
+        return JsonResponse({'error': 'Something went wrong'}, status=500)
+
+
+@require_POST
+def add_review_comment(request, review_id):
+    """AJAX endpoint for adding comments to reviews"""
+    try:
+        review = get_object_or_404(Review, id=review_id, is_approved=True)
+        comment_text = request.POST.get('comment_text', '').strip()
+        parent_comment_id = request.POST.get('parent_comment_id')
+        
+        if not comment_text:
+            return JsonResponse({'error': 'Comment text is required'}, status=400)
+        
+        if len(comment_text) < 5:
+            return JsonResponse({'error': 'Comment must be at least 5 characters'}, status=400)
+        
+        if len(comment_text) > 500:
+            return JsonResponse({'error': 'Comment must be less than 500 characters'}, status=400)
+        
+        parent_comment = None
+        if parent_comment_id:
+            try:
+                parent_comment = ReviewComment.objects.get(id=parent_comment_id, review=review)
+            except ReviewComment.DoesNotExist:
+                return JsonResponse({'error': 'Parent comment not found'}, status=400)
+        
+        # Handle anonymous vs authenticated users
+        if request.user.is_authenticated:
+            comment = review.add_comment(
+                user=request.user,
+                comment_text=comment_text,
+                parent_comment=parent_comment
+            )
+        else:
+            # Anonymous comment
+            anonymous_name = request.POST.get('anonymous_name', '').strip()
+            anonymous_email = request.POST.get('anonymous_email', '').strip()
+            
+            if not anonymous_name:
+                return JsonResponse({'error': 'Name is required for anonymous comments'}, status=400)
+            
+            comment = review.add_comment(
+                user=None,
+                comment_text=comment_text,
+                parent_comment=parent_comment,
+                anonymous_name=anonymous_name,
+                anonymous_email=anonymous_email
+            )
+        
+        return JsonResponse({
+            'success': True,
+            'comment': {
+                'id': comment.id,
+                'commenter_name': comment.commenter_display_name,
+                'comment_text': comment.comment_text,
+                'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'is_anonymous': comment.is_anonymous,
+                'parent_comment_id': comment.parent_comment.id if comment.parent_comment else None
+            },
+            'comment_count': review.get_comment_count()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error adding comment to review {review_id}: {str(e)}")
+        return JsonResponse({'error': 'Something went wrong'}, status=500)
+
+
+def get_review_comments(request, review_id):
+    """Get all comments for a review"""
+    try:
+        review = get_object_or_404(Review, id=review_id, is_approved=True)
+        comments = ReviewComment.objects.filter(
+            review=review, 
+            is_approved=True,
+            parent_comment__isnull=True  # Only top-level comments
+        ).select_related('commenter').prefetch_related('replies').order_by('created_at')
+        
+        comments_data = []
+        for comment in comments:
+            comment_data = {
+                'id': comment.id,
+                'commenter_name': comment.commenter_display_name,
+                'comment_text': comment.comment_text,
+                'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'is_anonymous': comment.is_anonymous,
+                'replies': []
+            }
+            
+            # Add replies
+            for reply in comment.replies.filter(is_approved=True).order_by('created_at'):
+                reply_data = {
+                    'id': reply.id,
+                    'commenter_name': reply.commenter_display_name,
+                    'comment_text': reply.comment_text,
+                    'created_at': reply.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    'is_anonymous': reply.is_anonymous,
+                }
+                comment_data['replies'].append(reply_data)
+            
+            comments_data.append(comment_data)
+        
+        return JsonResponse({
+            'success': True,
+            'comments': comments_data,
+            'comment_count': review.get_comment_count()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting comments for review {review_id}: {str(e)}")
+        return JsonResponse({'error': 'Something went wrong'}, status=500)

@@ -37,7 +37,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # DEVELOPMENT MODE
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'photorw.com', 'www.photorw.com', 'testserver']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'photorw.com', 'www.photorw.com', 'testserver','renewed-joni-peshotech-723cce05.koyeb.app']
 
 
 # Application definition

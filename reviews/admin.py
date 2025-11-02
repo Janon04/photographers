@@ -79,7 +79,10 @@ class ReviewAdmin(admin.ModelAdmin):
     actions = ['approve_reviews', 'feature_reviews', 'run_sentiment_analysis']
     
     def reviewer_name(self, obj):
-        return obj.reviewer.get_full_name() or obj.reviewer.username
+        if obj.reviewer:
+            return obj.reviewer.get_full_name() or obj.reviewer.username
+        else:
+            return obj.anonymous_name or 'Anonymous'
     reviewer_name.short_description = 'Reviewer'
     
     def photographer_name(self, obj):
@@ -171,7 +174,8 @@ class ReviewResponseAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     
     def review_summary(self, obj):
-        return f"Response to {obj.review.reviewer.get_full_name()}'s review"
+        reviewer_name = obj.review.reviewer.get_full_name() if obj.review.reviewer else obj.review.anonymous_name or 'Anonymous'
+        return f"Response to {reviewer_name}'s review"
     review_summary.short_description = 'Review'
     
     def photographer(self, obj):
@@ -187,7 +191,8 @@ class ReviewHelpfulnessAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     
     def review_summary(self, obj):
-        return f"{obj.review.title or 'Untitled'} by {obj.review.reviewer.get_full_name()}"
+        reviewer_name = obj.review.reviewer.get_full_name() if obj.review.reviewer else obj.review.anonymous_name or 'Anonymous'
+        return f"{obj.review.title or 'Untitled'} by {reviewer_name}"
     review_summary.short_description = 'Review'
 
 

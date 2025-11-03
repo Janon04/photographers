@@ -83,9 +83,13 @@ def user_logout(request):
 def profile(request, user_id=None):
     if user_id:
         user = get_object_or_404(User, pk=user_id)
+        is_own_profile = user == request.user
     else:
         user = request.user
-    if request.method == 'POST' and 'email' in request.POST and user == request.user:
+        is_own_profile = True
+    
+    # Handle email update for own profile
+    if request.method == 'POST' and 'email' in request.POST and is_own_profile:
         new_email = request.POST.get('email', '').strip()
         if new_email and new_email != request.user.email:
             request.user.email = new_email
@@ -93,7 +97,46 @@ def profile(request, user_id=None):
             messages.success(request, 'Email updated successfully!')
         else:
             messages.info(request, 'No changes made to your email.')
-    return render(request, 'users/profile.html', {'user': user})
+    
+    # Get user's blog posts if viewing own profile
+    user_blog_posts = None
+    if is_own_profile:
+        from blog.models import BlogPost
+        user_blog_posts = BlogPost.objects.filter(owner=user).order_by('-created_at')[:5]  # Latest 5 posts
+    
+    context = {
+        'user': user,
+        'is_own_profile': is_own_profile,
+        'user_blog_posts': user_blog_posts,
+    }
+    
+    return render(request, 'users/profile.html', context)
+
+@login_required
+def dashboard(request):
+    """User dashboard with blog management and overview"""
+    from blog.models import BlogPost
+    
+    # Get user's blog posts
+    user_blog_posts = BlogPost.objects.filter(owner=request.user).order_by('-created_at')
+    
+    # Blog statistics
+    total_posts = user_blog_posts.count()
+    published_posts = user_blog_posts.filter(is_published=True).count()
+    draft_posts = user_blog_posts.filter(is_published=False).count()
+    
+    # Recent activity
+    recent_posts = user_blog_posts[:3]
+    
+    context = {
+        'user_blog_posts': user_blog_posts,
+        'total_posts': total_posts,
+        'published_posts': published_posts,
+        'draft_posts': draft_posts,
+        'recent_posts': recent_posts,
+    }
+    
+    return render(request, 'users/dashboard.html', context)
 
 def photographer_search(request):
     form = PhotographerSearchForm(request.GET or None)

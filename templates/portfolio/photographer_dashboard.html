@@ -243,6 +243,10 @@
             color: #e74c3c;
         }
         
+        .widget-change.neutral {
+            color: #f39c12;
+        }
+        
         /* Dashboard Sections */
         .dashboard-section {
             background: var(--surface);
@@ -285,6 +289,75 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 1.2rem;
+        }
+        
+        /* Blog Grid */
+        .dashboard-blogs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .blog-item {
+            background: var(--surface-alt);
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            border: 1px solid var(--accent-light);
+            transition: var(--transition);
+        }
+        
+        .blog-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(45, 32, 19, 0.1);
+        }
+        
+        .blog-status {
+            margin-bottom: 0.8rem;
+        }
+        
+        .status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status.published {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .blog-title {
+            margin: 0 0 0.8rem 0;
+            font-size: 1.1rem;
+            color: var(--text);
+            line-height: 1.4;
+        }
+        
+        .blog-excerpt {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .blog-date, .blog-category {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
         
         .dashboard-photo-thumb, .dashboard-story-thumb {
@@ -445,6 +518,7 @@
                 <li><a href="{% url 'portfolio:upload_story' %}"><i class="fas fa-history"></i> Upload Story</a></li>
                 <li><a href="{% url 'portfolio:photographer_detail' user.pk %}"><i class="fas fa-briefcase"></i> My Portfolio</a></li>
                 <li><a href="{% url 'portfolio:photo_list' %}"><i class="fas fa-images"></i> All Photos</a></li>
+                <li><a href="{% url 'users:dashboard' %}"><i class="fas fa-blog"></i> My Blog</a></li>
                 <li><a href="/users/profile/"><i class="fas fa-user-edit"></i> Edit Profile</a></li>
             </ul>
             <form method="post" action="/users/logout/">
@@ -518,6 +592,47 @@
                     <div class="widget-title"><i class="fas fa-camera-retro"></i> Photo Comments</div>
                     <div class="widget-value">{{ total_photo_comments }}</div>
                     <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Featured photos</div>
+                </div>
+                
+                <!-- Blog Statistics Widgets -->
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-blog"></i> Total Blogs</div>
+                    <div class="widget-value">{{ total_blog_posts }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> Content creation</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-edit"></i> Published Blogs</div>
+                    <div class="widget-value">{{ published_blog_posts }}</div>
+                    <div class="widget-change positive"><i class="fas fa-check"></i> Live content</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-file-alt"></i> Draft Blogs</div>
+                    <div class="widget-value">{{ draft_blog_posts }}</div>
+                    <div class="widget-change neutral"><i class="fas fa-pencil-alt"></i> In progress</div>
+                </div>
+                {% if blog_growth > 0 %}
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-chart-line"></i> Blog Growth</div>
+                    <div class="widget-value">+{{ blog_growth }}</div>
+                    <div class="widget-change positive"><i class="fas fa-arrow-up"></i> This month</div>
+                </div>
+                {% endif %}
+                
+                <!-- Blog Interaction Statistics Widgets -->
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-thumbs-up"></i> Blog Likes</div>
+                    <div class="widget-value">{{ total_blog_likes }}</div>
+                    <div class="widget-change positive"><i class="fas fa-heart"></i> Engagement</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-thumbs-down"></i> Blog Dislikes</div>
+                    <div class="widget-value">{{ total_blog_dislikes }}</div>
+                    <div class="widget-change neutral"><i class="fas fa-chart-bar"></i> Feedback</div>
+                </div>
+                <div class="widget">
+                    <div class="widget-title"><i class="fas fa-comments"></i> Blog Comments</div>
+                    <div class="widget-value">{{ total_blog_comments }}</div>
+                    <div class="widget-change positive"><i class="fas fa-users"></i> Community</div>
                 </div>
             </div>
             
@@ -620,6 +735,36 @@
                         {% endif %}
                     {% empty %}
                         <div class="empty-state">No stories uploaded yet. <a href="{% url 'portfolio:upload_story' %}">Share your first story</a></div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3>Recent Blog Posts</h3>
+                    <a href="{% url 'users:dashboard' %}" class="view-all-link">Manage blogs <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="dashboard-blogs">
+                    {% for blog in recent_blog_posts %}
+                        <div class="blog-item">
+                            <div class="blog-status">
+                                {% if blog.is_published %}
+                                    <span class="status published"><i class="fas fa-check-circle"></i> Published</span>
+                                {% else %}
+                                    <span class="status draft"><i class="fas fa-edit"></i> Draft</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="blog-title">{{ blog.title }}</h4>
+                            <p class="blog-excerpt">{{ blog.excerpt|truncatewords:15 }}</p>
+                            <div class="blog-meta">
+                                <span class="blog-date"><i class="fas fa-calendar"></i> {{ blog.created_at|date:"M d, Y" }}</span>
+                                {% if blog.category %}
+                                    <span class="blog-category"><i class="fas fa-tag"></i> {{ blog.category.name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">No blog posts yet. <a href="{% url 'users:dashboard' %}">Create your first blog post</a></div>
                     {% endfor %}
                 </div>
             </div>

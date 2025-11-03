@@ -198,6 +198,8 @@ def admin_dashboard(request):
     
     # Pending approvals
     pending_reviews = Review.objects.filter(is_approved=False).count()
+    total_reviews = Review.objects.count()
+    approved_reviews = Review.objects.filter(is_approved=True).count()
     total_contact_messages = ContactMessage.objects.count()
     
     # Create context dictionary
@@ -217,6 +219,8 @@ def admin_dashboard(request):
         'recent_bookings': recent_bookings,
         'recent_reviews': recent_reviews,
         'pending_reviews': pending_reviews,
+        'total_reviews': total_reviews,
+        'approved_reviews': approved_reviews,
         'total_contact_messages': total_contact_messages,
         'filter_date': filter_date_str,  # Add filter date to context
         'filter_date_formatted': filter_date.strftime('%B %d, %Y') if filter_date_str else '',

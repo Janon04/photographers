@@ -1,45 +1,672 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ post.title }} - PhotoRw Blog{% endblock %}
+{% block head %}
+<style>
+    :root {
+        --primary-dark: #2D2013;
+        --primary: #3A2A1B;
+        --accent: #A67C52;
+        --accent-light: #C7A17A;
+        --gold: #FFD700;
+        --surface: #FFFFFF;
+        --surface-alt: #F8F6F3;
+        --text-main: #2D2013;
+        --text-light: #6B6B6B;
+        --success: #27ae60;
+        --border: #e9e1d6;
+        --border-radius: 12px;
+        --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+        --transition: all 0.3s ease;
+    }
+
+    .article-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+
+    .back-link:hover {
+        color: var(--accent-light);
+        transform: translateX(-3px);
+    }
+
+    .article-header {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .article-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .article-meta {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .meta-tag {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .meta-author {
+        background: var(--accent);
+        color: var(--surface);
+    }
+
+    .meta-category {
+        background: var(--primary-dark);
+        color: var(--surface);
+    }
+
+    .meta-tags {
+        background: var(--success);
+        color: var(--surface);
+    }
+
+    .article-image-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        background: var(--surface-alt);
+    }
+
+    .article-image {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+        max-height: 700px;
+        object-fit: cover;
+        display: block;
+        transition: var(--transition);
+    }
+
+    .article-image-container:hover .article-image {
+        transform: scale(1.01);
+    }
+
+    .article-content {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+
+    .article-text {
+        color: var(--text-main);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .article-text p {
+        margin-bottom: 1.5rem;
+    }
+
+    .article-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        color: var(--surface);
+        box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(166, 124, 82, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--surface);
+        color: var(--accent);
+        border: 2px solid var(--accent);
+    }
+
+    .btn-secondary:hover {
+        background: var(--accent);
+        color: var(--surface);
+        transform: translateY(-2px);
+    }
+
+    /* Like/Dislike Section */
+    .blog-interactions {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+
+    .interaction-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .interaction-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        border: 2px solid var(--border);
+        background: var(--surface-alt);
+        color: var(--text-main);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 1rem;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .interaction-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .interaction-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--surface);
+    }
+
+    .interaction-btn.like-btn.active {
+        background: var(--success);
+        border-color: var(--success);
+    }
+
+    .interaction-btn.dislike-btn.active {
+        background: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+    .interaction-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .comments-section {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .comments-title {
+        color: var(--accent);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .comment {
+        background: var(--surface-alt);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--accent);
+        transition: var(--transition);
+    }
+
+    .comment:hover {
+        box-shadow: var(--shadow);
+        transform: translateX(5px);
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .comment-author {
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .comment-date {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .comment-text {
+        color: var(--text-main);
+        line-height: 1.6;
+    }
+
+    .comment-form {
+        margin-top: 2rem;
+        padding: 2rem;
+        background: var(--surface-alt);
+        border-radius: var(--border-radius);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--border);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--surface);
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .empty-comments {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .empty-comments i {
+        font-size: 3rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .article-container {
+            padding: 0 1rem;
+        }
+
+        .article-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .article-title {
+            font-size: 2rem;
+        }
+
+        .article-content {
+            padding: 2rem 1.5rem;
+        }
+
+        .comments-section {
+            padding: 2rem 1.5rem;
+        }
+
+        .article-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .article-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container" style="max-width:800px;margin:2rem auto;">
-  <h2 style="font-size:2rem;font-weight:800;color:#2d2013;margin-bottom:1.2rem;">{{ post.title }}</h2>
-  <div style="color:#6b6b6b;font-size:1rem;margin-bottom:0.7rem;">
-  By {{ post.owner.get_full_name|default:post.owner.username }} on {{ post.created_at|date:'M d, Y' }}
-    {% if post.category %} | <span style="color:#a67c52;">{{ post.category.name }}</span>{% endif %}
-    {% if post.tags.all %}
-      | <span style="color:#25D366;">{% for tag in post.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+<div class="article-container">
+    <!-- Back Link -->
+    <a href="{% url 'blog_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Blog
+    </a>
+
+    <!-- Article Header -->
+    <div class="article-header">
+        <h1 class="article-title">{{ post.title }}</h1>
+        <div class="article-meta">
+            <div class="meta-item">
+                <span class="meta-tag meta-author">
+                    <i class="fas fa-user"></i>
+                    {{ post.owner.get_full_name|default:post.owner.username }}
+                </span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                {{ post.created_at|date:'F d, Y' }}
+            </div>
+            {% if post.category %}
+                <div class="meta-item">
+                    <span class="meta-tag meta-category">
+                        <i class="fas fa-folder"></i>
+                        {{ post.category.name }}
+                    </span>
+                </div>
+            {% endif %}
+            {% if post.tags.all %}
+                <div class="meta-item">
+                    <span class="meta-tag meta-tags">
+                        <i class="fas fa-tags"></i>
+                        {% for tag in post.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Article Image -->
+    {% if post.image %}
+        <div class="article-image-container">
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" class="article-image">
+        </div>
     {% endif %}
-  </div>
-  {% if post.image %}
-    <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width:100%;height:auto;border-radius:0.7rem;margin-bottom:1.2rem;">
-  {% endif %}
-  <div style="color:#444;font-size:1.13rem;line-height:1.7;">{{ post.content|linebreaks }}</div>
-  {% if user.is_authenticated and user == post.owner %}
-    <a href="{% url 'blog_edit' post.pk %}" class="btn btn-outline" style="margin-top:1.2rem;">Edit Article</a>
-  {% endif %}
-  <a href="{% url 'blog_list' %}" style="color:#a67c52;font-weight:600;display:block;margin-top:2rem;">← Back to Blog</a>
-  <hr style="margin:2rem 0;">
-  <h4 style="color:#c7a17a;font-weight:700;margin-bottom:1rem;">Comments</h4>
-  <div>
-    {% for comment in comments %}
-      <div style="background:#f8f6f3;border-radius:0.7rem;padding:0.7rem 1rem;margin-bottom:0.7rem;">
-  <b style="color:#2d2013;">
-    {% if comment.author %}
-      {{ comment.author.get_full_name|default:comment.author.username }}
-    {% else %}
-      {{ comment.name|default:"Anonymous" }}
-      {% if comment.email %}<span style="color:#888;font-size:0.9rem;"> ({{ comment.email }})</span>{% endif %}
-    {% endif %}
-        <span style="color:#888;font-size:0.95rem;">{{ comment.created_at|date:'M d, Y H:i' }}</span><br>
-        <span style="color:#444;">{{ comment.text|linebreaks }}</span>
-      </div>
-    {% empty %}
-      <div style="color:#aaa;">No comments yet.</div>
-    {% endfor %}
-  </div>
-  <form method="post" style="margin-top:1.2rem;">
-    {% csrf_token %}
-    {{ comment_form.as_p }}
-    <button type="submit" class="btn btn-primary">Add Comment</button>
-  </form>
+
+    <!-- Article Content -->
+    <div class="article-content">
+        <div class="article-text">
+            {{ post.content|linebreaks }}
+        </div>
+
+        <!-- Article Actions -->
+        {% if user.is_authenticated and user == post.owner %}
+            <div class="article-actions">
+                <a href="{% url 'blog_edit' post.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-edit"></i>
+                    Edit Article
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Like/Dislike Section -->
+    <div class="blog-interactions">
+        <div class="interaction-buttons">
+            <button class="interaction-btn like-btn {% if user_liked %}active{% endif %}" 
+                    onclick="toggleLike({{ post.id }})" id="like-btn">
+                <i class="fas fa-thumbs-up"></i>
+                <span>Like</span>
+            </button>
+            <button class="interaction-btn dislike-btn {% if user_disliked %}active{% endif %}" 
+                    onclick="toggleDislike({{ post.id }})" id="dislike-btn">
+                <i class="fas fa-thumbs-down"></i>
+                <span>Dislike</span>
+            </button>
+        </div>
+        <div class="interaction-stats">
+            <div class="stat-item">
+                <i class="fas fa-thumbs-up"></i>
+                <span id="likes-count">{{ post.total_likes }}</span>
+                <span>like{{ post.total_likes|pluralize }}</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-thumbs-down"></i>
+                <span id="dislikes-count">{{ post.total_dislikes }}</span>
+                <span>dislike{{ post.total_dislikes|pluralize }}</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-comments"></i>
+                <span>{{ post.total_comments }}</span>
+                <span>comment{{ post.total_comments|pluralize }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h4 class="comments-title">
+            <i class="fas fa-comments"></i>
+            Comments ({{ comments.count }})
+        </h4>
+
+        <!-- Comments List -->
+        {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <div class="comment-author">
+                        <i class="fas fa-user-circle"></i>
+                        {{ comment.author_display }}
+                        {% if comment.author_email and not comment.author %}
+                            <span style="color: var(--text-light); font-size: 0.9rem; font-weight: normal;">
+                                ({{ comment.author_email }})
+                                </span>
+                        {% endif %}
+                    </div>
+                    <div class="comment-date">
+                        <i class="fas fa-clock"></i>
+                        {{ comment.created_at|date:'M d, Y \a\t H:i' }}
+                    </div>
+                </div>
+                <div class="comment-text">
+                    {{ comment.text|linebreaks }}
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-comments">
+                <i class="fas fa-comment-dots"></i>
+                <h5 style="margin-bottom: 0.5rem; color: var(--text-main);">No comments yet</h5>
+                <p>Be the first to share your thoughts on this article!</p>
+            </div>
+        {% endfor %}
+
+        <!-- Comment Form -->
+        <div class="comment-form">
+            <h5 style="margin-bottom: 1.5rem; color: var(--text-main); font-weight: 700;">
+                <i class="fas fa-plus-circle"></i>
+                Add Your Comment
+            </h5>
+            <form method="post">
+                {% csrf_token %}
+                {% if not user.is_authenticated %}
+                <div class="form-group">
+                    <label class="form-label">Your Name *</label>
+                    {{ comment_form.author_name }}
+                    {% if comment_form.author_name.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ comment_form.author_name.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Your Email (optional)</label>
+                    {{ comment_form.author_email }}
+                    {% if comment_form.author_email.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ comment_form.author_email.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="form-label">Your Comment</label>
+                    {{ comment_form.text }}
+                    {% if comment_form.text.errors %}
+                        <div style="color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ comment_form.text.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Post Comment
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+// CSRF token for AJAX requests
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleLike(postId) {
+    fetch(`/blog/post/${postId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update like button
+        const likeBtn = document.getElementById('like-btn');
+        const dislikeBtn = document.getElementById('dislike-btn');
+        
+        if (data.liked) {
+            likeBtn.classList.add('active');
+        } else {
+            likeBtn.classList.remove('active');
+        }
+        
+        if (data.disliked) {
+            dislikeBtn.classList.add('active');
+        } else {
+            dislikeBtn.classList.remove('active');
+        }
+        
+        // Update counts
+        document.getElementById('likes-count').textContent = data.likes_count;
+        document.getElementById('dislikes-count').textContent = data.dislikes_count;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function toggleDislike(postId) {
+    fetch(`/blog/post/${postId}/dislike/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update buttons
+        const likeBtn = document.getElementById('like-btn');
+        const dislikeBtn = document.getElementById('dislike-btn');
+        
+        if (data.liked) {
+            likeBtn.classList.add('active');
+        } else {
+            likeBtn.classList.remove('active');
+        }
+        
+        if (data.disliked) {
+            dislikeBtn.classList.add('active');
+        } else {
+            dislikeBtn.classList.remove('active');
+        }
+        
+        // Update counts
+        document.getElementById('likes-count').textContent = data.likes_count;
+        document.getElementById('dislikes-count').textContent = data.dislikes_count;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+
 {% endblock %}

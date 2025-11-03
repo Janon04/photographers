@@ -487,18 +487,7 @@
 
             <!-- Main Navigation Links -->
             <div style="display:flex;align-items:center;gap:2rem;flex:1;justify-content:center;">
-                <a href="{% url 'explore' %}" class="nav-link">
-                    <i class="fas fa-search"></i> Explore
-                </a>
-                <a href="{% url 'reviews:reviews_list' %}" class="nav-link">
-                    <i class="fas fa-star"></i> Reviews
-                </a>
-                <a href="{% url 'community:post_list' %}" class="nav-link">
-                    <i class="fas fa-users"></i> Community
-                </a>
-                <a href="{% url 'reviews:add_review' %}" class="nav-link" style="background:rgba(166,124,82,0.1);padding:0.5rem 1rem;border-radius:20px;">
-                    <i class="fas fa-edit"></i> Write Review
-                </a>
+                <!-- Simplified main navigation - detailed links moved to quick links bar -->
             </div>
 
             <div class="nav-actions" id="navActions">
@@ -555,6 +544,9 @@
             </a>
             <a href="/community/" class="quick-link">
                 <i class="fas fa-users"></i> Community
+            </a>
+            <a href="{% url 'users:dashboard' %}" class="quick-link">
+                <i class="fas fa-blog"></i> My Blog
             </a>
             <a href="/payments/" class="quick-link">
                 <i class="fas fa-credit-card"></i> Payments

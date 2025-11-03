@@ -136,25 +136,52 @@ st{% load humanize %}
     <div class="col-md-6">
         <div class="data-table">
             <div class="table-header">
-                <i class="fas fa-exclamation-circle me-2"></i>Pending Approvals
+                <i class="fas fa-star me-2"></i>Reviews Management
             </div>
             <div class="p-3">
-                {% if pending_reviews > 0 %}
+                <!-- Total Reviews Overview -->
+                <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Reviews awaiting approval</span>
-                        <span class="badge bg-warning">{{ pending_reviews }}</span>
+                        <span class="fw-bold text-primary">Total Reviews</span>
+                        <span class="badge bg-primary">{{ total_reviews }}</span>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-success">✓ Approved Reviews</span>
+                        <span class="badge bg-success">{{ approved_reviews }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="{% if pending_reviews > 0 %}text-warning{% else %}text-muted{% endif %}">
+                            {% if pending_reviews > 0 %}⏳{% else %}✓{% endif %} Pending Approval
+                        </span>
+                        <span class="badge {% if pending_reviews > 0 %}bg-warning{% else %}bg-secondary{% endif %}">{{ pending_reviews }}</span>
+                    </div>
+                </div>
+                
+                {% if pending_reviews > 0 %}
                     <hr>
                     <div class="d-grid gap-2">
-                        <a href="{% url 'admin_dashboard:reviews_management' %}?approved=false" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-eye me-1"></i>Review Pending Items
+                        <a href="{% url 'admin_dashboard:reviews_management' %}?approved=false" class="btn btn-warning btn-sm">
+                            <i class="fas fa-eye me-1"></i>Review {{ pending_reviews }} Pending Item{{ pending_reviews|pluralize }}
+                        </a>
+                        <a href="{% url 'admin_dashboard:reviews_management' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-list me-1"></i>View All Reviews
                         </a>
                     </div>
                 {% else %}
-                    <div class="text-center text-muted py-3">
-                        <i class="fas fa-check-circle fa-2x mb-2"></i>
-                        <p class="mb-0">No pending reviews!</p>
+                    <div class="alert alert-success mb-0" style="border: none; background: rgba(25, 135, 84, 0.1);">
+                        <div class="text-center">
+                            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                            <p class="mb-1 fw-bold">All reviews are up to date!</p>
+                            <small class="text-muted">No pending approvals required</small>
+                        </div>
                     </div>
+                    {% if total_reviews > 0 %}
+                    <div class="d-grid gap-2 mt-2">
+                        <a href="{% url 'admin_dashboard:reviews_management' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-list me-1"></i>View All {{ total_reviews }} Review{{ total_reviews|pluralize }}
+                        </a>
+                    </div>
+                    {% endif %}
                 {% endif %}
                 
                 <!-- Contact Messages Info -->

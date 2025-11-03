@@ -150,11 +150,48 @@
       <button type="submit">Update Email</button>
     </form>
     <div class="profile-actions">
-      <a href="/portfolio/photographers/">Find Photographers</a>
-      <a href="/bookings/create/">Book a Photographer</a>
-      <a href="/reviews/">Read Reviews</a>
-      <a href="/users/logout/" style="background:#fffbe6;color:#a67c52;">Log Out</a>
+      {% if is_own_profile %}
+        <a href="{% url 'users:dashboard' %}">📊 My Dashboard</a>
+        <a href="{% url 'blog_create' %}">✍️ Write Blog Post</a>
+        <a href="{% url 'blog_list' %}?author={{ user.id }}">📖 My Blog Posts</a>
+        <a href="/portfolio/photographers/">Find Photographers</a>
+        <a href="/bookings/create/">Book a Photographer</a>
+        <a href="/reviews/">Read Reviews</a>
+        <a href="/users/logout/" style="background:#fffbe6;color:#a67c52;">Log Out</a>
+      {% else %}
+        <a href="{% url 'blog_list' %}?author={{ user.id }}">📖 View Blog Posts</a>
+        <a href="/portfolio/photographers/">Find Photographers</a>
+        <a href="/bookings/create/">Book a Photographer</a>
+        <a href="/reviews/">Read Reviews</a>
+      {% endif %}
     </div>
+    
+    {% if is_own_profile and user_blog_posts %}
+      <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e9e1d6;">
+        <h3 style="color: #2d2013; margin-bottom: 1rem; text-align: center;">Recent Blog Posts</h3>
+        <div style="max-height: 200px; overflow-y: auto;">
+          {% for post in user_blog_posts %}
+            <div style="padding: 0.8rem; margin-bottom: 0.5rem; background: #f8f6f3; border-radius: 8px; border-left: 3px solid #a67c52;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="color: #2d2013;">{{ post.title|truncatechars:40 }}</strong>
+                  <div style="font-size: 0.9rem; color: #6B6B6B;">{{ post.created_at|date:'M d, Y' }}</div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="{% url 'blog_edit' post.pk %}" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #a67c52; color: white; border-radius: 4px; text-decoration: none;">Edit</a>
+                  {% if post.is_published %}
+                    <a href="{% url 'blog_detail' post.pk %}" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #2d2013; color: white; border-radius: 4px; text-decoration: none;">View</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="{% url 'users:dashboard' %}" style="background: #a67c52; color: white; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600;">View All Posts</a>
+        </div>
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

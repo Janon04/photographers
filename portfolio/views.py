@@ -290,6 +290,27 @@ def photographer_dashboard(request):
 	).count()
 	likes_growth = ((likes_last_week - likes_prev_week) / max(likes_prev_week, 1)) * 100 if likes_prev_week > 0 else 0
 	
+	# Blog statistics
+	from blog.models import BlogPost, BlogLike, BlogDislike, BlogComment
+	user_blog_posts = BlogPost.objects.filter(owner=request.user)
+	total_blog_posts = user_blog_posts.count()
+	published_blog_posts = user_blog_posts.filter(is_published=True).count()
+	draft_blog_posts = user_blog_posts.filter(is_published=False).count()
+	recent_blog_posts = user_blog_posts.order_by('-created_at')[:3]
+	
+	# Blog interaction statistics
+	total_blog_likes = BlogLike.objects.filter(post__in=user_blog_posts).count()
+	total_blog_dislikes = BlogDislike.objects.filter(post__in=user_blog_posts).count()
+	total_blog_comments = BlogComment.objects.filter(post__in=user_blog_posts, is_approved=True).count()
+	
+	# Blog growth (last 30 days vs previous 30 days)
+	blog_posts_last_month = user_blog_posts.filter(created_at__gte=last_month).count()
+	blog_posts_prev_month = user_blog_posts.filter(
+		created_at__gte=timezone.now() - timedelta(days=60),
+		created_at__lt=last_month
+	).count()
+	blog_growth = ((blog_posts_last_month - blog_posts_prev_month) / max(blog_posts_prev_month, 1)) * 100 if blog_posts_prev_month > 0 else 0
+	
 	context = {
 		'total_photos': total_photos,
 		'recent_photos': recent_photos,
@@ -301,6 +322,16 @@ def photographer_dashboard(request):
 		'recent_activity': recent_activity,
 		'photos_growth': round(photos_growth, 1),
 		'likes_growth': round(likes_growth, 1),
+		
+		# Blog statistics
+		'total_blog_posts': total_blog_posts,
+		'published_blog_posts': published_blog_posts,
+		'draft_blog_posts': draft_blog_posts,
+		'recent_blog_posts': recent_blog_posts,
+		'blog_growth': round(blog_growth, 1),
+		'total_blog_likes': total_blog_likes,
+		'total_blog_dislikes': total_blog_dislikes,
+		'total_blog_comments': total_blog_comments,
 		
 		# Review statistics
 		'total_reviews': total_reviews,

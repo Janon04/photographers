@@ -1,24 +1,442 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if edit %}Edit Article{% else %}New Article{% endif %} - PhotoRw Blog{% endblock %}
+{% block head %}
+<style>
+    :root {
+        --primary-dark: #2D2013;
+        --primary: #3A2A1B;
+        --accent: #A67C52;
+        --accent-light: #C7A17A;
+        --gold: #FFD700;
+        --surface: #FFFFFF;
+        --surface-alt: #F8F6F3;
+        --text-main: #2D2013;
+        --text-light: #6B6B6B;
+        --border: #e9e1d6;
+        --border-radius: 12px;
+        --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+        --transition: all 0.3s ease;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+
+    .back-link:hover {
+        color: var(--accent-light);
+        transform: translateX(-3px);
+    }
+
+    .form-card {
+        background: var(--surface);
+        padding: 3rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--surface-alt);
+    }
+
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .form-subtitle {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.8rem;
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        border: 2px solid var(--border);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+        background: var(--surface);
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+    }
+
+    input[type="text"].form-control,
+    input[type="email"].form-control {
+        height: 50px;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 200px;
+        font-family: inherit;
+        line-height: 1.6;
+    }
+
+    select.form-control {
+        height: 50px;
+        cursor: pointer;
+    }
+
+    input[type="file"].form-control {
+        padding: 0.8rem;
+        border-style: dashed;
+        cursor: pointer;
+    }
+
+    .form-help {
+        color: var(--accent);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .form-error {
+        color: #e74c3c;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        color: var(--surface);
+        box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(166, 124, 82, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--surface);
+        color: var(--accent);
+        border: 2px solid var(--accent);
+    }
+
+    .btn-secondary:hover {
+        background: var(--accent);
+        color: var(--surface);
+        transform: translateY(-2px);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--surface-alt);
+    }
+
+    .image-preview {
+        margin-top: 1.5rem;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        background: var(--surface-alt);
+        padding: 1.5rem;
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: auto;
+        min-height: 200px;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        display: block;
+    }
+
+    .image-preview img:hover {
+        transform: scale(1.01);
+    }
+
+    .image-preview-label {
+        color: var(--text-main);
+        margin-bottom: 1rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .remove-image-btn {
+        background: #e74c3c;
+        color: var(--surface);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: var(--transition);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .remove-image-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 0 1rem;
+        }
+
+        .form-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .form-title {
+            font-size: 2rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container" style="max-width:600px;margin:2rem auto;">
-  <div style="background:#fffbe6;padding:2rem 2.2rem;border-radius:1.2rem;box-shadow:0 2px 12px rgba(199,161,122,0.13);">
-    <h2 style="font-size:2rem;font-weight:900;color:#1a120b;margin-bottom:0.7rem;letter-spacing:-1px;">{% if edit %}Edit Article{% else %}New Article{% endif %}</h2>
-    <div style="color:#7c5c3a;font-size:1.08rem;margin-bottom:1.5rem;">Fill out the details below to {% if edit %}update{% else %}publish{% endif %} your blog post.</div>
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div style="display:flex;flex-direction:column;gap:1.1rem;">
-        {% for field in form %}
-          <div style="display:flex;flex-direction:column;">
-            <label for="{{ field.id_for_label }}" style="font-weight:700;color:#3e2723;margin-bottom:0.3rem;">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<small style="color:#388e3c;">{{ field.help_text }}</small>{% endif %}
-            {% for error in field.errors %}<div style="color:#d32f2f;font-size:0.97rem;">{{ error }}</div>{% endfor %}
-          </div>
-        {% endfor %}
-      </div>
-      <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;padding:0.7rem 1.5rem;font-size:1.1rem;font-weight:700;border-radius:0.7rem;background:#7c5c3a;color:#fff;border:none;box-shadow:0 2px 8px rgba(199,161,122,0.13);">{% if edit %}Update{% else %}Publish{% endif %}</button>
-    </form>
-    <a href="{% url 'blog_list' %}" style="color:#3e2723;font-weight:700;display:block;margin-top:2rem;">← Back to Blog</a>
-  </div>
+<div class="form-container">
+    <!-- Back Link -->
+    <a href="{% url 'blog_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Blog
+    </a>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <!-- Form Header -->
+        <div class="form-header">
+            <h1 class="form-title">
+                {% if edit %}
+                    <i class="fas fa-edit"></i>
+                    Edit Article
+                {% else %}
+                    <i class="fas fa-plus-circle"></i>
+                    Create New Article
+                {% endif %}
+            </h1>
+            <p class="form-subtitle">
+                {% if edit %}
+                    Update your blog post details below to make changes visible to readers.
+                {% else %}
+                    Share your photography insights, tips, and stories with the PhotoRw community.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {% if field.name == 'title' %}
+                            <i class="fas fa-heading"></i>
+                        {% elif field.name == 'content' %}
+                            <i class="fas fa-align-left"></i>
+                        {% elif field.name == 'category' %}
+                            <i class="fas fa-folder"></i>
+                        {% elif field.name == 'tags' %}
+                            <i class="fas fa-tags"></i>
+                        {% elif field.name == 'image' %}
+                            <i class="fas fa-image"></i>
+                        {% endif %}
+                        {{ field.label }}
+                    </label>
+                    
+                    {% if field.name == 'content' %}
+                        <textarea name="{{ field.name }}" 
+                                  class="form-control" 
+                                  id="{{ field.id_for_label }}"
+                                  placeholder="Write your article content here... Share your photography tips, experiences, or stories."
+                                  {% if field.field.required %}required{% endif %}>{{ field.value|default_if_none:'' }}</textarea>
+                    {% elif field.name == 'title' %}
+                        <input type="text" 
+                               name="{{ field.name }}" 
+                               class="form-control" 
+                               id="{{ field.id_for_label }}"
+                               placeholder="Enter an engaging title for your article"
+                               value="{{ field.value|default_if_none:'' }}"
+                               {% if field.field.required %}required{% endif %}>
+                    {% elif field.name == 'image' %}
+                        <input type="file" 
+                               name="{{ field.name }}" 
+                               class="form-control" 
+                               id="{{ field.id_for_label }}"
+                               accept="image/*">
+                        {% if field.value %}
+                            <div class="image-preview">
+                                <div class="image-preview-label">
+                                    <i class="fas fa-image"></i>
+                                    Current Article Image
+                                </div>
+                                <img src="{{ field.value.url }}" alt="Current article image">
+                                <button type="button" class="remove-image-btn" onclick="removeCurrentImage()">
+                                    <i class="fas fa-trash"></i>
+                                    Remove Current Image
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    
+                    {% if field.help_text %}
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+                    
+                    {% for error in field.errors %}
+                        <div class="form-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if edit %}
+                        <i class="fas fa-save"></i>
+                        Update Article
+                    {% else %}
+                        <i class="fas fa-paper-plane"></i>
+                        Publish Article
+                    {% endif %}
+                </button>
+                
+                <a href="{% url 'blog_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+    // Image preview functionality
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Remove existing preview if any
+                const existingPreview = document.querySelector('.new-image-preview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+                
+                // Create new preview
+                const preview = document.createElement('div');
+                preview.className = 'image-preview new-image-preview';
+                preview.innerHTML = `
+                    <div class="image-preview-label">
+                        <i class="fas fa-eye"></i>
+                        New Image Preview
+                    </div>
+                    <img src="${e.target.result}" alt="New article image preview">
+                    <button type="button" class="remove-image-btn" onclick="removeNewImage()">
+                        <i class="fas fa-times"></i>
+                        Remove New Image
+                    </button>
+                `;
+                e.target.closest('.form-group').appendChild(preview);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove image functions
+    function removeCurrentImage() {
+        if (confirm('Are you sure you want to remove the current image?')) {
+            const currentPreview = document.querySelector('.image-preview:not(.new-image-preview)');
+            if (currentPreview) {
+                currentPreview.style.display = 'none';
+            }
+        }
+    }
+
+    function removeNewImage() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const newPreview = document.querySelector('.new-image-preview');
+        if (newPreview) {
+            newPreview.remove();
+        }
+        fileInput.value = '';
+    }
+</script>
 {% endblock %}

@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Dashboard - PhotoRw{% endblock %}
+{% block head %}
+<style>
+    :root {
+        --primary-dark: #2D2013;
+        --primary: #3A2A1B;
+        --accent: #A67C52;
+        --accent-light: #C7A17A;
+        --gold: #FFD700;
+        --surface: #FFFFFF;
+        --surface-alt: #F8F6F3;
+        --text-main: #2D2013;
+        --text-light: #6B6B6B;
+        --border: #e9e1d6;
+        --border-radius: 12px;
+        --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+        --transition: all 0.3s ease;
+        --success: #27AE60;
+        --warning: #F39C12;
+        --danger: #E74C3C;
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        color: var(--surface);
+        padding: 3rem 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(45, 32, 19, 0.15);
+        border-color: var(--accent-light);
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .action-section {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--text-main);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .section-title i {
+        color: var(--accent);
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        padding: 1.2rem 1.5rem;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        color: var(--surface);
+        text-decoration: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(166, 124, 82, 0.3);
+        color: var(--surface);
+    }
+
+    .action-btn.secondary {
+        background: var(--surface);
+        color: var(--accent);
+        border: 2px solid var(--accent);
+    }
+
+    .action-btn.secondary:hover {
+        background: var(--accent);
+        color: var(--surface);
+    }
+
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .post-card {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(45, 32, 19, 0.15);
+        border-color: var(--accent-light);
+    }
+
+    .post-image {
+        height: 180px;
+        background: var(--surface-alt);
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        font-size: 3rem;
+    }
+
+    .post-content {
+        padding: 1.5rem;
+    }
+
+    .post-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .post-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .post-status {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-published {
+        background: var(--success);
+        color: var(--surface);
+    }
+
+    .status-draft {
+        background: var(--warning);
+        color: var(--surface);
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 1rem;
+    }
+
+    .post-btn {
+        padding: 0.6rem 1rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-edit {
+        background: var(--accent);
+        color: var(--surface);
+    }
+
+    .btn-edit:hover {
+        background: var(--accent-light);
+        color: var(--surface);
+    }
+
+    .btn-view {
+        background: var(--surface);
+        color: var(--accent);
+        border: 2px solid var(--accent);
+    }
+
+    .btn-view:hover {
+        background: var(--accent);
+        color: var(--surface);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--accent);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: var(--text-main);
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .dashboard-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">
+            <i class="fas fa-tachometer-alt"></i>
+            Welcome, {{ user.get_full_name|default:user.username }}!
+        </h1>
+        <p class="dashboard-subtitle">Manage your photography blog and content</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_posts }}</div>
+            <div class="stat-label">Total Posts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ published_posts }}</div>
+            <div class="stat-label">Published</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ draft_posts }}</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="action-section">
+        <h2 class="section-title">
+            <i class="fas fa-bolt"></i>
+            Quick Actions
+        </h2>
+        <div class="quick-actions">
+            <a href="{% url 'blog_create' %}" class="action-btn">
+                <i class="fas fa-plus-circle"></i>
+                Write New Post
+            </a>
+            <a href="{% url 'blog_list' %}" class="action-btn secondary">
+                <i class="fas fa-list"></i>
+                View All Posts
+            </a>
+            <a href="{% url 'users:profile' %}" class="action-btn secondary">
+                <i class="fas fa-user"></i>
+                Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Posts -->
+    <div class="action-section">
+        <h2 class="section-title">
+            <i class="fas fa-clock"></i>
+            Recent Posts
+        </h2>
+        
+        {% if recent_posts %}
+            <div class="posts-grid">
+                {% for post in recent_posts %}
+                    <div class="post-card">
+                        <div class="post-image" 
+                             {% if post.image %}style="background-image: url('{{ post.image.url }}');"{% endif %}>
+                            {% if not post.image %}
+                                <i class="fas fa-image"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="post-content">
+                            <h3 class="post-title">{{ post.title }}</h3>
+                            
+                            <div class="post-meta">
+                                <span>{{ post.created_at|date:'M d, Y' }}</span>
+                                <span class="post-status {% if post.is_published %}status-published{% else %}status-draft{% endif %}">
+                                    {% if post.is_published %}Published{% else %}Draft{% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="post-actions">
+                                <a href="{% url 'blog_edit' post.pk %}" class="post-btn btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                {% if post.is_published %}
+                                    <a href="{% url 'blog_detail' post.pk %}" class="post-btn btn-view">
+                                        <i class="fas fa-eye"></i>
+                                        View
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if user_blog_posts.count > 3 %}
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="{% url 'blog_list' %}?author={{ user.id }}" class="action-btn secondary">
+                        <i class="fas fa-list"></i>
+                        View All My Posts ({{ user_blog_posts.count }})
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-pen-fancy"></i>
+                <h3>No Blog Posts Yet</h3>
+                <p>Start sharing your photography journey and insights with the community!</p>
+                <a href="{% url 'blog_create' %}" class="action-btn" style="margin-top: 1.5rem;">
+                    <i class="fas fa-plus-circle"></i>
+                    Create Your First Post
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

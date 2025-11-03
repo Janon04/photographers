@@ -202,6 +202,33 @@ def admin_dashboard(request):
     approved_reviews = Review.objects.filter(is_approved=True).count()
     total_contact_messages = ContactMessage.objects.count()
     
+    # Subscription statistics
+    from payments.models import UserSubscription, SubscriptionPlan, SubscriptionPayment
+    
+    # Total subscriptions (filtered by date if provided)
+    if filter_date_str:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        total_subscriptions = UserSubscription.objects.filter(created_at__lte=end_datetime).count()
+        active_subscriptions = UserSubscription.objects.filter(
+            status='active', created_at__lte=end_datetime
+        ).count()
+        trial_subscriptions = UserSubscription.objects.filter(
+            status='trial', created_at__lte=end_datetime
+        ).count()
+        # Monthly revenue from subscriptions
+        subscription_revenue = SubscriptionPayment.objects.filter(
+            status='completed', created_at__lte=end_datetime
+        ).aggregate(total=Sum('amount'))['total'] or 0
+    else:
+        total_subscriptions = UserSubscription.objects.count()
+        active_subscriptions = UserSubscription.objects.filter(status='active').count()
+        trial_subscriptions = UserSubscription.objects.filter(status='trial').count()
+        # Current month subscription revenue
+        current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        subscription_revenue = SubscriptionPayment.objects.filter(
+            status='completed', created_at__gte=current_month_start
+        ).aggregate(total=Sum('amount'))['total'] or 0
+    
     # Create context dictionary
     context = {
         'total_users': total_users,
@@ -224,6 +251,11 @@ def admin_dashboard(request):
         'total_contact_messages': total_contact_messages,
         'filter_date': filter_date_str,  # Add filter date to context
         'filter_date_formatted': filter_date.strftime('%B %d, %Y') if filter_date_str else '',
+        # Subscription statistics
+        'total_subscriptions': total_subscriptions,
+        'active_subscriptions': active_subscriptions,
+        'trial_subscriptions': trial_subscriptions,
+        'subscription_revenue': subscription_revenue,
     }
     
     return render(request, 'admin_dashboard/dashboard.html', context)
@@ -1162,3 +1194,263 @@ def delete_notification(request, notification_id):
         'success': True,
         'message': f'Notification "{title}" has been deleted'
     })
+
+
+# Subscription Management Views
+@login_required
+@user_passes_test(is_admin)
+def subscription_plans_management(request):
+    """View for managing subscription plans"""
+    from payments.models import SubscriptionPlan, UserSubscription
+    
+    plans = SubscriptionPlan.objects.all().order_by('price_monthly')
+    
+    # Get statistics for each plan
+    plan_stats = {}
+    for plan in plans:
+        plan_stats[plan.id] = {
+            'total_subscribers': UserSubscription.objects.filter(plan=plan).count(),
+            'active_subscribers': UserSubscription.objects.filter(plan=plan, status='active').count(),
+            'monthly_revenue': UserSubscription.objects.filter(
+                plan=plan, 
+                status='active'
+            ).aggregate(total=Sum('plan__price_monthly'))['total'] or 0
+        }
+    
+    context = {
+        'plans': plans,
+        'plan_stats': plan_stats,
+        'total_plans': plans.count(),
+    }
+    
+    return render(request, 'admin_dashboard/subscription_plans.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_users_management(request):
+    """View for managing user subscriptions"""
+    from payments.models import UserSubscription
+    
+    subscriptions = UserSubscription.objects.select_related('user', 'plan').order_by('-created_at')
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status')
+    if status_filter:
+        subscriptions = subscriptions.filter(status=status_filter)
+    
+    # Search functionality
+    search_query = request.GET.get('search')
+    if search_query:
+        subscriptions = subscriptions.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(subscriptions, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    stats = {
+        'total': UserSubscription.objects.count(),
+        'active': UserSubscription.objects.filter(status='active').count(),
+        'trial': UserSubscription.objects.filter(status='trial').count(),
+        'expired': UserSubscription.objects.filter(status='expired').count(),
+        'cancelled': UserSubscription.objects.filter(status='cancelled').count(),
+    }
+    
+    context = {
+        'page_obj': page_obj,
+        'stats': stats,
+        'status_filter': status_filter,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'admin_dashboard/subscription_users.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_payments_management(request):
+    """View for managing subscription payments"""
+    from payments.models import SubscriptionPayment
+    
+    payments = SubscriptionPayment.objects.select_related('subscription__user').order_by('-created_at')
+    
+    # Filter by status if provided
+    status_filter = request.GET.get('status')
+    if status_filter:
+        payments = payments.filter(status=status_filter)
+    
+    # Date filter
+    date_filter = request.GET.get('date')
+    if date_filter:
+        try:
+            filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
+            payments = payments.filter(created_at__date=filter_date)
+        except ValueError:
+            pass
+    
+    # Search functionality
+    search_query = request.GET.get('search')
+    if search_query:
+        payments = payments.filter(
+            Q(subscription__user__username__icontains=search_query) |
+            Q(subscription__user__email__icontains=search_query) |
+            Q(transaction_id__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(payments, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    stats = {
+        'total_payments': SubscriptionPayment.objects.count(),
+        'completed_payments': SubscriptionPayment.objects.filter(status='completed').count(),
+        'pending_payments': SubscriptionPayment.objects.filter(status='pending').count(),
+        'failed_payments': SubscriptionPayment.objects.filter(status='failed').count(),
+        'total_revenue': SubscriptionPayment.objects.filter(status='completed').aggregate(
+            total=Sum('amount'))['total'] or 0,
+        'monthly_revenue': SubscriptionPayment.objects.filter(
+            status='completed',
+            created_at__month=timezone.now().month,
+            created_at__year=timezone.now().year
+        ).aggregate(total=Sum('amount'))['total'] or 0,
+    }
+    
+    context = {
+        'page_obj': page_obj,
+        'stats': stats,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'admin_dashboard/subscription_payments.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_stats_api(request):
+    """API endpoint to get subscription statistics for admin template"""
+    from payments.models import UserSubscription, SubscriptionPayment
+    from django.db.models import Sum
+    from django.utils import timezone
+    
+    # Get subscription statistics
+    total_subscriptions = UserSubscription.objects.count()
+    active_subscriptions = UserSubscription.objects.filter(status='active').count()
+    
+    # Current month subscription revenue
+    current_month_start = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    monthly_revenue = SubscriptionPayment.objects.filter(
+        status='completed', 
+        created_at__gte=current_month_start
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    return JsonResponse({
+        'total_subscriptions': total_subscriptions,
+        'active_subscriptions': active_subscriptions,
+        'monthly_revenue': float(monthly_revenue),
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_redirect_notice(request):
+    """
+    Display a notice page for users who try to access Django admin subscription pages
+    """
+    context = {
+        'page_title': 'Admin Redirect Notice',
+        'message': 'Subscription management has been moved to our custom admin dashboard for a better experience.',
+        'dashboard_url': '/admin-dashboard/',
+        'subscription_plans_url': '/admin-dashboard/subscriptions/plans/',
+        'subscription_users_url': '/admin-dashboard/subscriptions/users/',
+        'subscription_payments_url': '/admin-dashboard/subscriptions/payments/',
+    }
+    return render(request, 'admin_dashboard/admin_redirect_notice.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_plan_add(request):
+    """Add new subscription plan"""
+    from payments.models import SubscriptionPlan
+    from .forms import SubscriptionPlanForm
+    
+    if request.method == 'POST':
+        form = SubscriptionPlanForm(request.POST)
+        if form.is_valid():
+            plan = form.save()
+            messages.success(request, f'Subscription plan "{plan.display_name}" created successfully!')
+            return redirect('admin_dashboard:subscription_plans')
+    else:
+        form = SubscriptionPlanForm()
+    
+    context = {
+        'form': form,
+        'page_title': 'Add Subscription Plan',
+        'action': 'Add',
+    }
+    return render(request, 'admin_dashboard/subscription_plan_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_plan_edit(request, plan_id):
+    """Edit existing subscription plan"""
+    from payments.models import SubscriptionPlan
+    from .forms import SubscriptionPlanForm
+    
+    plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+    
+    if request.method == 'POST':
+        form = SubscriptionPlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            plan = form.save()
+            messages.success(request, f'Subscription plan "{plan.display_name}" updated successfully!')
+            return redirect('admin_dashboard:subscription_plans')
+    else:
+        form = SubscriptionPlanForm(instance=plan)
+    
+    context = {
+        'form': form,
+        'plan': plan,
+        'page_title': f'Edit {plan.display_name}',
+        'action': 'Update',
+    }
+    return render(request, 'admin_dashboard/subscription_plan_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def subscription_plan_delete(request, plan_id):
+    """Delete subscription plan"""
+    from payments.models import SubscriptionPlan
+    
+    plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+    
+    # Check if plan has active subscriptions
+    if plan.usersubscription_set.filter(status__in=['active', 'trial']).exists():
+        messages.error(request, f'Cannot delete "{plan.display_name}" - it has active subscriptions.')
+        return redirect('admin_dashboard:subscription_plans')
+    
+    if request.method == 'POST':
+        plan_name = plan.display_name
+        plan.delete()
+        messages.success(request, f'Subscription plan "{plan_name}" deleted successfully!')
+        return redirect('admin_dashboard:subscription_plans')
+    
+    context = {
+        'plan': plan,
+        'page_title': f'Delete {plan.display_name}',
+        'subscribers_count': plan.usersubscription_set.count(),
+    }
+    return render(request, 'admin_dashboard/subscription_plan_delete.html', context)

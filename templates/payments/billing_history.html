@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Billing History{% endblock %}
+
+{% block extra_head %}
+<style>
+    .billing-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+    }
+    
+    .billing-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+    
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-failed { background: #f8d7da; color: #721c24; }
+    
+    .payment-row {
+        border-bottom: 1px solid #eee;
+        padding: 20px;
+        transition: background 0.2s;
+    }
+    
+    .payment-row:hover {
+        background: #f8f9fa;
+    }
+    
+    .payment-row:last-child {
+        border-bottom: none;
+    }
+    
+    .amount {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .subscription-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4em;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="billing-header">
+    <div class="container">
+        <h1>💳 Billing History</h1>
+        <p class="lead mb-0">View your subscription payment history and invoices</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if subscription %}
+    <div class="subscription-info">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Current Subscription</h5>
+                <p class="mb-1"><strong>Plan:</strong> {{ subscription.plan.display_name }}</p>
+                <p class="mb-1"><strong>Status:</strong> 
+                    <span class="status-badge status-{{ subscription.status }}">
+                        {{ subscription.get_status_display }}
+                    </span>
+                </p>
+                {% if subscription.next_billing_date %}
+                <p class="mb-0"><strong>Next Billing:</strong> {{ subscription.next_billing_date|date:"F j, Y" }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h5>Monthly Cost</h5>
+                <p class="amount mb-1">{{ subscription.plan.price_monthly|floatformat:0 }} RWF</p>
+                <p class="mb-0 text-muted">{{ subscription.plan.commission_rate }}% commission rate</p>
+            </div>
+        </div>
+    </div>
+    
+    {% if payments %}
+    <div class="billing-card">
+        <div class="p-3 bg-light border-bottom">
+            <h4 class="mb-0">Payment History</h4>
+        </div>
+        
+        {% for payment in payments %}
+        <div class="payment-row">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <div class="amount">{{ payment.amount|floatformat:0 }} RWF</div>
+                    <small class="text-muted">{{ payment.subscription.plan.display_name }}</small>
+                </div>
+                <div class="col-md-3">
+                    <span class="status-badge status-{{ payment.status }}">
+                        {{ payment.get_status_display }}
+                    </span>
+                </div>
+                <div class="col-md-3">
+                    <div>{{ payment.created_at|date:"F j, Y" }}</div>
+                    <small class="text-muted">{{ payment.created_at|date:"g:i A" }}</small>
+                </div>
+                <div class="col-md-3 text-right">
+                    {% if payment.billing_cycle %}
+                    <small class="text-muted">{{ payment.get_billing_cycle_display }}</small>
+                    {% endif %}
+                    {% if payment.external_payment_id %}
+                    <br><small class="text-muted">ID: {{ payment.external_payment_id|truncatechars:12 }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="billing-card">
+        <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <h4>No Payment History</h4>
+            <p>You haven't made any subscription payments yet.</p>
+            <a href="{% url 'subscription_dashboard' %}" class="btn btn-primary">View Subscription</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="billing-card">
+        <div class="empty-state">
+            <i class="fas fa-credit-card"></i>
+            <h4>No Subscription Found</h4>
+            <p>You don't have an active subscription yet.</p>
+            <a href="{% url 'pricing_page' %}" class="btn btn-primary">Choose a Plan</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-4">
+        <a href="{% url 'subscription_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
+        <a href="{% url 'pricing_page' %}" class="btn btn-outline-secondary ml-2">View Plans</a>
+    </div>
+</div>
+{% endblock %}

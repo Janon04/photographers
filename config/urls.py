@@ -23,8 +23,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from . import views
 from django.views.generic import RedirectView
+from admin_dashboard.views import admin_redirect_notice
 
 urlpatterns = [
+    # Redirect Django admin subscription URLs to custom admin dashboard notice
+    path('admin/payments/subscriptionplan/', admin_redirect_notice, name='admin_subscription_redirect'),
+    path('admin/payments/subscriptionplan/add/', RedirectView.as_view(url='/admin-dashboard/subscriptions/plans/', permanent=False)),
+    path('admin/payments/subscriptionplan/<int:pk>/change/', RedirectView.as_view(url='/admin-dashboard/subscriptions/plans/', permanent=False)),
+    path('admin/payments/usersubscription/', RedirectView.as_view(url='/admin-dashboard/subscriptions/users/', permanent=False)),
+    path('admin/payments/usersubscription/add/', RedirectView.as_view(url='/admin-dashboard/subscriptions/users/', permanent=False)),
+    path('admin/payments/usersubscription/<int:pk>/change/', RedirectView.as_view(url='/admin-dashboard/subscriptions/users/', permanent=False)),
+    path('admin/payments/subscriptionpayment/', RedirectView.as_view(url='/admin-dashboard/subscriptions/payments/', permanent=False)),
+    path('admin/payments/subscriptionpayment/add/', RedirectView.as_view(url='/admin-dashboard/subscriptions/payments/', permanent=False)),
+    path('admin/payments/subscriptionpayment/<int:pk>/change/', RedirectView.as_view(url='/admin-dashboard/subscriptions/payments/', permanent=False)),
+    
+    # Main admin URL (keep this after the specific redirects)
     path('admin/', admin.site.urls),
     path('admin-dashboard/', include('admin_dashboard.urls')),
     path('', views.home, name='home'),

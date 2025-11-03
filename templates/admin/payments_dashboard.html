@@ -1,0 +1,183 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Payment Dashboard{% endblock %}
+
+{% block extrahead %}
+<style>
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+        font-size: 2.2em;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+    
+    .revenue-card {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .content-section {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .plan-item, .activity-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .plan-item:last-child, .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .status-active { background: #d4edda; color: #155724; }
+    .status-trial { background: #fff3cd; color: #856404; }
+    .status-expired { background: #f8d7da; color: #721c24; }
+    
+    .quick-actions {
+        text-align: center;
+        margin: 30px 0;
+    }
+    
+    .action-btn {
+        display: inline-block;
+        background: #007cba;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 0 10px;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+    
+    .action-btn:hover {
+        background: #005a87;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>💰 Payment & Subscription Dashboard</h1>
+
+<!-- Key Metrics -->
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_subscriptions }}</div>
+        <div class="stat-label">Total Subscriptions</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ active_subscriptions }}</div>
+        <div class="stat-label">Active Subscribers</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ trial_subscriptions }}</div>
+        <div class="stat-label">Trial Users</div>
+    </div>
+    
+    <div class="stat-card revenue-card">
+        <div class="stat-number">{{ total_revenue|floatformat:0 }}</div>
+        <div class="stat-label">Total Revenue (RWF)</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-number">{{ conversion_rate }}%</div>
+        <div class="stat-label">Conversion Rate</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Plan Distribution -->
+    <div class="content-section">
+        <h3>📊 Subscription Plans</h3>
+        {% for plan in plan_distribution %}
+        <div class="plan-item">
+            <span><strong>{{ plan.plan__display_name }}</strong></span>
+            <span class="status-badge status-active">{{ plan.count }} users</span>
+        </div>
+        {% empty %}
+        <p>No subscription data available</p>
+        {% endfor %}
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="content-section">
+        <h3>🔔 Recent Subscriptions</h3>
+        {% for subscription in recent_subscriptions %}
+        <div class="activity-item">
+            <div>
+                <strong>{{ subscription.user.username }}</strong><br>
+                <small>{{ subscription.plan.display_name }}</small>
+            </div>
+            <span class="status-badge status-{{ subscription.status }}">
+                {{ subscription.get_status_display }}
+            </span>
+        </div>
+        {% empty %}
+        <p>No recent activity</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Payments -->
+<div class="content-section">
+    <h3>💳 Recent Payments</h3>
+    {% for payment in recent_payments %}
+    <div class="activity-item">
+        <div>
+            <strong>{{ payment.subscription.user.username }}</strong><br>
+            <small>{{ payment.subscription.plan.display_name }} - {{ payment.amount }} RWF</small>
+        </div>
+        <span class="status-badge status-{{ payment.status }}">
+            {{ payment.get_status_display }}
+        </span>
+    </div>
+    {% empty %}
+    <p>No recent payments</p>
+    {% endfor %}
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <a href="{% url 'admin:payments_subscriptionplan_changelist' %}" class="action-btn">Manage Plans</a>
+    <a href="{% url 'admin:payments_usersubscription_changelist' %}" class="action-btn">View Subscriptions</a>
+    <a href="{% url 'admin:payments_subscriptionpayment_changelist' %}" class="action-btn">Payment History</a>
+    <a href="{% url 'admin:payments_transaction_changelist' %}" class="action-btn">All Transactions</a>
+</div>
+{% endblock %}

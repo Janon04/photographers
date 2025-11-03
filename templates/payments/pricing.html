@@ -1,0 +1,509 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choose Your Photography Plan - PhotoRw{% endblock %}
+
+{% block head %}
+<style>
+/* Professional Subscription Styles - Matching Booking Form */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.subscription-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #c7a17a 0%, #ffd700 50%, #f8f6f3 100%);
+    padding: 2rem 0;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.subscription-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.subscription-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #2d2013;
+}
+
+.subscription-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 8px rgba(45,32,19,0.3);
+    color: #2d2013;
+}
+
+.subscription-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+    color: #a67c52;
+}
+
+.current-plan-badge {
+    display: inline-block;
+    background: rgba(199, 161, 122, 0.9);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    box-shadow: 0 4px 16px rgba(199, 161, 122, 0.3);
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.plan-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(199, 161, 122, 0.2), 0 8px 32px rgba(199, 161, 122, 0.15);
+    border: 2px solid rgba(199, 161, 122, 0.3);
+    position: relative;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.plan-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 70px rgba(199, 161, 122, 0.25), 0 12px 40px rgba(199, 161, 122, 0.2);
+    border-color: #c7a17a;
+}
+
+.plan-card.featured {
+    transform: scale(1.05);
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 215, 0, 0.1) 100%);
+}
+
+.plan-card.current {
+    border-color: #c7a17a;
+    background: linear-gradient(135deg, rgba(199, 161, 122, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(199, 161, 122, 0.3);
+}
+
+.current-badge {
+    background: linear-gradient(90deg, #c7a17a 0%, #a67c52 100%);
+    color: white;
+}
+
+.plan-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #2d2013;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.plan-price {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #c7a17a;
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.plan-price .currency {
+    font-size: 1rem;
+    color: #a67c52;
+    font-weight: 600;
+}
+
+.plan-price .period {
+    font-size: 1rem;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.commission-info {
+    background: rgba(199, 161, 122, 0.15);
+    border-left: 4px solid #c7a17a;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.commission-rate {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d2013;
+    margin-bottom: 0.25rem;
+}
+
+.commission-info small {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.plan-features li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(199, 161, 122, 0.2);
+    position: relative;
+    font-size: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.plan-features li:last-child {
+    border-bottom: none;
+}
+
+.plan-features li::before {
+    content: "✓";
+    color: #c7a17a;
+    font-weight: 700;
+    font-size: 1.1rem;
+    width: 1.2rem;
+    flex-shrink: 0;
+}
+
+.plan-features li.unlimited {
+    color: #c7a17a;
+    font-weight: 600;
+}
+
+.plan-button {
+    width: 100%;
+    background: linear-gradient(90deg, #ffd700 0%, #c7a17a 100%);
+    color: #2d2013;
+    border: none;
+    padding: 1.25rem 2rem;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 32px rgba(199, 161, 122, 0.3);
+    position: relative;
+    overflow: hidden;
+    margin-top: 1.5rem;
+}
+
+.plan-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.plan-button:hover::before {
+    left: 100%;
+}
+
+.plan-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(199, 161, 122, 0.4);
+    background: linear-gradient(90deg, #c7a17a 0%, #ffd700 100%);
+    color: white;
+}
+
+.plan-button:active {
+    transform: translateY(0);
+}
+
+.plan-button.current {
+    background: #6c757d;
+    cursor: not-allowed;
+    color: white;
+}
+
+.plan-button.current:hover {
+    transform: none;
+    background: #6c757d;
+    color: white;
+}
+
+.plan-button.upgrade {
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.plan-button.upgrade:hover {
+    background: linear-gradient(90deg, #20c997 0%, #28a745 100%);
+}
+
+.benefits-section {
+    background: rgba(199, 161, 122, 0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    border: 2px solid rgba(199, 161, 122, 0.3);
+    margin-top: 4rem;
+}
+
+.benefits-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.benefits-header h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d2013;
+    margin-bottom: 0.5rem;
+}
+
+.benefits-header p {
+    color: #6b7280;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.benefit-item {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    border: 1px solid rgba(199, 161, 122, 0.2);
+    transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(199, 161, 122, 0.2);
+}
+
+.benefit-icon {
+    font-size: 3rem;
+    color: #c7a17a;
+    margin-bottom: 1rem;
+}
+
+.benefit-item h5 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d2013;
+    margin-bottom: 0.75rem;
+}
+
+.benefit-item p {
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .subscription-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .plan-card.featured {
+        transform: none;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .subscription-container {
+        padding: 0 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-wrapper">
+    <div class="subscription-container">
+        <div class="subscription-header">
+            <h1>Choose Your Photography Plan</h1>
+            <p>Grow your photography business with our professional platform</p>
+            {% if user_subscription %}
+            <div class="current-plan-badge">
+                ✨ Current Plan: {{ user_subscription.plan.display_name }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="pricing-grid">
+            {% for plan in plans %}
+            <div class="plan-card {% if plan.name == 'standard' %}featured{% endif %} {% if user_subscription.plan == plan %}current{% endif %}">
+                {% if plan.name == 'standard' %}
+                <div class="popular-badge">🔥 Most Popular</div>
+                {% endif %}
+                
+                {% if user_subscription.plan == plan %}
+                <div class="popular-badge current-badge">📍 Current Plan</div>
+                {% endif %}
+                
+                <div class="plan-name">{{ plan.display_name }}</div>
+                
+                <div class="plan-price">
+                    <span class="currency">RWF</span>
+                    {{ plan.price_monthly|floatformat:0 }}
+                    <span class="period">/month</span>
+                </div>
+                
+                <div class="commission-info">
+                    <div class="commission-rate">{{ plan.commission_rate }}% Commission Rate</div>
+                    <small>Platform fee applied to completed bookings</small>
+                </div>
+                
+                    <ul class="plan-features">
+                    <li>
+                        {% if plan.max_photos_upload == -1 %}
+                        <span class="unlimited">📸 Unlimited photo uploads</span>
+                        {% else %}
+                        📸 {{ plan.max_photos_upload }} photos per month
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if plan.max_storage_gb == -1 %}
+                        <span class="unlimited">☁️ Unlimited storage</span>
+                        {% else %}
+                        ☁️ {{ plan.max_storage_gb }} GB storage
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if plan.max_bookings_per_month == -1 %}
+                        <span class="unlimited">📅 Unlimited bookings</span>
+                        {% else %}
+                        📅 {{ plan.max_bookings_per_month }} bookings per month
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% if plan.max_portfolio_items == -1 %}
+                        <span class="unlimited">🖼️ Unlimited portfolio items</span>
+                        {% else %}
+                        🖼️ {{ plan.max_portfolio_items }} portfolio items
+                        {% endif %}
+                    </li>
+                    
+                    {% if plan.supports_priority_support %}
+                    <li>🚀 Priority customer support</li>
+                    {% endif %}
+                    
+                    {% if plan.supports_analytics %}
+                    <li>📊 Advanced analytics dashboard</li>
+                    {% endif %}
+                    
+                    {% if plan.supports_custom_branding %}
+                    <li>🎨 Custom branding options</li>
+                    {% endif %}
+                    
+                    <li>🔒 Secure payment processing</li>
+                    <li>👥 Professional client management</li>
+                    <li>🌟 Premium portfolio hosting</li>
+                </ul>
+                
+                {% if user.is_authenticated %}
+                    {% if user_subscription.plan == plan %}
+                    <button class="plan-button current" disabled>✅ Current Plan</button>
+                    {% else %}
+                    <form method="post" action="{% url 'upgrade_subscription' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan_name" value="{{ plan.name }}">
+                        <button type="submit" class="plan-button upgrade">
+                            🚀 Upgrade to {{ plan.display_name }}
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'account_signup' %}" class="plan-button">🎯 Get Started Now</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="benefits-section">
+            <div class="benefits-header">
+                <h3>Why Choose PhotoRw Platform?</h3>
+                <p>Join thousands of professional photographers who trust our platform to grow their business</p>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛡️</div>
+                    <h5>Enterprise Security</h5>
+                    <p>Bank-level security with SSL encryption and secure payment processing for all transactions</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">👥</div>
+                    <h5>Client Management</h5>
+                    <p>Powerful CRM tools to manage clients, bookings, and communications in one place</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">📈</div>
+                    <h5>Business Growth</h5>
+                    <p>Advanced analytics, marketing tools, and insights to expand your photography business</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">💰</div>
+                    <h5>Transparent Pricing</h5>
+                    <p>Clear commission structure with no hidden fees - you know exactly what you'll earn</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🌍</div>
+                    <h5>Rwanda Coverage</h5>
+                    <p>Complete geographic coverage across all provinces, districts, and sectors in Rwanda</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <h5>Fast Payouts</h5>
+                    <p>Quick and reliable payment processing with multiple payout options for your convenience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

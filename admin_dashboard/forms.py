@@ -163,3 +163,89 @@ class ReviewSearchForm(forms.Form):
         choices=[('', 'All Ratings')] + [(str(i), f'{i} Star{"s" if i != 1 else ""}') for i in range(1, 6)],
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
+
+class SubscriptionPlanForm(forms.ModelForm):
+    """Form for creating and editing subscription plans"""
+    
+    class Meta:
+        from payments.models import SubscriptionPlan
+        model = SubscriptionPlan
+        fields = [
+            'name', 'display_name', 'price_monthly', 'price_yearly', 'currency',
+            'features_description', 'support_level', 'customization_level',
+            'max_photos_upload', 'max_storage_gb', 'max_bookings_per_month',
+            'max_portfolio_items', 'additional_services', 'commission_rate',
+            'priority_support', 'analytics_access', 'api_access',
+            'includes_premium_support', 'includes_consulting', 'includes_add_ons',
+            'is_active'
+        ]
+        widgets = {
+            'name': forms.Select(attrs={'class': 'form-control'}),
+            'display_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Basic Plan'}),
+            'price_monthly': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'price_yearly': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'currency': forms.TextInput(attrs={'class': 'form-control', 'value': 'RWF', 'readonly': True}),
+            'features_description': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 5, 
+                'placeholder': 'Enter features, one per line...'
+            }),
+            'support_level': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Email Support'}),
+            'customization_level': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Basic Templates'}),
+            'max_photos_upload': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '-1',
+                'placeholder': 'Use -1 for unlimited'
+            }),
+            'max_storage_gb': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '-1',
+                'placeholder': 'Use -1 for unlimited'
+            }),
+            'max_bookings_per_month': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '-1',
+                'placeholder': 'Use -1 for unlimited'
+            }),
+            'max_portfolio_items': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '-1',
+                'placeholder': 'Use -1 for unlimited'
+            }),
+            'additional_services': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 3, 
+                'placeholder': 'Additional services and benefits...'
+            }),
+            'commission_rate': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'step': '0.01', 
+                'min': '0', 
+                'max': '100',
+                'placeholder': 'Platform commission percentage'
+            }),
+            'priority_support': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'analytics_access': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'api_access': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'includes_premium_support': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'includes_consulting': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'includes_add_ons': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Import here to avoid circular imports
+        from payments.models import SubscriptionPlan
+        
+        # Set choices for plan name
+        self.fields['name'].widget.choices = SubscriptionPlan.PLAN_CHOICES
+        
+        # Add help text
+        self.fields['max_photos_upload'].help_text = "Maximum photos per month (-1 for unlimited)"
+        self.fields['max_storage_gb'].help_text = "Storage limit in GB (-1 for unlimited)"
+        self.fields['max_bookings_per_month'].help_text = "Maximum bookings per month (-1 for unlimited)"
+        self.fields['max_portfolio_items'].help_text = "Maximum portfolio items (-1 for unlimited)"
+        self.fields['commission_rate'].help_text = "Platform commission rate for this plan"

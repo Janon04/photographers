@@ -104,6 +104,118 @@ st{% load humanize %}
     </div>
 </div>
 
+<!-- Subscription Management Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
+            <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                <span style="color: var(--gold); font-weight: bold;">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Subscription Management Overview
+                </span>
+                <a href="/admin/payments/subscriptionplan/" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
+                    Manage Plans <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="p-4">
+                <!-- Subscription Plans Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #D4AF37, #FFD700); color: #2d2013; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);">
+                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Basic</div>
+                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">2,000 RWF/month</div>
+                            <small style="font-size: 12px;">15% Commission</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);">
+                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Standard</div>
+                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">15,000 RWF/month</div>
+                            <small style="font-size: 12px;">10% Commission</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card" style="background: linear-gradient(135deg, #2d2013, #5D4E37); color: #FFD700; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(45, 32, 19, 0.3);">
+                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Premium</div>
+                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">35,000 RWF/month</div>
+                            <small style="font-size: 12px;">5% Commission</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Statistics -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(212, 175, 55, 0.1); border-radius: 8px; margin-bottom: 15px;">
+                            <div>
+                                <div class="fw-bold" style="color: var(--chocolate-dark);">Total Subscriptions</div>
+                                <div class="h4 mb-0" style="color: var(--gold);">{{ total_subscriptions|default:"0" }}</div>
+                            </div>
+                            <i class="fas fa-users fa-2x" style="color: var(--gold);"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; margin-bottom: 15px;">
+                            <div>
+                                <div class="fw-bold" style="color: var(--chocolate-dark);">Active Plans</div>
+                                <div class="h4 mb-0" style="color: #10b981;">{{ active_subscriptions|default:"0" }}</div>
+                            </div>
+                            <i class="fas fa-check-circle fa-2x" style="color: #10b981;"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 15px;">
+                            <div>
+                                <div class="fw-bold" style="color: var(--chocolate-dark);">Trial Users</div>
+                                <div class="h4 mb-0" style="color: #fbbf24;">{{ trial_subscriptions|default:"0" }}</div>
+                            </div>
+                            <i class="fas fa-clock fa-2x" style="color: #fbbf24;"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(139, 69, 19, 0.1); border-radius: 8px; margin-bottom: 15px;">
+                            <div>
+                                <div class="fw-bold" style="color: var(--chocolate-dark);">Monthly Revenue</div>
+                                <div class="h4 mb-0" style="color: var(--chocolate-dark);">{{ subscription_revenue|default:"0"|floatformat:0 }} RWF</div>
+                            </div>
+                            <i class="fas fa-coins fa-2x" style="color: var(--gold);"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{% url 'admin_dashboard:subscription_plans' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-cog me-1"></i> Manage Plans
+                            </a>
+                            <a href="{% url 'admin_dashboard:subscription_users' %}" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-users me-1"></i> View Subscriptions
+                            </a>
+                            <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn btn-sm" style="background: #10b981; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-receipt me-1"></i> Payment History
+                            </a>
+                            <a href="/payments/pricing/" class="btn btn-sm" style="background: #6366f1; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-eye me-1"></i> Preview Pricing Page
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Charts Section -->
 <div class="row mb-5">
     <div class="col-md-6 pe-md-5 mb-4 mb-md-0">

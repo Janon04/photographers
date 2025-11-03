@@ -13,4 +13,10 @@ urlpatterns = [
     path('earnings/', views.earnings_dashboard, name='earnings_dashboard'),
     path('process/', views.process_payment, name='process_payment'),
     path('retry/<int:transaction_id>/', views.retry_payment, name='retry_payment'),
+    
+    # Subscription URLs
+    path('pricing/', views.pricing_page, name='pricing_page'),
+    path('subscription/', views.subscription_dashboard, name='subscription_dashboard'),
+    path('subscription/upgrade/', views.upgrade_subscription, name='upgrade_subscription'),
+    path('billing/', views.billing_history, name='billing_history'),
 ]

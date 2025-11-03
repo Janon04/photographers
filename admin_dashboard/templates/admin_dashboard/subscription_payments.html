@@ -1,0 +1,283 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load humanize %}
+
+{% block title %}Subscription Payments Management{% endblock %}
+{% block page_title %}Subscription Payments{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-2" style="color: var(--gold); font-weight: bold;">
+                        <i class="fas fa-receipt me-2"></i>
+                        Subscription Payments Management
+                    </h4>
+                    <p class="mb-0" style="color: white; opacity: 0.9;">
+                        Track and manage all subscription payment transactions
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'admin_dashboard:subscription_users' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-users me-1"></i> Subscriptions
+                    </a>
+                    <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-sm" style="background: white; color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-arrow-left me-1"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: rgba(45, 32, 19, 0.1); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <div class="stats-number" style="font-size: 24px; font-weight: bold;">{{ stats.total_payments|intcomma }}</div>
+            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">Total Payments</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stats-number" style="font-size: 24px; font-weight: bold;">{{ stats.completed_payments|intcomma }}</div>
+            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">Completed</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stats-number" style="font-size: 24px; font-weight: bold;">{{ stats.pending_payments|intcomma }}</div>
+            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">Pending</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(135deg, var(--chocolate-medium), var(--chocolate-dark)); color: var(--gold); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: rgba(212, 175, 55, 0.1); color: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stats-number" style="font-size: 20px; font-weight: bold;">{{ stats.total_revenue|floatformat:0|intcomma }} RWF</div>
+            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">Total Revenue</div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Revenue Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1);">
+            <div class="table-header" style="background: rgba(212, 175, 55, 0.1); color: var(--chocolate-dark); padding: 15px; border-radius: 12px 12px 0 0;">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Monthly Revenue Highlight
+                </h6>
+            </div>
+            <div class="p-3 text-center">
+                <div style="font-size: 36px; font-weight: bold; color: var(--gold); margin-bottom: 10px;">
+                    {{ stats.monthly_revenue|floatformat:0|intcomma }} RWF
+                </div>
+                <p class="text-muted mb-0">Revenue from subscription payments this month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1);">
+            <div class="table-header" style="background: rgba(212, 175, 55, 0.1); color: var(--chocolate-dark); padding: 15px; border-radius: 12px 12px 0 0;">
+                <h6 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>
+                    Filters & Search
+                </h6>
+            </div>
+            <div class="p-3">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small" style="color: var(--chocolate-dark); font-weight: 500;">Search</label>
+                        <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="Username, email, transaction..." style="border: 2px solid rgba(212, 175, 55, 0.3);">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small" style="color: var(--chocolate-dark); font-weight: 500;">Status</label>
+                        <select class="form-control" name="status" style="border: 2px solid rgba(212, 175, 55, 0.3);">
+                            <option value="">All Statuses</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small" style="color: var(--chocolate-dark); font-weight: 500;">Date</label>
+                        <input type="date" class="form-control" name="date" value="{{ date_filter }}" style="border: 2px solid rgba(212, 175, 55, 0.3);">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small" style="color: var(--chocolate-dark); font-weight: 500;">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                            <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn btn-sm" style="background: #6b7280; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                                <i class="fas fa-times me-1"></i> Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1);">
+            <div class="table-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); padding: 20px; border-radius: 12px 12px 0 0;">
+                <h6 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Payment Transactions
+                    {% if page_obj.paginator.count %}
+                        ({{ page_obj.paginator.count|intcomma }} total)
+                    {% endif %}
+                </h6>
+            </div>
+            
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" style="color: var(--chocolate-dark);">
+                    <thead style="background: rgba(212, 175, 55, 0.1);">
+                        <tr>
+                            <th style="border: none; padding: 15px; font-weight: bold;">Transaction</th>
+                            <th style="border: none; padding: 15px; font-weight: bold;">User</th>
+                            <th style="border: none; padding: 15px; font-weight: bold;">Amount</th>
+                            <th style="border: none; padding: 15px; font-weight: bold;">Status</th>
+                            <th style="border: none; padding: 15px; font-weight: bold;">Date</th>
+                            <th style="border: none; padding: 15px; font-weight: bold;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in page_obj %}
+                        <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+                            <td style="padding: 15px; border: none;">
+                                <div>
+                                    <div style="font-weight: bold; font-family: monospace; color: var(--chocolate-dark);">
+                                        #{{ payment.transaction_id|default:payment.id }}
+                                    </div>
+                                    {% if payment.subscription %}
+                                        <small class="text-muted">{{ payment.subscription.plan.display_name }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="padding: 15px; border: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3" style="width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                                        {{ payment.subscription.user.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">{{ payment.subscription.user.username }}</div>
+                                        <small class="text-muted">{{ payment.subscription.user.email|truncatechars:25 }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 15px; border: none;">
+                                <div style="font-size: 18px; font-weight: bold; color: var(--gold);">
+                                    {{ payment.amount|floatformat:0|intcomma }} RWF
+                                </div>
+                                {% if payment.currency and payment.currency != 'RWF' %}
+                                    <small class="text-muted">{{ payment.currency }}</small>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 15px; border: none;">
+                                <span style="background: 
+                                    {% if payment.status == 'completed' %}#10b981{% elif payment.status == 'pending' %}#fbbf24{% else %}#ef4444{% endif %}; 
+                                    color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                                    {{ payment.status|title }}
+                                </span>
+                            </td>
+                            <td style="padding: 15px; border: none;">
+                                <div>{{ payment.created_at|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ payment.created_at|time:"H:i" }}</small>
+                            </td>
+                            <td style="padding: 15px; border: none;">
+                                <div class="d-flex gap-1">
+                                    <a href="/admin/payments/subscriptionpayment/{{ payment.id }}/change/" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 4px 8px; border-radius: 4px;">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if payment.subscription %}
+                                    <a href="{% url 'admin_dashboard:subscription_users' %}?search={{ payment.user.username }}" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none; font-weight: bold; padding: 4px 8px; border-radius: 4px;">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="p-3" style="background: rgba(212, 175, 55, 0.05); border-radius: 0 0 12px 12px;">
+                <nav aria-label="Payments pagination">
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if status_filter %}status={{ status_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.previous_page_number }}" style="color: var(--chocolate-dark);">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link" style="background: var(--gold); border-color: var(--gold); color: var(--chocolate-dark);">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if status_filter %}status={{ status_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ num }}" style="color: var(--chocolate-dark);">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if status_filter %}status={{ status_filter }}&{% endif %}{% if search_query %}search={{ search_query }}&{% endif %}{% if date_filter %}date={{ date_filter }}&{% endif %}page={{ page_obj.next_page_number }}" style="color: var(--chocolate-dark);">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center p-5">
+                <i class="fas fa-receipt fa-3x mb-3" style="color: var(--gold);"></i>
+                <h5 style="color: var(--chocolate-dark);">No payments found</h5>
+                <p class="text-muted">
+                    {% if search_query or status_filter or date_filter %}
+                        No payments match your current filters.
+                    {% else %}
+                        No subscription payments have been processed yet.
+                    {% endif %}
+                </p>
+                {% if search_query or status_filter or date_filter %}
+                <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 10px 20px; border-radius: 6px;">
+                    <i class="fas fa-times me-1"></i> Clear Filters
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

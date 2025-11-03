@@ -42,4 +42,15 @@ urlpatterns = [
     
     # Data export
     path('export/', views.export_data, name='export_data'),
+    
+    # Subscription Management
+    path('subscriptions/plans/', views.subscription_plans_management, name='subscription_plans'),
+    path('subscriptions/plans/add/', views.subscription_plan_add, name='subscription_plan_add'),
+    path('subscriptions/plans/<int:plan_id>/edit/', views.subscription_plan_edit, name='subscription_plan_edit'),
+    path('subscriptions/plans/<int:plan_id>/delete/', views.subscription_plan_delete, name='subscription_plan_delete'),
+    path('subscriptions/users/', views.subscription_users_management, name='subscription_users'),
+    path('subscriptions/payments/', views.subscription_payments_management, name='subscription_payments'),
+    
+    # API endpoints
+    path('api/subscription-stats/', views.subscription_stats_api, name='subscription_stats_api'),
 ]

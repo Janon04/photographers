@@ -8,7 +8,8 @@ from django.views.decorators.http import require_POST
 from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
 from decimal import Decimal
-from .models import Transaction
+from .models import Transaction, SubscriptionPlan, UserSubscription, SubscriptionPayment
+from .services import SubscriptionService
 from bookings.models import Booking
 from users.models import User
 from config.email_service import EmailService
@@ -16,6 +17,106 @@ import logging
 import uuid
 
 logger = logging.getLogger(__name__)
+
+# Subscription Views
+def pricing_page(request):
+    """Public pricing page showing all subscription plans"""
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('price_monthly')
+    context = {
+        'plans': plans,
+        'user_subscription': None
+    }
+    
+    if request.user.is_authenticated:
+        try:
+            context['user_subscription'] = request.user.subscription
+        except UserSubscription.DoesNotExist:
+            pass
+    
+    return render(request, 'payments/pricing.html', context)
+
+@login_required
+def subscription_dashboard(request):
+    """User's subscription dashboard"""
+    subscription = SubscriptionService.get_or_create_user_subscription(request.user)
+    
+    # Get usage statistics
+    usage_stats = {
+        'photos_uploaded': subscription.photos_uploaded_this_month,
+        'photos_limit': subscription.plan.max_photos_upload,
+        'storage_used': float(subscription.storage_used_gb),
+        'storage_limit': float(subscription.plan.max_storage_gb) if subscription.plan.max_storage_gb != -1 else float('inf'),
+        'bookings_count': subscription.bookings_this_month,
+        'bookings_limit': subscription.plan.max_bookings_per_month,
+    }
+    
+    # Get recent payments
+    recent_payments = SubscriptionPayment.objects.filter(
+        subscription=subscription
+    ).order_by('-created_at')[:5]
+    
+    # Calculate usage percentages
+    usage_stats['photos_percentage'] = min(
+        (usage_stats['photos_uploaded'] / max(usage_stats['photos_limit'], 1)) * 100, 100
+    ) if usage_stats['photos_limit'] != -1 else 0
+    
+    usage_stats['storage_percentage'] = min(
+        (usage_stats['storage_used'] / max(usage_stats['storage_limit'], 1)) * 100, 100
+    ) if usage_stats['storage_limit'] != float('inf') else 0
+    
+    usage_stats['bookings_percentage'] = min(
+        (usage_stats['bookings_count'] / max(usage_stats['bookings_limit'], 1)) * 100, 100
+    ) if usage_stats['bookings_limit'] != -1 else 0
+    
+    context = {
+        'subscription': subscription,
+        'usage_stats': usage_stats,
+        'recent_payments': recent_payments,
+        'available_plans': SubscriptionPlan.objects.filter(is_active=True).exclude(id=subscription.plan.id)
+    }
+    
+    return render(request, 'payments/subscription_dashboard.html', context)
+
+@login_required
+@require_POST
+def upgrade_subscription(request):
+    """Handle subscription upgrade"""
+    plan_name = request.POST.get('plan_name')
+    billing_cycle = request.POST.get('billing_cycle', 'monthly')
+    
+    try:
+        subscription, prorated_amount = SubscriptionService.upgrade_subscription(
+            request.user, plan_name, billing_cycle
+        )
+        
+        messages.success(request, f'Successfully upgraded to {subscription.plan.display_name}!')
+        
+        # In a real app, you'd redirect to payment processing here
+        # For now, we'll just redirect back to dashboard
+        return redirect('subscription_dashboard')
+        
+    except Exception as e:
+        messages.error(request, f'Failed to upgrade subscription: {str(e)}')
+        return redirect('pricing_page')
+
+@login_required
+def billing_history(request):
+    """User's billing history"""
+    try:
+        subscription = request.user.subscription
+        payments = SubscriptionPayment.objects.filter(
+            subscription=subscription
+        ).order_by('-created_at')
+    except UserSubscription.DoesNotExist:
+        subscription = None
+        payments = []
+    
+    context = {
+        'subscription': subscription,
+        'payments': payments
+    }
+    
+    return render(request, 'payments/billing_history.html', context)
 
 @login_required
 def transaction_history(request):

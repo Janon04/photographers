@@ -1,0 +1,278 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load humanize %}
+{% load admin_extras %}
+
+{% block title %}Subscription Plans Management{% endblock %}
+{% block page_title %}Subscription Plans Management{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="date-filter-container" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-2" style="color: var(--gold); font-weight: bold;">
+                        <i class="fas fa-layer-group me-2"></i>
+                        Subscription Plans Management
+                    </h4>
+                    <p class="mb-0" style="color: white; opacity: 0.9;">
+                        Manage subscription plans, pricing, and features for your platform
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                    <a href="{% url 'admin_dashboard:subscription_plan_add' %}" class="btn btn-sm" style="background: #10b981; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-plus me-1"></i> Add New Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);">{{ total_plans }}</div>
+            <div class="stats-label">Total Plans</div>
+            <small class="text-muted">Active subscription plans</small>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card success">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);" id="total-subscribers">0</div>
+            <div class="stats-label">Total Subscribers</div>
+            <small class="text-muted">Active subscriptions</small>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card info">
+            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--chocolate-medium), var(--chocolate-dark)); color: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stats-number" style="color: var(--gold);" id="total-monthly-revenue">0 RWF</div>
+            <div class="stats-label">Monthly Revenue</div>
+            <small class="text-muted">From all subscriptions</small>
+        </div>
+    </div>
+</div>
+
+<!-- Subscription Plans Data Table -->
+<div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
+    <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+        <span style="color: var(--gold); font-weight: bold;">
+            <i class="fas fa-layer-group me-2"></i>
+            Subscription Plans ({{ total_plans }} total)
+        </span>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_dashboard:subscription_plan_add' %}" class="btn btn-sm" style="background: #10b981; color: white; border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
+                <i class="fas fa-plus me-1"></i> Add Plan
+            </a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 20%;">Plan Details</th>
+                    <th style="width: 15%;">Pricing</th>
+                    <th style="width: 15%;">Subscribers</th>
+                    <th style="width: 20%;">Features</th>
+                    <th style="width: 15%;">Revenue</th>
+                    <th style="width: 15%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in plans %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="plan-icon me-3" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;
+                                {% if plan.name == 'basic' %}background: linear-gradient(135deg, #6b7280, #4b5563); color: white;
+                                {% elif plan.name == 'standard' %}background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark);
+                                {% else %}background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold);{% endif %}">
+                                {% if plan.name == 'basic' %}<i class="fas fa-star"></i>
+                                {% elif plan.name == 'standard' %}<i class="fas fa-medal"></i>
+                                {% else %}<i class="fas fa-crown"></i>{% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-1" style="color: var(--chocolate-dark); font-weight: bold;">{{ plan.display_name }}</h6>
+                                <small class="text-muted">{{ plan.name|title }} Plan</small>
+                                {% if not plan.is_active %}
+                                <span class="badge bg-danger ms-2">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <div style="font-size: 18px; font-weight: bold; color: var(--gold);">
+                                {{ plan.price_monthly|floatformat:0 }} RWF
+                            </div>
+                            <small class="text-muted">/month</small>
+                            {% if plan.price_yearly %}
+                            <div class="mt-1">
+                                <small style="color: var(--chocolate-medium);">
+                                    {{ plan.price_yearly|floatformat:0 }} RWF/year
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="text-center p-2" style="background: rgba(212, 175, 55, 0.1); border-radius: 6px;">
+                                    <div style="font-size: 16px; font-weight: bold; color: var(--gold);" class="plan-total-subs" data-plan-id="{{ plan.id }}">
+                                        {% with plan_data=plan_stats|get_item:plan.id %}
+                                            {{ plan_data.total_subscribers|default:0 }}
+                                        {% endwith %}
+                                    </div>
+                                    <small style="color: var(--chocolate-dark); font-size: 11px;">Total</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-2" style="background: rgba(16, 185, 129, 0.1); border-radius: 6px;">
+                                    <div style="font-size: 16px; font-weight: bold; color: #10b981;" class="plan-active-subs" data-plan-id="{{ plan.id }}">
+                                        {% with plan_data=plan_stats|get_item:plan.id %}
+                                            {{ plan_data.active_subscribers|default:0 }}
+                                        {% endwith %}
+                                    </div>
+                                    <small style="color: var(--chocolate-dark); font-size: 11px;">Active</small>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 12px;">
+                            <li style="padding: 2px 0; color: var(--chocolate-dark);">
+                                <i class="fas fa-camera me-1" style="color: var(--gold); font-size: 10px;"></i>
+                                {% if plan.max_photos_upload == -1 %}∞{% else %}{{ plan.max_photos_upload }}{% endif %} photos/mo
+                            </li>
+                            <li style="padding: 2px 0; color: var(--chocolate-dark);">
+                                <i class="fas fa-hdd me-1" style="color: var(--gold); font-size: 10px;"></i>
+                                {% if plan.max_storage_gb == -1 %}∞{% else %}{{ plan.max_storage_gb }}GB{% endif %} storage
+                            </li>
+                            <li style="padding: 2px 0; color: var(--chocolate-dark);">
+                                <i class="fas fa-percent me-1" style="color: var(--gold); font-size: 10px;"></i>
+                                {{ plan.commission_rate }}% commission
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <div class="text-center p-2" style="background: rgba(139, 69, 19, 0.1); border-radius: 6px;">
+                            <div style="font-size: 16px; font-weight: bold; color: var(--chocolate-dark);" class="plan-revenue" data-plan-id="{{ plan.id }}">
+                                {% with plan_data=plan_stats|get_item:plan.id %}
+                                    {{ plan_data.monthly_revenue|default:0|floatformat:0 }}
+                                {% endwith %}
+                            </div>
+                            <small style="color: var(--chocolate-medium); font-size: 11px;">RWF/month</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            <a href="{% url 'admin_dashboard:subscription_plan_edit' plan.id %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <a href="{% url 'admin_dashboard:subscription_users' %}?plan={{ plan.id }}" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                <i class="fas fa-users me-1"></i> Users
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div>
+                            <i class="fas fa-layer-group fa-3x mb-3" style="color: var(--gold); opacity: 0.5;"></i>
+                            <h5 style="color: var(--chocolate-dark);">No subscription plans found</h5>
+                            <p class="text-muted">Create your first subscription plan to get started.</p>
+                            <a href="{% url 'admin_dashboard:subscription_plan_add' %}" class="btn" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 10px 20px; border-radius: 6px;">
+                                <i class="fas fa-plus me-1"></i> Create Plan
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Quick Actions & Export -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1);">
+            <div class="table-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); padding: 15px 20px; border-radius: 12px 12px 0 0;">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions & Navigation
+                </h6>
+            </div>
+            <div class="p-3">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <a href="{% url 'admin_dashboard:subscription_users' %}" class="btn w-100" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 10px; border-radius: 6px;">
+                            <i class="fas fa-users me-2"></i> Manage Users
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn w-100" style="background: var(--chocolate-medium); color: white; border: none; font-weight: bold; padding: 10px; border-radius: 6px;">
+                            <i class="fas fa-receipt me-2"></i> Payment History
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/payments/pricing/" class="btn w-100" style="background: #6366f1; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 6px;">
+                            <i class="fas fa-eye me-2"></i> Preview Pricing
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'admin_dashboard:export_data' %}?type=subscriptions" class="btn w-100" style="background: #10b981; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 6px;">
+                            <i class="fas fa-download me-2"></i> Export Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate total subscribers
+    let totalSubs = 0;
+    let totalRevenue = 0;
+    
+    document.querySelectorAll('.plan-total-subs').forEach(el => {
+        const count = parseInt(el.textContent.trim()) || 0;
+        totalSubs += count;
+    });
+    
+    document.querySelectorAll('.plan-revenue').forEach(el => {
+        const revenueText = el.textContent.replace(' RWF', '').trim();
+        const revenue = parseFloat(revenueText) || 0;
+        totalRevenue += revenue;
+    });
+    
+    // Update totals
+    document.getElementById('total-subscribers').textContent = totalSubs.toLocaleString();
+    document.getElementById('total-monthly-revenue').textContent = totalRevenue.toLocaleString() + ' RWF';
+    
+    console.log('Subscription plans loaded:', {
+        totalSubscribers: totalSubs,
+        totalRevenue: totalRevenue
+    });
+});
+</script>
+{% endblock %}

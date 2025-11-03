@@ -9,6 +9,9 @@
         --accent: #A67C52;
         --accent-light: #C7A17A;
         --gold: #FFD700;
+        --chocolate-dark: #8B4513;
+        --chocolate-medium: #A0522D;
+        --chocolate-light: #D2691E;
         --surface: #FFFFFF;
         --surface-alt: #F8F6F3;
         --text-main: #2D2013;
@@ -16,6 +19,7 @@
         --border: #e9e1d6;
         --border-radius: 12px;
         --shadow: 0 4px 20px rgba(45, 32, 19, 0.08);
+        --chocolate-shadow: 0 8px 30px rgba(139, 69, 19, 0.3);
         --transition: all 0.3s ease;
         --success: #27AE60;
         --warning: #F39C12;
@@ -29,13 +33,14 @@
     }
 
     .dashboard-header {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+        background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 50%, var(--chocolate-light) 100%);
         color: var(--surface);
         padding: 3rem 2rem;
         border-radius: var(--border-radius);
         margin-bottom: 2rem;
         text-align: center;
-        box-shadow: var(--shadow);
+        box-shadow: var(--chocolate-shadow);
+        border: 2px solid rgba(210, 105, 30, 0.2);
     }
 
     .dashboard-title {

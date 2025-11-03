@@ -1,0 +1,373 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Photography Platform Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="/admin-dashboard/">📸 Photography Platform Admin</a>
+</h1>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Custom Admin Styling with Photography Theme */
+    :root {
+        --chocolate-dark: #8B4513;
+        --chocolate-medium: #A0522D;
+        --golden: #D4AF37;
+        --golden-light: #ffd700;
+        --cream: #f8f6f3;
+        --glass-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Header Styling */
+    #header {
+        background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+        border-bottom: 3px solid var(--golden);
+    }
+
+    #branding h1 {
+        color: var(--golden-light);
+        font-family: 'Times New Roman', serif;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #branding h1 a:link,
+    #branding h1 a:visited {
+        color: var(--golden-light);
+        text-decoration: none;
+    }
+
+    #user-tools {
+        color: var(--cream);
+    }
+
+    #user-tools a {
+        color: var(--golden-light);
+        text-decoration: none;
+        margin-left: 10px;
+    }
+
+    #user-tools a:hover {
+        color: var(--golden);
+        text-decoration: underline;
+    }
+
+    /* Sidebar Navigation */
+    .module {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .module h2 {
+        background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--golden) 100%);
+        color: white;
+        padding: 15px;
+        margin: 0;
+        border-radius: 12px 12px 0 0;
+        font-family: 'Times New Roman', serif;
+        font-size: 1.1em;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .module ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    .module li {
+        list-style: none;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .module li:last-child {
+        border-bottom: none;
+    }
+
+    .module li:hover {
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateX(5px);
+    }
+
+    .module a {
+        display: block;
+        padding: 12px 15px;
+        color: var(--chocolate-dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .module a:hover {
+        color: var(--golden);
+        text-decoration: none;
+        padding-left: 20px;
+    }
+
+    /* Main Content Area */
+    #content {
+        background: linear-gradient(135deg, var(--cream) 0%, #ffffff 100%);
+        min-height: 100vh;
+    }
+
+    .breadcrumbs {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        color: var(--chocolate-dark);
+    }
+
+    .breadcrumbs a {
+        color: var(--golden);
+        text-decoration: none;
+    }
+
+    .breadcrumbs a:hover {
+        text-decoration: underline;
+    }
+
+    /* Dashboard Specific Styling */
+    .dashboard .module table th {
+        background: linear-gradient(135deg, var(--chocolate-medium) 0%, var(--golden) 100%);
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .dashboard .module table td {
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    /* Subscription Management Section */
+    .subscription-module {
+        background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+        border: 2px solid var(--golden);
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 40px rgba(212, 175, 55, 0.2);
+    }
+
+    .subscription-module h2 {
+        background: linear-gradient(135deg, var(--golden) 0%, var(--golden-light) 100%);
+        color: var(--chocolate-dark);
+        text-align: center;
+        font-size: 1.3em;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .subscription-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .stat-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(212, 175, 55, 0.3);
+    }
+
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: var(--chocolate-dark);
+        margin: 0;
+        text-shadow: 1px 1px 2px rgba(212, 175, 55, 0.3);
+    }
+
+    .stat-label {
+        color: var(--chocolate-medium);
+        font-size: 0.9em;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+
+    .revenue-number {
+        color: var(--golden);
+    }
+
+    /* Quick Action Buttons */
+    .quick-actions {
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .action-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--golden) 0%, var(--golden-light) 100%);
+        color: var(--chocolate-dark);
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 25px;
+        margin: 0 10px 10px 0;
+        font-weight: bold;
+        font-family: 'Times New Roman', serif;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .action-btn:hover {
+        background: linear-gradient(135deg, var(--golden-light) 0%, var(--golden) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+        color: var(--chocolate-dark);
+        text-decoration: none;
+    }
+
+    /* Form Styling */
+    .form-row input, .form-row select, .form-row textarea {
+        border: 2px solid rgba(212, 175, 55, 0.3);
+        border-radius: 8px;
+        padding: 8px 12px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+        border-color: var(--golden);
+        outline: none;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    /* Messages */
+    .messagelist {
+        margin: 0 0 20px 0;
+        padding: 0;
+    }
+
+    .messagelist li {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        color: var(--chocolate-dark);
+    }
+
+    .messagelist .success {
+        border-color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+    }
+
+    .messagelist .error {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+
+    /* Navigation Enhancements */
+    .nav-sidebar {
+        background: linear-gradient(135deg, var(--cream) 0%, rgba(255, 255, 255, 0.9) 100%);
+        border-right: 3px solid var(--golden);
+        min-height: 100vh;
+    }
+
+    /* Photography Icon Enhancements */
+    .module h2::before {
+        content: "📊 ";
+        margin-right: 8px;
+    }
+
+    .subscription-module h2::before {
+        content: "💳 ";
+        margin-right: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .subscription-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-btn {
+            display: block;
+            margin: 10px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block nav-sidebar %}
+{{ block.super }}
+
+{% load admin_extras %}
+
+<!-- Custom Subscription Management Sidebar -->
+<div class="module subscription-module">
+    <h2>💳 Subscription Management</h2>
+    
+    <!-- Quick Stats -->
+    <div class="subscription-stats">
+        <div class="stat-card">
+            <div class="stat-number" id="total-subscriptions">-</div>
+            <div class="stat-label">Total Subscriptions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="active-subscriptions">-</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number revenue-number" id="monthly-revenue">-</div>
+            <div class="stat-label">Monthly Revenue</div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="/admin-dashboard/subscriptions/plans/" class="action-btn">
+            📋 Manage Plans
+        </a>
+        <a href="/admin-dashboard/subscriptions/users/" class="action-btn">
+            👥 View Subscriptions
+        </a>
+        <a href="/admin-dashboard/subscriptions/payments/" class="action-btn">
+            💰 Payment History
+        </a>
+        <a href="/admin-dashboard/" class="action-btn">
+            📊 Full Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- JavaScript to fetch subscription stats -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch subscription statistics via AJAX
+    fetch('/admin-dashboard/api/subscription-stats/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-subscriptions').textContent = data.total_subscriptions.toLocaleString();
+            document.getElementById('active-subscriptions').textContent = data.active_subscriptions.toLocaleString();
+            document.getElementById('monthly-revenue').textContent = data.monthly_revenue.toLocaleString() + ' RWF';
+        })
+        .catch(error => {
+            console.error('Error fetching subscription stats:', error);
+            // Fallback to showing zeros
+            document.getElementById('total-subscriptions').textContent = '0';
+            document.getElementById('active-subscriptions').textContent = '0';
+            document.getElementById('monthly-revenue').textContent = '0 RWF';
+        });
+});
+</script>
+{% endblock %}

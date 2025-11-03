@@ -176,6 +176,70 @@
             text-align: center;
         }
 
+        /* Subscription Navigation Section Styles */
+        .nav-section {
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-section-title {
+            background: linear-gradient(135deg, var(--chocolate-accent) 0%, var(--gold) 100%);
+            color: var(--chocolate-dark);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-section-title i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .nav-subsection {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-subsection .nav-item {
+            margin: 0;
+        }
+
+        .nav-subsection .nav-link {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.9rem;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .nav-subsection .nav-item:last-child .nav-link {
+            border-bottom: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .nav-subsection .nav-link:hover {
+            background: linear-gradient(135deg, var(--chocolate-accent) 0%, rgba(212, 175, 55, 0.2) 100%);
+            color: white;
+            transform: translateX(8px);
+            padding-left: 2rem;
+        }
+
+        .nav-subsection .nav-link i {
+            color: var(--gold);
+            width: 16px;
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+        }
+
         .stats-card {
             background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
             border-radius: 12px;
@@ -278,7 +342,6 @@
             opacity: 0.8;
             font-size: 0.8rem;
             font-weight: 500;
-        }
         }
 
         .chart-container {
@@ -844,6 +907,30 @@
                     <a href="{% url 'admin_dashboard:reviews_management' %}" class="nav-link {% if request.resolver_match.url_name == 'reviews_management' %}active{% endif %}">
                         <i class="fas fa-star"></i> Reviews
                     </a>
+                </div>
+                
+                <!-- Subscription Management Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <i class="fas fa-credit-card"></i> Subscriptions
+                    </div>
+                    <div class="nav-subsection">
+                        <div class="nav-item">
+                            <a href="{% url 'admin:payments_subscriptionplan_changelist' %}" class="nav-link">
+                                <i class="fas fa-list"></i> Subscription Plans
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{% url 'admin:payments_usersubscription_changelist' %}" class="nav-link">
+                                <i class="fas fa-users"></i> User Subscriptions
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{% url 'admin:payments_subscriptionpayment_changelist' %}" class="nav-link">
+                                <i class="fas fa-money-bill"></i> Payment History
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="nav-item">

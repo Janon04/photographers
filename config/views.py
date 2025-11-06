@@ -22,10 +22,20 @@ def home(request):
     featured_photos = Photo.objects.filter(is_approved=True).annotate(
         num_likes=Count('likes', filter=Q(likes__is_like=True))
     ).order_by('-num_likes', '-uploaded_at')[:6]
-    # Recent reviews for homepage showcase
-    recent_reviews = Review.objects.filter(is_approved=True).select_related(
+    # Recent reviews for homepage showcase, ensuring unique reviewers
+    all_approved_reviews = Review.objects.filter(is_approved=True).select_related(
         'reviewer', 'photographer'
-    ).order_by('-created_at')[:6]
+    ).order_by('-created_at')
+    
+    recent_reviews = []
+    seen_reviewer_ids = set()
+    
+    for review in all_approved_reviews:
+        if review.reviewer_id not in seen_reviewer_ids:
+            recent_reviews.append(review)
+            seen_reviewer_ids.add(review.reviewer_id)
+            if len(recent_reviews) >= 6:
+                break
     return render(request, 'home.html', {
         'stories': stories,
         'photos': photos,

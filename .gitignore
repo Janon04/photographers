@@ -9,8 +9,8 @@ db.sqlite3-journal
 debug.log
 
 # Media files (uploaded content)
-media/
-!media/.gitkeep
+#media/
+#!media/.gitkeep
 
 # Static files
 staticfiles/

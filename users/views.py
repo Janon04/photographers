@@ -15,6 +15,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.http import JsonResponse
 from utils.rwanda_locations import get_districts, get_sectors, get_cells, get_villages
+from .forms import ProfileForm
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -111,6 +112,24 @@ def profile(request, user_id=None):
     }
     
     return render(request, 'users/profile.html', context)
+
+
+@login_required
+def edit_profile(request):
+    """Allow a logged-in user to edit their profile."""
+    user = request.user
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('users:profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProfileForm(instance=user)
+
+    return render(request, 'users/edit_profile.html', {'form': form})
 
 @login_required
 def dashboard(request):

@@ -1,0 +1,368 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+{% load humanize %}
+
+{% block title %}Platform Revenue Management{% endblock %}
+{% block page_title %}Platform Revenue{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(40, 167, 69, 0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-2" style="color: white; font-weight: bold;">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Platform Revenue Management
+                    </h4>
+                    <p class="mb-0" style="color: white; opacity: 0.9;">
+                        Track platform earnings from commissions and subscriptions
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn btn-sm" style="background: white; color: #28a745; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-receipt me-1"></i> Payments
+                    </a>
+                    <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
+                        <i class="fas fa-arrow-left me-1"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table p-3">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="period" class="form-label">Time Period</label>
+                    <select class="form-control" id="period" name="period">
+                        <option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option>
+                        <option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
+                        <option value="180" {% if period == '180' %}selected{% endif %}>Last 6 months</option>
+                        <option value="365" {% if period == '365' %}selected{% endif %}>Last year</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filter_date" class="form-label">End Date (Optional)</label>
+                    <input type="date" class="form-control" id="filter_date" name="filter_date" value="{{ filter_date }}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                    <a href="{% url 'admin_dashboard:platform_revenue' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Summary Cards -->
+<div class="dashboard-grid mb-4">
+    <!-- Net Platform Revenue -->
+    <div class="dashboard-card card-success">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Net Platform Revenue</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ net_platform_revenue|floatformat:0|intcomma }} RWF</div>
+            <div class="dashboard-card-label">
+                <span>Total earnings ({{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }})</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commission Revenue -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Booking Commissions</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-percentage"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_commission|floatformat:0|intcomma }} RWF</div>
+            <div class="dashboard-card-label">
+                <span>{{ booking_transaction_count }} transactions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Revenue -->
+    <div class="dashboard-card card-info">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Subscription Revenue</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_subscription_revenue|floatformat:0|intcomma }} RWF</div>
+            <div class="dashboard-card-label">
+                <span>{{ subscription_payment_count }} payments</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Transactions -->
+    <div class="dashboard-card card-warning">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Transactions</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_transaction_count|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span>All platform transactions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avg Commission -->
+    <div class="dashboard-card card-secondary">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Avg Commission/Booking</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-calculator"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ avg_commission_per_booking|floatformat:0|intcomma }} RWF</div>
+            <div class="dashboard-card-label">
+                <span>Per booking average</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Fees -->
+    <div class="dashboard-card card-danger">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Processing Fees</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_processing_fee|floatformat:0|intcomma }} RWF</div>
+            <div class="dashboard-card-label">
+                <span>Gateway fees</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Trends Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-area"></i> Revenue Trends
+            </h5>
+            <canvas id="revenueTrendsChart" height="80"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Breakdown and Top Photographers -->
+<div class="row mb-4">
+    <!-- Payment Method Breakdown -->
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5 class="mb-3">
+                <i class="fas fa-wallet"></i> Revenue by Payment Method
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Payment Method</th>
+                            <th>Transactions</th>
+                            <th>Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method in payment_method_breakdown %}
+                        <tr>
+                            <td>
+                                <strong>{{ method.payment_method|title }}</strong>
+                            </td>
+                            <td>{{ method.count }}</td>
+                            <td><strong>{{ method.total|floatformat:0|intcomma }} RWF</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Earning Photographers -->
+    <div class="col-md-6">
+        <div class="data-table">
+            <h5 class="mb-3">
+                <i class="fas fa-trophy"></i> Top Earning Photographers (by commission)
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Photographer</th>
+                            <th>Bookings</th>
+                            <th>Platform Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for photographer in top_photographers %}
+                        <tr>
+                            <td>
+                                <strong>{{ photographer.booking__photographer__username }}</strong>
+                                <br><small class="text-muted">{{ photographer.booking__photographer__email }}</small>
+                            </td>
+                            <td>{{ photographer.total_bookings }}</td>
+                            <td><strong>{{ photographer.platform_commission|floatformat:0|intcomma }} RWF</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data-table">
+            <h5 class="mb-3">
+                <i class="fas fa-history"></i> Recent Commission Transactions
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Photographer</th>
+                            <th>Client</th>
+                            <th>Total Amount</th>
+                            <th>Commission</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td>{{ transaction.completed_at|date:"M d, Y H:i" }}</td>
+                            <td><code>{{ transaction.transaction_id|truncatechars:12 }}</code></td>
+                            <td>
+                                <strong>{{ transaction.booking.photographer.username }}</strong>
+                            </td>
+                            <td>
+                                {% if transaction.booking.client %}
+                                    {{ transaction.booking.client.username }}
+                                {% else %}
+                                    {{ transaction.booking.client_email }}
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ transaction.amount|floatformat:0|intcomma }} RWF</strong></td>
+                            <td><strong class="text-success">{{ transaction.commission_amount|floatformat:0|intcomma }} RWF</strong></td>
+                            <td>
+                                <span class="badge bg-success">{{ transaction.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No recent transactions</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Revenue Trends Chart
+const revenueData = {{ daily_revenue|safe }};
+
+const ctx = document.getElementById('revenueTrendsChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(d => d.date),
+        datasets: [
+            {
+                label: 'Booking Commissions',
+                data: revenueData.map(d => d.commission),
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Subscription Revenue',
+                data: revenueData.map(d => d.subscription),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.4,
+                fill: true
+            },
+            {
+                label: 'Total Revenue',
+                data: revenueData.map(d => d.total),
+                borderColor: 'rgb(40, 167, 69)',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Daily Revenue Breakdown'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString() + ' RWF';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

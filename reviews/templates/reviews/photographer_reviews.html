@@ -8,7 +8,7 @@
   <!-- Photographer Header -->
   <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;background:white;padding:1.5rem;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1);">
     {% if photographer.profile_picture %}
-      <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.get_full_name }}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #ffd700;">
+      <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="{{ photographer.get_full_name }}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #ffd700;">
     {% else %}
       <div style="width:80px;height:80px;border-radius:50%;background:#f8f6f3;border:3px solid #ffd700;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#a67c52;">
         {{ photographer.first_name|first|upper }}
@@ -47,7 +47,7 @@
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
             <div style="display:flex;align-items:center;gap:1rem;">
               {% if review.reviewer.profile_picture %}
-                <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.get_full_name }}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
+                <img src="{{ review.reviewer.profile_picture.url }}" srcset="{{ review.reviewer.profile_picture.url }} 1x, {{ review.reviewer.profile_picture.url }} 2x" alt="{{ review.reviewer.get_full_name }}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;">
               {% else %}
                 <div style="width:50px;height:50px;border-radius:50%;background:#f8f6f3;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#a67c52;">
                   {{ review.reviewer.first_name|first|upper }}

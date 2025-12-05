@@ -1,0 +1,861 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subscription Payment{% endblock %}
+
+{% block head %}
+<style>
+    .subscription-checkout-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .checkout-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--gold, #FFD700);
+    }
+    
+    .plan-summary {
+        background: linear-gradient(135deg, #654321, #8B4513);
+        color: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .plan-name {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+    
+    .plan-price .currency {
+        font-size: 1.5rem;
+        vertical-align: super;
+    }
+    
+    .plan-price .period {
+        font-size: 1.2rem;
+        font-weight: normal;
+        opacity: 0.9;
+    }
+    
+    .plan-features {
+        text-align: left;
+        margin-top: 20px;
+    }
+    
+    .plan-features ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .plan-features li {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .plan-features li:last-child {
+        border-bottom: none;
+    }
+    
+    .plan-features li i {
+        color: #FFD700;
+        margin-right: 10px;
+    }
+    
+    .billing-cycle-selector {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+    
+    .cycle-option {
+        flex: 1;
+        max-width: 200px;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .cycle-option:hover {
+        border-color: var(--gold, #FFD700);
+    }
+    
+    .cycle-option.selected {
+        border-color: var(--chocolate-dark, #654321);
+        background: #fff8f0;
+    }
+    
+    .cycle-option input[type="radio"] {
+        display: none;
+    }
+    
+    .cycle-title {
+        font-weight: bold;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 5px;
+    }
+    
+    .cycle-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .cycle-savings {
+        color: #dc3545;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+    
+    .payment-method-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method-card:hover {
+        border-color: var(--gold, #FFD700);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .payment-method-card.selected {
+        border-color: var(--chocolate-dark, #654321);
+        background: #fff8f0;
+    }
+    
+    .payment-method-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .payment-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+    }
+    
+    .btn-subscribe {
+        background: linear-gradient(135deg, var(--chocolate-dark, #654321), var(--chocolate-medium, #8B4513));
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-subscribe:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(101, 67, 33, 0.3);
+    }
+    
+    .btn-subscribe:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .security-badge i {
+        margin-right: 8px;
+        color: #28a745;
+    }
+    
+    /* Payment Tabs */
+    .payment-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 30px;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 12px;
+    }
+    
+    .payment-tab {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #666;
+    }
+    
+    .payment-tab i {
+        font-size: 1.8rem;
+        color: #999;
+    }
+    
+    .payment-tab:hover {
+        border-color: var(--gold, #FFD700);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .payment-tab.active {
+        border-color: var(--chocolate-dark, #654321);
+        background: linear-gradient(135deg, #fff8f0, white);
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    .payment-tab.active i {
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    /* Payment Forms */
+    .payment-form-container {
+        margin-top: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        display: none;
+    }
+    
+    .payment-form-container.active {
+        display: block;
+    }
+    
+    .payment-form-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .payment-form-header i {
+        font-size: 2.5rem;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 10px;
+    }
+    
+    .payment-form-header h3 {
+        margin: 0 0 5px 0;
+        color: var(--chocolate-dark, #654321);
+        font-size: 1.5rem;
+    }
+    
+    .payment-form-header p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--chocolate-dark, #654321);
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--chocolate-dark, #654321);
+        box-shadow: 0 0 0 3px rgba(101, 67, 33, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: #999;
+    }
+    
+    .input-with-icon {
+        position: relative;
+    }
+    
+    .input-with-icon .form-input {
+        padding-right: 45px;
+    }
+    
+    .card-brand-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.2rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .form-hint {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 0.85rem;
+    }
+    
+    .accepted-cards {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .accepted-cards span {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .accepted-cards i {
+        font-size: 2rem;
+        color: #666;
+    }
+    
+    .momo-instructions,
+    .paypal-benefits {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .momo-instructions h4,
+    .paypal-benefits h4 {
+        margin: 0 0 15px 0;
+        color: var(--chocolate-dark, #654321);
+        font-size: 1.1rem;
+    }
+    
+    .momo-instructions ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .momo-instructions li,
+    .paypal-benefits li {
+        margin-bottom: 8px;
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .paypal-benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .paypal-benefits li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .paypal-benefits i {
+        color: #28a745;
+    }
+    
+    .info-box {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 8px;
+    }
+    
+    .info-box i {
+        font-size: 1.5rem;
+        color: #0066cc;
+        flex-shrink: 0;
+    }
+    
+    .info-box strong {
+        display: block;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 5px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .payment-tabs {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-checkout-container">
+    <h1 style="text-align: center; color: var(--chocolate-dark, #654321); margin-bottom: 30px;">
+        <i class="fas fa-crown"></i> Complete Your Subscription
+    </h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Plan Summary -->
+    <div class="plan-summary">
+        <h2 class="plan-name">{{ plan.display_name }}</h2>
+        <p>{{ plan.features_description|linebreaks }}</p>
+        
+        <div id="planPriceDisplay" class="plan-price">
+            <span class="currency">RWF</span>
+            <span id="priceAmount">{{ plan.price_monthly|floatformat:0 }}</span>
+            <span class="period">/month</span>
+        </div>
+        
+        <div class="plan-features">
+            <ul>
+                {% if plan.max_photos_upload == -1 %}
+                <li><i class="fas fa-check-circle"></i> Unlimited photo uploads</li>
+                {% else %}
+                <li><i class="fas fa-check-circle"></i> {{ plan.max_photos_upload }} photos per month</li>
+                {% endif %}
+                
+                {% if plan.max_storage_gb == -1 %}
+                <li><i class="fas fa-check-circle"></i> Unlimited storage</li>
+                {% else %}
+                <li><i class="fas fa-check-circle"></i> {{ plan.max_storage_gb }}GB storage</li>
+                {% endif %}
+                
+                {% if plan.max_bookings_per_month == -1 %}
+                <li><i class="fas fa-check-circle"></i> Unlimited bookings</li>
+                {% else %}
+                <li><i class="fas fa-check-circle"></i> {{ plan.max_bookings_per_month }} bookings per month</li>
+                {% endif %}
+                
+                <li><i class="fas fa-check-circle"></i> {{ plan.support_level }} support</li>
+                
+                {% if plan.analytics_access %}
+                <li><i class="fas fa-check-circle"></i> Advanced analytics</li>
+                {% endif %}
+                
+                {% if plan.priority_support %}
+                <li><i class="fas fa-check-circle"></i> Priority support</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Billing Cycle Selection -->
+    <div class="checkout-card">
+        <h2 class="section-title">
+            <i class="fas fa-calendar-alt"></i> Choose Billing Cycle
+        </h2>
+        
+        <div class="billing-cycle-selector">
+            <div class="cycle-option selected" onclick="selectBillingCycle('monthly')">
+                <label>
+                    <input type="radio" name="billing_cycle" value="monthly" checked id="monthly">
+                    <div class="cycle-title">Monthly</div>
+                    <div class="cycle-price">{{ plan.price_monthly|floatformat:0 }} RWF</div>
+                    <div style="color: #666; font-size: 0.9rem;">Billed monthly</div>
+                </label>
+            </div>
+            
+            <div class="cycle-option" onclick="selectBillingCycle('yearly')">
+                <label>
+                    <input type="radio" name="billing_cycle" value="yearly" id="yearly">
+                    <div class="cycle-title">Yearly</div>
+                    <div class="cycle-price">{{ plan.get_yearly_price|floatformat:0 }} RWF</div>
+                    <div class="cycle-savings">Save 2 months!</div>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Method Selection -->
+    <div class="checkout-card">
+        <h2 class="section-title">
+            <i class="fas fa-wallet"></i> Select Payment Method
+        </h2>
+        
+        <form id="subscriptionForm" method="POST" action="{% url 'subscription_payment_process' %}">
+            {% csrf_token %}
+            <input type="hidden" name="plan_id" value="{{ plan.id }}">
+            <input type="hidden" name="billing_cycle" id="billing_cycle_input" value="monthly">
+            <input type="hidden" name="payment_method" id="payment_method_input">
+            
+            <!-- Payment Method Tabs -->
+            <div class="payment-tabs">
+                <div class="payment-tab" onclick="selectPaymentTab('card')" id="cardTab">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Card</span>
+                </div>
+                <div class="payment-tab" onclick="selectPaymentTab('mobile')" id="mobileTab">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Mobile Money</span>
+                </div>
+                <div class="payment-tab" onclick="selectPaymentTab('paypal')" id="paypalTab">
+                    <i class="fab fa-paypal"></i>
+                    <span>PayPal</span>
+                </div>
+            </div>
+            
+            <!-- Card Payment Form -->
+            <div class="payment-form-container" id="cardForm">
+                <div class="payment-form-header">
+                    <i class="fas fa-credit-card"></i>
+                    <h3>Card Payment</h3>
+                    <p>Enter your card details below</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <div class="input-with-icon">
+                        <input type="text" 
+                               class="form-input" 
+                               id="cardNumber" 
+                               name="card_number"
+                               placeholder="1234 5678 9012 3456" 
+                               maxlength="19"
+                               onkeyup="formatCardNumber(this)"
+                               required>
+                        <i class="fas fa-credit-card card-brand-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cardExpiry">Expiry Date</label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="cardExpiry" 
+                               name="card_expiry"
+                               placeholder="MM/YY" 
+                               maxlength="5"
+                               onkeyup="formatExpiry(this)"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCVV">CVV</label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="cardCVV" 
+                               name="card_cvv"
+                               placeholder="123" 
+                               maxlength="4"
+                               pattern="\d{3,4}"
+                               required>
+                        <small class="form-hint">3-4 digits on back of card</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cardholderName">Cardholder Name</label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="cardholderName" 
+                           name="cardholder_name"
+                           placeholder="John Doe" 
+                           required>
+                </div>
+                
+                <div class="accepted-cards">
+                    <span>We accept:</span>
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fab fa-cc-discover"></i>
+                </div>
+            </div>
+            
+            <!-- Mobile Money Form -->
+            <div class="payment-form-container" id="mobileMoneyForm">
+                <div class="payment-form-header">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Mobile Money</h3>
+                    <p>Pay with MTN or Airtel Money</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="momoProvider">Select Provider</label>
+                    <select class="form-input" id="momoProvider" name="momo_provider" required>
+                        <option value="">Choose your provider</option>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="momoPhone">Phone Number</label>
+                    <input type="tel" 
+                           class="form-input" 
+                           id="momoPhone" 
+                           name="momo_phone"
+                           placeholder="+250 XXX XXX XXX" 
+                           onkeyup="formatPhoneNumber(this)"
+                           required>
+                    <small class="form-hint">Enter your mobile money registered number</small>
+                </div>
+                
+                <div class="momo-instructions">
+                    <h4><i class="fas fa-info-circle"></i> Payment Process</h4>
+                    <ol>
+                        <li>Enter your mobile money number</li>
+                        <li>You'll receive a prompt on your phone</li>
+                        <li>Enter your PIN to confirm the payment</li>
+                        <li>Payment confirmation will be instant</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- PayPal Form -->
+            <div class="payment-form-container" id="paypalForm">
+                <div class="payment-form-header">
+                    <i class="fab fa-paypal"></i>
+                    <h3>PayPal Payment</h3>
+                    <p>Secure payment with PayPal</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paypalEmail">PayPal Email</label>
+                    <input type="email" 
+                           class="form-input" 
+                           id="paypalEmail" 
+                           name="paypal_email"
+                           placeholder="your@email.com" 
+                           required>
+                </div>
+                
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Secure Redirect</strong>
+                        <p>You will be redirected to PayPal to complete your payment securely. After payment, you'll return to our site automatically.</p>
+                    </div>
+                </div>
+                
+                <div class="paypal-benefits">
+                    <h4>PayPal Benefits</h4>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Buyer protection on every transaction</li>
+                        <li><i class="fas fa-check-circle"></i> Instant payment confirmation</li>
+                        <li><i class="fas fa-check-circle"></i> No card details shared with merchant</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-subscribe" id="subscribeButton" disabled>
+                <i class="fas fa-lock"></i> <span id="buttonText">Select Payment Method</span>
+            </button>
+            
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure payment • Cancel anytime • SSL Encrypted</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const monthlyPrice = {{ plan.price_monthly }};
+const yearlyPrice = {{ plan.get_yearly_price }};
+let selectedPaymentMethod = null;
+
+function selectBillingCycle(cycle) {
+    // Unselect all cycle options
+    document.querySelectorAll('.cycle-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Select clicked option
+    event.currentTarget.classList.add('selected');
+    
+    // Check the radio button
+    document.getElementById(cycle).checked = true;
+    document.getElementById('billing_cycle_input').value = cycle;
+    
+    // Update displayed price
+    const priceAmount = document.getElementById('priceAmount');
+    const period = document.querySelector('.plan-price .period');
+    
+    if (cycle === 'yearly') {
+        priceAmount.textContent = yearlyPrice.toFixed(0);
+        period.textContent = '/year';
+    } else {
+        priceAmount.textContent = monthlyPrice.toFixed(0);
+        period.textContent = '/month';
+    }
+    
+    // Update button text
+    updateButtonText();
+}
+
+function selectPaymentTab(method) {
+    // Remove active class from all tabs
+    document.querySelectorAll('.payment-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Hide all payment forms
+    document.querySelectorAll('.payment-form-container').forEach(form => {
+        form.classList.remove('active');
+    });
+    
+    // Activate selected tab
+    let tabId, formId, paymentValue;
+    
+    if (method === 'card') {
+        tabId = 'cardTab';
+        formId = 'cardForm';
+        paymentValue = 'stripe';
+    } else if (method === 'mobile') {
+        tabId = 'mobileTab';
+        formId = 'mobileMoneyForm';
+        paymentValue = 'mobile_money';
+    } else if (method === 'paypal') {
+        tabId = 'paypalTab';
+        formId = 'paypalForm';
+        paymentValue = 'paypal';
+    }
+    
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById(formId).classList.add('active');
+    
+    // Update hidden input
+    document.getElementById('payment_method_input').value = paymentValue;
+    selectedPaymentMethod = paymentValue;
+    
+    // Enable subscribe button
+    document.getElementById('subscribeButton').disabled = false;
+    
+    // Update button text
+    updateButtonText();
+}
+
+function updateButtonText() {
+    if (!selectedPaymentMethod) {
+        document.getElementById('buttonText').textContent = 'Select Payment Method';
+        document.getElementById('subscribeButton').disabled = true;
+        return;
+    }
+    
+    const cycle = document.querySelector('input[name="billing_cycle"]:checked').value;
+    const price = cycle === 'yearly' ? yearlyPrice : monthlyPrice;
+    document.getElementById('buttonText').textContent = `Subscribe for ${price.toFixed(0)} RWF`;
+}
+
+// Card number formatting
+function formatCardNumber(input) {
+    let value = input.value.replace(/\s/g, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    input.value = formattedValue;
+}
+
+// Expiry date formatting
+function formatExpiry(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    input.value = value;
+}
+
+// Phone number formatting
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (!value.startsWith('250')) {
+        value = '250' + value;
+    }
+    
+    let formatted = '+250';
+    if (value.length > 3) {
+        formatted += ' ' + value.substring(3, 6);
+    }
+    if (value.length > 6) {
+        formatted += ' ' + value.substring(6, 9);
+    }
+    if (value.length > 9) {
+        formatted += ' ' + value.substring(9, 12);
+    }
+    
+    input.value = formatted;
+}
+
+// Form validation before submission
+document.getElementById('subscriptionForm').addEventListener('submit', function(e) {
+    if (!selectedPaymentMethod) {
+        e.preventDefault();
+        alert('Please select a payment method');
+        return;
+    }
+    
+    const subscribeButton = document.getElementById('subscribeButton');
+    subscribeButton.disabled = true;
+    subscribeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+});
+</script>
+{% endblock %}

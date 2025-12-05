@@ -444,7 +444,7 @@
     <!-- Article Image -->
     {% if post.image %}
         <div class="article-image-container">
-            <img src="{{ post.image.url }}" alt="{{ post.title }}" class="article-image">
+            <img src="{{ post.image.url }}" srcset="{{ post.image.url }} 1x, {{ post.image.url }} 2x" alt="{{ post.title }}" class="article-image">
         </div>
     {% endif %}
 

@@ -4,7 +4,7 @@
 <div class="feed-container" style="max-width:400px;margin:3rem auto;text-align:center;">
   <h2 style="color:#c19a6b;">Delete Photo</h2>
   <p>Are you sure you want to delete this photo post?</p>
-  <img src="{{ photo.image.url }}" alt="Photo" style="width:100%;border-radius:1rem;max-height:300px;object-fit:cover;margin-bottom:1rem;">
+  <img src="{{ photo.image.url }}" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" alt="Photo" style="width:100%;border-radius:1rem;max-height:300px;object-fit:cover;margin-bottom:1rem;">
   <form method="post" style="margin-top:1.5rem;">
     {% csrf_token %}
     <button type="submit" style="background:#e74c3c;color:#fff;padding:0.7rem 2rem;border:none;border-radius:0.7rem;font-weight:700;">Yes, Delete</button>

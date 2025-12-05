@@ -108,7 +108,8 @@ class TransactionAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'transaction_id', 'commission_amount', 'net_amount', 'processing_fee',
-        'created_at', 'updated_at', 'completed_at', 'escrow_released_at'
+        'created_at', 'updated_at', 'completed_at', 'escrow_released_at',
+        'payment_method_details_display'
     )
     fieldsets = (
         ('Basic Information', {
@@ -120,6 +121,10 @@ class TransactionAdmin(admin.ModelAdmin):
         }),
         ('Payment Processing', {
             'fields': ('gateway', 'payment_method', 'external_transaction_id')
+        }),
+        ('Payment Method Details', {
+            'fields': ('payment_method_details_display',),
+            'description': 'Detailed payment information based on payment method used'
         }),
         ('Escrow & Completion', {
             'fields': ('escrow_released_at', 'escrow_release_reason', 'completed_at')
@@ -133,6 +138,38 @@ class TransactionAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+    
+    def payment_method_details_display(self, obj):
+        """Display payment method specific details"""
+        details = []
+        
+        if obj.card_last_four:
+            details.append(f"<strong>Card Last 4:</strong> {obj.card_last_four}")
+        if obj.card_brand:
+            details.append(f"<strong>Card Brand:</strong> {obj.card_brand}")
+        if obj.cardholder_name:
+            details.append(f"<strong>Cardholder:</strong> {obj.cardholder_name}")
+        
+        if obj.mobile_money_provider:
+            details.append(f"<strong>Provider:</strong> {obj.mobile_money_provider.upper()}")
+        if obj.mobile_money_phone:
+            details.append(f"<strong>Phone:</strong> {obj.mobile_money_phone}")
+        
+        if obj.paypal_email:
+            details.append(f"<strong>PayPal Email:</strong> {obj.paypal_email}")
+        if obj.paypal_payer_id:
+            details.append(f"<strong>Payer ID:</strong> {obj.paypal_payer_id}")
+        
+        if obj.bank_reference:
+            details.append(f"<strong>Bank Reference:</strong> {obj.bank_reference}")
+        if obj.bank_name:
+            details.append(f"<strong>Bank:</strong> {obj.bank_name}")
+        
+        if not details:
+            return format_html('<em>No additional payment details</em>')
+        
+        return format_html('<br>'.join(details))
+    payment_method_details_display.short_description = 'Payment Details'
     
     def transaction_id_short(self, obj):
         return str(obj.transaction_id)[:8] + '...'
@@ -435,14 +472,36 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
 class SubscriptionPaymentAdmin(admin.ModelAdmin):
     list_display = [
         'subscription_user', 'plan_name', 'amount_display', 'status_badge',
-        'payment_method', 'paid_at', 'created_at'
+        'payment_method', 'payment_details_short', 'paid_at', 'created_at'
     ]
     list_filter = ['status', 'payment_method', 'payment_gateway', 'currency', 'created_at']
     search_fields = [
         'subscription__user__username', 'subscription__user__email',
-        'transaction_id', 'gateway_transaction_id', 'invoice_number'
+        'transaction_id', 'gateway_transaction_id', 'invoice_number',
+        'card_last_four', 'mobile_money_phone', 'paypal_email'
     ]
     ordering = ['-created_at']
+    readonly_fields = ['transaction_id', 'payment_method_details_display', 'created_at', 'updated_at', 'paid_at']
+    
+    fieldsets = (
+        ('Subscription Information', {
+            'fields': ('subscription', 'amount', 'currency', 'billing_period_start', 'billing_period_end')
+        }),
+        ('Payment Information', {
+            'fields': ('payment_method', 'payment_gateway', 'transaction_id', 'gateway_transaction_id', 'status', 'paid_at')
+        }),
+        ('Payment Method Details', {
+            'fields': ('payment_method_details_display',),
+            'description': 'Detailed payment information based on payment method used'
+        }),
+        ('Invoice', {
+            'fields': ('invoice_number', 'invoice_url')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
     
     def subscription_user(self, obj):
         return obj.subscription.user.username
@@ -467,6 +526,44 @@ class SubscriptionPaymentAdmin(admin.ModelAdmin):
             color, obj.get_status_display()
         )
     status_badge.short_description = 'Status'
+    
+    def payment_details_short(self, obj):
+        """Display brief payment details"""
+        if obj.card_last_four:
+            return format_html('<span title="Card payment">💳 ****{}</span>', obj.card_last_four)
+        elif obj.mobile_money_phone:
+            return format_html('<span title="Mobile Money">📱 {}</span>', obj.mobile_money_phone[-10:])
+        elif obj.paypal_email:
+            return format_html('<span title="PayPal">🅿️ {}</span>', obj.paypal_email[:20])
+        return '—'
+    payment_details_short.short_description = 'Payment Info'
+    
+    def payment_method_details_display(self, obj):
+        """Display payment method specific details"""
+        details = []
+        
+        if obj.card_last_four:
+            details.append(f"<strong>Card Last 4:</strong> {obj.card_last_four}")
+        if obj.card_brand:
+            details.append(f"<strong>Card Brand:</strong> {obj.card_brand}")
+        if obj.cardholder_name:
+            details.append(f"<strong>Cardholder:</strong> {obj.cardholder_name}")
+        
+        if obj.mobile_money_provider:
+            details.append(f"<strong>Provider:</strong> {obj.mobile_money_provider.upper()}")
+        if obj.mobile_money_phone:
+            details.append(f"<strong>Phone:</strong> {obj.mobile_money_phone}")
+        
+        if obj.paypal_email:
+            details.append(f"<strong>PayPal Email:</strong> {obj.paypal_email}")
+        if obj.paypal_payer_id:
+            details.append(f"<strong>Payer ID:</strong> {obj.paypal_payer_id}")
+        
+        if not details:
+            return format_html('<em>No additional payment details</em>')
+        
+        return format_html('<br>'.join(details))
+    payment_method_details_display.short_description = 'Payment Details'
     
     def days_remaining(self, obj):
         days = obj.days_until_expiry()

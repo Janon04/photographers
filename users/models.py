@@ -47,10 +47,12 @@ class User(AbstractUser):
 	def save(self, *args, **kwargs):
 		super().save(*args, **kwargs)
 		if self.profile_picture:
+			# Preserve higher-resolution profile pictures for HD displays
 			img = Image.open(self.profile_picture.path)
-			max_size = (400, 400)
+			max_size = (1024, 1024)
 			img.thumbnail(max_size, Image.LANCZOS)
-			img.save(self.profile_picture.path, optimize=True, quality=80)
+			# Save at higher quality; balance size vs fidelity
+			img.save(self.profile_picture.path, optimize=True, quality=92)
 
 	@property
 	def average_rating(self):

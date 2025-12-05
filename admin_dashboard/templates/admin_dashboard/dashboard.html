@@ -1,572 +1,680 @@
 {% extends 'admin_dashboard/base_admin.html' %}
-st{% load humanize %}
+{% load humanize %}
 
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Platform Overview{% endblock %}
 
 {% block content %}
-<!-- Date Filter Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="date-filter-container" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-2" style="color: var(--gold); font-weight: bold;">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        {% if filter_date %}
-                            Dashboard Analytics for {{ filter_date_formatted }}
-                        {% else %}
-                            Dashboard Analytics - All Time
-                        {% endif %}
-                    </h5>
-                    <p class="mb-0" style="color: white; opacity: 0.9; font-size: 14px;">
-                        Select a specific date to view activities and stats for that day, or leave blank for all-time data.
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <form method="get" class="d-flex gap-3 align-items-end">
-                        <div class="flex-grow-1">
-                            <label for="filter_date" class="form-label small" style="color: var(--gold); font-weight: 500;">Filter by Date</label>
-                            <input type="date" class="form-control" id="filter_date" name="filter_date" 
-                                   value="{{ filter_date }}" 
-                                   style="border: 2px solid var(--gold); background: white; color: var(--chocolate-dark);">
-                        </div>
-                        <button type="submit" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                            <i class="fas fa-filter me-1"></i> Apply Filter
-                        </button>
-                        {% if filter_date %}
-                        <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-sm" style="background: #FF6B6B; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                            <i class="fas fa-times me-1"></i> Clear
-                        </a>
-                        {% endif %}
-                    </form>
-                </div>
+<!-- Page Header Section -->
+<div style="background: linear-gradient(135deg, var(--neon-purple-dark) 0%, var(--neon-purple) 100%); border-radius: 16px; padding: 40px; margin-bottom: 40px; box-shadow: 0 0 40px rgba(217, 70, 239, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.05); position: relative; overflow: hidden; border: 1px solid var(--neon-purple-light);">
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(0, 217, 255, 0.08); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(217, 70, 239, 0.08); border-radius: 50%;"></div>
+    <div class="row align-items-center" style="position: relative; z-index: 1;">
+        <div class="col-md-8">
+            <h1 style="color: var(--neon-cyan); font-size: 36px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.5px; text-shadow: 0 0 20px var(--neon-blue);">
+                <i class="fas fa-chart-line me-3"></i>Dashboard Overview
+            </h1>
+            <p style="color: rgba(224, 231, 255, 0.85); font-size: 15px; margin: 0; font-weight: 400; line-height: 1.6;">
+                Real-time platform metrics, user activity, and booking statistics.
+                {% if filter_date %}
+                    <br><span style="color: var(--neon-cyan); font-weight: 600;">Filtered for: {{ filter_date_formatted }}</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div style="background: rgba(0, 217, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 12px; padding: 16px; display: inline-block; box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);">
+                <p style="color: var(--neon-cyan); font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0; letter-spacing: 1px;">Last Updated</p>
+                <p style="color: var(--text-primary); font-size: 14px; margin: 0; font-weight: 500;">{{ "now"|date:"M d, Y H:i" }}</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Key Statistics Cards -->
-<div class="row mb-2">
-    <!-- Key Statistics -->
-    <div class="col-md-3 mb-4">
-        <div class="stats-card">
-            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+<!-- Filter Section -->
+<div style="background: rgba(26, 31, 58, 0.8); backdrop-filter: blur(10px); border: 1px solid var(--neon-blue); border-radius: 14px; padding: 24px; margin-bottom: 32px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.2), inset 0 0 15px rgba(0, 217, 255, 0.05); border-left: 4px solid var(--neon-cyan);">
+    <form method="get" class="row align-items-end g-3">
+        <div class="col-md-6">
+            <label for="filter_date" style="display: block; font-size: 12px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                <i class="fas fa-calendar-alt me-2"></i>Filter by Date
+            </label>
+            <input type="date" class="form-control" id="filter_date" name="filter_date" value="{{ filter_date }}">
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    <i class="fas fa-sync-alt me-2"></i>Apply Filter
+                </button>
+                {% if filter_date %}
+                <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-danger">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Key Statistics Cards - Modern Grid Layout -->
+<div class="dashboard-grid" style="margin-bottom: 2rem;">
+    <!-- Total Users Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Users</h4>
+            <div class="dashboard-card-icon">
                 <i class="fas fa-users"></i>
             </div>
-            <div class="stats-number" style="color: var(--gold);">{{ total_users|intcomma }}</div>
-            <div class="stats-label">Total Users</div>
-            <small class="text-muted">
-                <i class="fas fa-arrow-up" style="color: #90EE90;"></i> 
-                {% if filter_date %}
-                    +{{ new_users_30d|intcomma }} on {{ filter_date_formatted }}
-                {% else %}
-                    +{{ new_users_30d|intcomma }} this month
-                {% endif %}
-            </small>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_users|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_users_30d|default:0|intcomma }}</span>
+                <span>{% if filter_date %}on {{ filter_date_formatted }}{% else %}this month{% endif %}</span>
+            </div>
         </div>
     </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="stats-card success">
-            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+
+    <!-- Photographers Card -->
+    <div class="dashboard-card card-info">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Photographers</h4>
+            <div class="dashboard-card-icon">
                 <i class="fas fa-camera"></i>
             </div>
-            <div class="stats-number" style="color: var(--gold);">{{ total_photographers|intcomma }}</div>
-            <div class="stats-label">Photographers</div>
-            <small class="text-muted">{{ total_clients|intcomma }} clients</small>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_photographers|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span style="color: rgba(224, 231, 255, 0.7);">{{ total_clients|default:0|intcomma }} clients</span>
+            </div>
         </div>
     </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="stats-card warning">
-            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+
+    <!-- Total Bookings Card -->
+    <div class="dashboard-card card-success">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Bookings</h4>
+            <div class="dashboard-card-icon">
                 <i class="fas fa-calendar-check"></i>
             </div>
-            <div class="stats-number" style="color: var(--gold);">{{ total_bookings|intcomma }}</div>
-            <div class="stats-label">Total Bookings</div>
-            <small class="text-muted">{{ completed_bookings|intcomma }} completed</small>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_bookings|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span style="color: rgba(224, 231, 255, 0.7);">{{ completed_bookings|default:0|intcomma }} completed</span>
+            </div>
         </div>
     </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="stats-card danger">
-            <div class="stats-icon" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+
+    <!-- Revenue Card -->
+    <div class="dashboard-card card-warning">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Revenue</h4>
+            <div class="dashboard-card-icon">
                 <i class="fas fa-coins"></i>
             </div>
-            <div class="stats-number revenue-number">
-                <span class="revenue-currency">Rwf</span>
-                <span class="revenue-amount">{{ total_revenue|floatformat:0|intcomma }}</span>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value" style="font-size: 2rem;">
+                <small style="font-size: 0.5em; opacity: 0.8;">RWF</small> {{ total_revenue|default:0|floatformat:0|intcomma }}
             </div>
-            <div class="stats-label">Total Revenue</div>
-            <small class="text-muted">Platform earnings</small>
+            <div class="dashboard-card-label">
+                <span style="color: rgba(224, 231, 255, 0.7);">From all bookings</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Subscription Management Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <span style="color: var(--gold); font-weight: bold;">
-                    <i class="fas fa-credit-card me-2"></i>
-                    Subscription Management Overview
-                </span>
-                <a href="/admin/payments/subscriptionplan/" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
-                    Manage Plans <i class="fas fa-arrow-right ms-1"></i>
-                </a>
+<!-- Subscription Management Section - Modern Grid Layout -->
+<div style="margin-bottom: 1.5rem;">
+    <h3 style="color: var(--neon-cyan); font-weight: 700; font-size: 18px; margin-bottom: 16px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-credit-card"></i>Subscription Management
+    </h3>
+    <div class="dashboard-grid">
+        <!-- Total Subscriptions Card -->
+        <div class="dashboard-card card-primary">
+            <div class="dashboard-card-header">
+                <h4 class="dashboard-card-title">Total Subscriptions</h4>
+                <div class="dashboard-card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
             </div>
-            <div class="p-4">
-                <!-- Subscription Plans Stats -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #D4AF37, #FFD700); color: #2d2013; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);">
-                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Basic</div>
-                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">2,000 RWF/month</div>
-                            <small style="font-size: 12px;">15% Commission</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);">
-                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
-                                <i class="fas fa-medal"></i>
-                            </div>
-                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Standard</div>
-                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">15,000 RWF/month</div>
-                            <small style="font-size: 12px;">10% Commission</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #2d2013, #5D4E37); color: #FFD700; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 8px rgba(45, 32, 19, 0.3);">
-                            <div class="stats-icon" style="font-size: 24px; margin-bottom: 10px;">
-                                <i class="fas fa-crown"></i>
-                            </div>
-                            <div class="stats-number" style="font-size: 24px; font-weight: bold;">Premium</div>
-                            <div class="stats-label" style="font-size: 14px; opacity: 0.8;">35,000 RWF/month</div>
-                            <small style="font-size: 12px;">5% Commission</small>
-                        </div>
-                    </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ total_subscriptions|default:"0" }}</div>
+                <div class="dashboard-card-label">
+                    <span>Active subscriptions</span>
                 </div>
+            </div>
+        </div>
 
-                <!-- Subscription Statistics -->
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(212, 175, 55, 0.1); border-radius: 8px; margin-bottom: 15px;">
-                            <div>
-                                <div class="fw-bold" style="color: var(--chocolate-dark);">Total Subscriptions</div>
-                                <div class="h4 mb-0" style="color: var(--gold);">{{ total_subscriptions|default:"0" }}</div>
-                            </div>
-                            <i class="fas fa-users fa-2x" style="color: var(--gold);"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; margin-bottom: 15px;">
-                            <div>
-                                <div class="fw-bold" style="color: var(--chocolate-dark);">Active Plans</div>
-                                <div class="h4 mb-0" style="color: #10b981;">{{ active_subscriptions|default:"0" }}</div>
-                            </div>
-                            <i class="fas fa-check-circle fa-2x" style="color: #10b981;"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 15px;">
-                            <div>
-                                <div class="fw-bold" style="color: var(--chocolate-dark);">Trial Users</div>
-                                <div class="h4 mb-0" style="color: #fbbf24;">{{ trial_subscriptions|default:"0" }}</div>
-                            </div>
-                            <i class="fas fa-clock fa-2x" style="color: #fbbf24;"></i>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-flex justify-content-between align-items-center p-3" style="background: rgba(139, 69, 19, 0.1); border-radius: 8px; margin-bottom: 15px;">
-                            <div>
-                                <div class="fw-bold" style="color: var(--chocolate-dark);">Monthly Revenue</div>
-                                <div class="h4 mb-0" style="color: var(--chocolate-dark);">{{ subscription_revenue|default:"0"|floatformat:0 }} RWF</div>
-                            </div>
-                            <i class="fas fa-coins fa-2x" style="color: var(--gold);"></i>
-                        </div>
-                    </div>
+        <!-- Active Plans Card -->
+        <div class="dashboard-card card-success">
+            <div class="dashboard-card-header">
+                <h4 class="dashboard-card-title">Active Plans</h4>
+                <div class="dashboard-card-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ active_subscriptions|default:"0" }}</div>
+                <div class="dashboard-card-label">
+                    <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+2 this week</span>
+                </div>
+            </div>
+        </div>
 
-                <!-- Quick Actions -->
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'admin_dashboard:subscription_plans' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                                <i class="fas fa-cog me-1"></i> Manage Plans
-                            </a>
-                            <a href="{% url 'admin_dashboard:subscription_users' %}" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                                <i class="fas fa-users me-1"></i> View Subscriptions
-                            </a>
-                            <a href="{% url 'admin_dashboard:subscription_payments' %}" class="btn btn-sm" style="background: #10b981; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                                <i class="fas fa-receipt me-1"></i> Payment History
-                            </a>
-                            <a href="/payments/pricing/" class="btn btn-sm" style="background: #6366f1; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                                <i class="fas fa-eye me-1"></i> Preview Pricing Page
-                            </a>
-                        </div>
-                    </div>
+        <!-- Trial Users Card -->
+        <div class="dashboard-card card-warning">
+            <div class="dashboard-card-header">
+                <h4 class="dashboard-card-title">Trial Users</h4>
+                <div class="dashboard-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value">{{ trial_subscriptions|default:"0" }}</div>
+                <div class="dashboard-card-label">
+                    <span>Ongoing trials</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue Card -->
+        <div class="dashboard-card card-info">
+            <div class="dashboard-card-header">
+                <h4 class="dashboard-card-title">Monthly Revenue</h4>
+                <div class="dashboard-card-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+            </div>
+            <div class="dashboard-card-content">
+                <div class="dashboard-card-value" style="font-size: 28px;">{{ subscription_revenue|default:"0"|floatformat:0|intcomma }} RWF</div>
+                <div class="dashboard-card-label">
+                    <span>Recurring revenue</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="row mb-5">
-    <div class="col-md-6 pe-md-5 mb-4 mb-md-0">
-        <div class="chart-container">
-            <h5 class="mb-3">
-                <i class="fas fa-chart-line me-2" style="color: var(--chocolate-medium);"></i>
-                User Registration Trends (Last 7 Days)
-            </h5>
-            <div style="height: 250px; position: relative;">
-                <canvas id="userGrowthChart"></canvas>
-            </div>
-        </div>
-    </div>
+<!-- Analytics Charts Section -->
+<div style="margin-bottom: 2rem;">
+    <h3 style="color: var(--neon-cyan); font-weight: 700; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-chart-line"></i>Analytics & Trends
+    </h3>
     
-    <div class="col-md-6 ps-md-5">
-        <div class="chart-container">
-            <h5 class="mb-3">
-                <i class="fas fa-chart-pie me-2" style="color: var(--chocolate-accent);"></i>
-                Booking Status Distribution
-            </h5>
-            <div style="height: 250px; position: relative;">
-                <canvas id="bookingStatusChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions and Recent Activity -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="data-table">
-            <div class="table-header">
-                <i class="fas fa-star me-2"></i>Reviews Management
-            </div>
-            <div class="p-3">
-                <!-- Total Reviews Overview -->
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold text-primary">Total Reviews</span>
-                        <span class="badge bg-primary">{{ total_reviews }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-success">✓ Approved Reviews</span>
-                        <span class="badge bg-success">{{ approved_reviews }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="{% if pending_reviews > 0 %}text-warning{% else %}text-muted{% endif %}">
-                            {% if pending_reviews > 0 %}⏳{% else %}✓{% endif %} Pending Approval
-                        </span>
-                        <span class="badge {% if pending_reviews > 0 %}bg-warning{% else %}bg-secondary{% endif %}">{{ pending_reviews }}</span>
-                    </div>
+    <!-- Charts Grid -->
+    <div class="row g-4">
+        <!-- Registration Trends Chart Card -->
+        <div class="col-lg-6">
+            <div style="background: rgba(26, 31, 58, 0.9); backdrop-filter: blur(10px); border: 1px solid var(--neon-purple); border-radius: 16px; padding: 24px; box-shadow: 0 0 30px rgba(217, 70, 239, 0.2), inset 0 0 15px rgba(217, 70, 239, 0.05); border-left: 4px solid var(--neon-purple); height: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                    <h4 style="color: var(--neon-cyan); font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-plus" style="color: var(--neon-purple);"></i>
+                        Registration Trends (30 Days)
+                    </h4>
+                    <span style="background: rgba(217, 70, 239, 0.15); color: var(--neon-purple); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(217, 70, 239, 0.3);">
+                        <i class="fas fa-chart-line me-1"></i>TRENDLINE
+                    </span>
                 </div>
-                
-                {% if pending_reviews > 0 %}
-                    <hr>
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'admin_dashboard:reviews_management' %}?approved=false" class="btn btn-warning btn-sm">
-                            <i class="fas fa-eye me-1"></i>Review {{ pending_reviews }} Pending Item{{ pending_reviews|pluralize }}
-                        </a>
-                        <a href="{% url 'admin_dashboard:reviews_management' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-list me-1"></i>View All Reviews
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="alert alert-success mb-0" style="border: none; background: rgba(25, 135, 84, 0.1);">
-                        <div class="text-center">
-                            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                            <p class="mb-1 fw-bold">All reviews are up to date!</p>
-                            <small class="text-muted">No pending approvals required</small>
-                        </div>
-                    </div>
-                    {% if total_reviews > 0 %}
-                    <div class="d-grid gap-2 mt-2">
-                        <a href="{% url 'admin_dashboard:reviews_management' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-list me-1"></i>View All {{ total_reviews }} Review{{ total_reviews|pluralize }}
-                        </a>
-                    </div>
-                    {% endif %}
-                {% endif %}
-                
-                <!-- Contact Messages Info -->
-                <div class="mt-3 pt-3 border-top">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Total contact messages</span>
-                        <span class="badge bg-info">{{ total_contact_messages }}</span>
-                    </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="registrationTrendsChart"></canvas>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(217, 70, 239, 0.2); display: flex; align-items: center; justify-content: space-between;">
+                    <span style="color: rgba(224, 231, 255, 0.7); font-size: 12px;">
+                        <i class="fas fa-info-circle me-1"></i>Daily user registration trends with predictive analysis
+                    </span>
+                    <span style="color: var(--neon-cyan); font-weight: 600; font-size: 13px;">
+                        Total: {{ new_users_30d|default:0 }}
+                    </span>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="data-table">
-            <div class="table-header">
-                <i class="fas fa-clock me-2"></i>
-                {% if filter_date %}
-                    Activity for {{ filter_date_formatted }}
-                {% else %}
-                    Recent Activity
-                {% endif %}
+
+        <!-- Booking Status Distribution Chart Card -->
+        <div class="col-lg-6" style="margin-top: 2rem;">
+            <div style="background: rgba(26, 31, 58, 0.9); backdrop-filter: blur(10px); border: 1px solid var(--neon-blue); border-radius: 16px; padding: 24px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.2), inset 0 0 15px rgba(0, 217, 255, 0.05); border-left: 4px solid var(--neon-cyan); height: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                    <h4 style="color: var(--neon-cyan); font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-calendar-check" style="color: var(--neon-cyan);"></i>
+                        Booking Status Distribution
+                    </h4>
+                    <span style="background: rgba(0, 217, 255, 0.15); color: var(--neon-cyan); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(0, 217, 255, 0.3);">
+                        <i class="fas fa-chart-pie me-1"></i>LIVE DATA
+                    </span>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="bookingStatusChart"></canvas>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0, 217, 255, 0.2); display: flex; align-items: center; justify-content: space-between;">
+                    <span style="color: rgba(224, 231, 255, 0.7); font-size: 12px;">
+                        <i class="fas fa-info-circle me-1"></i>Current booking status breakdown
+                    </span>
+                    <span style="color: var(--neon-cyan); font-weight: 600; font-size: 13px;">
+                        Total: {{ total_bookings|default:0 }}
+                    </span>
+                </div>
             </div>
-            <div class="p-3">
-                {% if recent_users %}
-                    <h6 class="mb-2">
-                        {% if filter_date %}
-                            Users Registered on {{ filter_date_formatted }}
-                        {% else %}
-                            New Users
-                        {% endif %}
-                    </h6>
-                    {% for user in recent_users %}
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="{{ user.get_small_avatar_url }}" alt="Avatar" class="user-avatar me-2" style="width: 24px; height: 24px;">
-                            <span class="flex-grow-1">{{ user.get_full_name|default:user.email }}</span>
-                            <small class="text-muted">{{ user.role|title }}</small>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                
-                {% if recent_bookings %}
-                    <h6 class="mb-2 mt-3">
-                        {% if filter_date %}
-                            Bookings for {{ filter_date_formatted }}
-                        {% else %}
-                            Recent Bookings
-                        {% endif %}
-                    </h6>
-                    {% for booking in recent_bookings|slice:":3" %}
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="small">{{ booking.service_type|truncatechars:20 }}</span>
-                            <span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+        </div>
+
+        <!-- Booking Trends Chart Card -->
+        <div class="col-lg-8" style="margin-top: 2rem;">
+            <div style="background: rgba(26, 31, 58, 0.9); backdrop-filter: blur(10px); border: 1px solid #FFD700; border-radius: 16px; padding: 24px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2), inset 0 0 15px rgba(255, 215, 0, 0.05); border-left: 4px solid #FFD700; height: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                    <h4 style="color: var(--neon-cyan); font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-chart-area" style="color: #FFD700;"></i>
+                        Booking Trends (30 Days)
+                    </h4>
+                    <span style="background: rgba(255, 215, 0, 0.15); color: #FFD700; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(255, 215, 0, 0.3);">
+                        <i class="fas fa-chart-line me-1"></i>TRENDLINE
+                    </span>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="bookingTrendsChart"></canvas>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: space-between;">
+                    <span style="color: rgba(224, 231, 255, 0.7); font-size: 12px;">
+                        <i class="fas fa-info-circle me-1"></i>Daily booking volume with trend analysis
+                    </span>
+                    <span style="color: var(--neon-cyan); font-weight: 600; font-size: 13px;">
+                        Avg: {{ new_bookings_30d|default:0 }}/month
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent User Registrations Table Card -->
+        <div class="col-lg-4" style="margin-top: 2rem;">
+            <div style="background: rgba(26, 31, 58, 0.9); backdrop-filter: blur(10px); border: 1px solid #2E7D32; border-radius: 16px; padding: 24px; box-shadow: 0 0 30px rgba(46, 125, 50, 0.2), inset 0 0 15px rgba(46, 125, 50, 0.05); border-left: 4px solid #2E7D32; height: 100%;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                    <h4 style="color: var(--neon-cyan); font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-clock" style="color: #4CAF50;"></i>
+                        Recent Registrations
+                    </h4>
+                    <span style="background: rgba(46, 125, 50, 0.15); color: #4CAF50; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(46, 125, 50, 0.3);">
+                        <i class="fas fa-clock me-1"></i>LIVE
+                    </span>
+                </div>
+                <div style="max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(0, 217, 255, 0.3) rgba(26, 31, 58, 0.5);" id="recentRegistrationsList">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(46, 125, 50, 0.2);">
+                    <span style="color: rgba(224, 231, 255, 0.7); font-size: 12px;">
+                        <i class="fas fa-info-circle me-1"></i>Last 10 user registrations
+                    </span>
+                </div>
             </div>
         </div>
     </div>
+</div>
+</div>
 </div>
 
-<!-- Recent Users Table -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <span style="color: var(--gold); font-weight: bold;">
-                    <i class="fas fa-users me-2"></i>
-                    {% if filter_date %}
-                        User Registrations for {{ filter_date_formatted }}
-                    {% else %}
-                        Recent User Registrations
-                    {% endif %}
-                </span>
-                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
-                    View All <i class="fas fa-arrow-right ms-1"></i>
-                </a>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Verified</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in recent_users %}
-                            <tr>
-                                <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ user.get_medium_avatar_url }}" alt="Avatar" class="user-avatar me-2">
-                                                <div>
-                                                    <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
-                                                    <small class="text-muted">{{ user.email }}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                <td>
-                                    <span class="badge" style="{% if user.role == 'photographer' %}background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold);{% elif user.role == 'client' %}background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark);{% else %}background: linear-gradient(135deg, #8B4513, #A0522D); color: white;{% endif %} padding: 6px 12px; border-radius: 6px; font-weight: 500; font-size: 12px;">
-                                        {{ user.get_role_display }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if user.is_verified %}
-                                        <i class="fas fa-check-circle text-success"></i>
-                                    {% else %}
-                                        <i class="fas fa-clock text-warning"></i>
-                                    {% endif %}
-                                </td>
-                                <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                                <td>
-                                    <a href="{% url 'admin_dashboard:user_detail' user.id %}" 
-                                       class="btn btn-sm" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: 1px solid var(--chocolate-medium); padding: 4px 8px; border-radius: 4px;">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-3">
-                                    No recent registrations
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
-    // User Growth Chart (Line Chart)
-    const userGrowthData = {{ user_growth|safe }};
-    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-    new Chart(userGrowthCtx, {
-        type: 'line',
-        data: {
-            labels: userGrowthData.map(item => item.date),
-            datasets: [{
-                label: 'New Users',
-                data: userGrowthData.map(item => item.count),
-                borderColor: '#8B4513',
-                backgroundColor: 'rgba(139, 69, 19, 0.1)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#8B4513',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            scales: {
-                x: {
-                    display: true,
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    display: true,
-                    grid: {
-                        color: '#e3e6f0',
-                        borderDash: [2, 2]
-                    },
-                    ticks: {
-                        stepSize: 1,
-                        font: {
-                            size: 11
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    titleFont: {
-                        size: 12
-                    },
-                    bodyFont: {
-                        size: 11
-                    },
-                    padding: 10,
-                    cornerRadius: 6
-                }
-            }
-        }
-    });
+    // Utility function to calculate linear regression for trendline
+    function calculateTrendline(data) {
+        const n = data.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        
+        data.forEach((y, x) => {
+            sumX += x;
+            sumY += y;
+            sumXY += x * y;
+            sumX2 += x * x;
+        });
+        
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        
+        return data.map((_, x) => slope * x + intercept);
+    }
 
-    // Booking Status Chart (Doughnut Chart)
-    const bookingStatusData = {{ booking_stats|safe }};
-    const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
-    new Chart(bookingStatusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
-            datasets: [{
-                data: [
-                    bookingStatusData.pending,
-                    bookingStatusData.confirmed,
-                    bookingStatusData.completed,
-                    bookingStatusData.cancelled
-                ],
-                backgroundColor: [
-                    '#f39c12',  // Orange for Pending
-                    '#3498db',  // Blue for Confirmed
-                    '#27ae60',  // Green for Completed
-                    '#e74c3c'   // Red for Cancelled
-                ],
-                borderWidth: 0,
-                hoverBorderWidth: 2,
-                hoverBorderColor: '#ffffff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '60%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        usePointStyle: true,
-                        font: {
-                            size: 11
+    // Registration Trends Chart with Trendline
+    const registrationData = {{ user_growth|safe }};
+    const registrationCtx = document.getElementById('registrationTrendsChart');
+    
+    if (registrationCtx) {
+        const registrationCounts = registrationData.map(item => item.count);
+        const trendlineData = calculateTrendline(registrationCounts);
+        
+        new Chart(registrationCtx, {
+            type: 'line',
+            data: {
+                labels: registrationData.map(item => item.date),
+                datasets: [
+                    {
+                        label: 'Registrations',
+                        data: registrationCounts,
+                        borderColor: '#D946EF',
+                        backgroundColor: 'rgba(217, 70, 239, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#D946EF',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#D946EF',
+                        order: 1
+                    },
+                    {
+                        label: 'Trend',
+                        data: trendlineData,
+                        borderColor: '#00D9FF',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0,
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        order: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            color: '#E0E7FF',
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                        titleColor: '#00D9FF',
+                        bodyColor: '#E0E7FF',
+                        borderColor: '#D946EF',
+                        borderWidth: 2,
+                        cornerRadius: 8,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' users';
+                            }
                         }
                     }
                 },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    titleFont: {
-                        size: 12
+                scales: {
+                    x: {
+                        display: true,
+                        grid: { 
+                            display: false 
+                        },
+                        ticks: { 
+                            color: 'rgba(224, 231, 255, 0.7)',
+                            font: { size: 10 },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
                     },
-                    bodyFont: {
-                        size: 11
-                    },
-                    padding: 10,
-                    cornerRadius: 6,
-                    callbacks: {
-                        label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        display: true,
+                        grid: {
+                            color: 'rgba(217, 70, 239, 0.1)',
+                            borderDash: [2, 2]
+                        },
+                        ticks: { 
+                            color: 'rgba(224, 231, 255, 0.7)',
+                            font: { size: 11 },
+                            stepSize: 1
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+
+    // Booking Trends Chart with Trendline
+    const bookingTrendsData = {{ booking_trends|safe }};
+    const bookingTrendsCtx = document.getElementById('bookingTrendsChart');
+    
+    if (bookingTrendsCtx) {
+        const bookingCounts = bookingTrendsData.map(item => item.count);
+        const bookingTrendline = calculateTrendline(bookingCounts);
+        
+        new Chart(bookingTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: bookingTrendsData.map(item => item.date),
+                datasets: [
+                    {
+                        label: 'Bookings',
+                        data: bookingCounts,
+                        borderColor: '#FFD700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#FFD700',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#FFD700',
+                        order: 1
+                    },
+                    {
+                        label: 'Trend',
+                        data: bookingTrendline,
+                        borderColor: '#D2691E',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0,
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        order: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            color: '#E0E7FF',
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 11, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                        titleColor: '#FFD700',
+                        bodyColor: '#E0E7FF',
+                        borderColor: '#FFD700',
+                        borderWidth: 2,
+                        cornerRadius: 8,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' bookings';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        grid: { 
+                            display: false 
+                        },
+                        ticks: { 
+                            color: 'rgba(224, 231, 255, 0.7)',
+                            font: { size: 10 },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        display: true,
+                        grid: {
+                            color: 'rgba(255, 215, 0, 0.1)',
+                            borderDash: [2, 2]
+                        },
+                        ticks: { 
+                            color: 'rgba(224, 231, 255, 0.7)',
+                            font: { size: 11 },
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Booking Status Distribution Chart (Doughnut with enhanced styling)
+    const bookingStatusData = {{ booking_stats|safe }};
+    const bookingStatusCtx = document.getElementById('bookingStatusChart');
+    
+    if (bookingStatusCtx) {
+        const totalBookings = bookingStatusData.pending + bookingStatusData.confirmed + 
+                              bookingStatusData.completed + bookingStatusData.cancelled;
+        
+        new Chart(bookingStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        bookingStatusData.pending,
+                        bookingStatusData.confirmed,
+                        bookingStatusData.completed,
+                        bookingStatusData.cancelled
+                    ],
+                    backgroundColor: [
+                        '#FFD700',
+                        '#00D9FF',
+                        '#4CAF50',
+                        '#EF4444'
+                    ],
+                    borderWidth: 3,
+                    borderColor: 'rgba(26, 31, 58, 0.9)',
+                    hoverBorderWidth: 4,
+                    hoverBorderColor: '#fff',
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#E0E7FF',
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: { size: 12, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                        titleColor: '#00D9FF',
+                        bodyColor: '#E0E7FF',
+                        borderColor: '#00D9FF',
+                        borderWidth: 2,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed;
+                                const percentage = totalBookings > 0 ? 
+                                    ((value / totalBookings) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Recent Registrations List
+    const recentRegistrations = {{ recent_registrations|safe }};
+    const registrationsList = document.getElementById('recentRegistrationsList');
+    
+    if (registrationsList && recentRegistrations.length > 0) {
+        let html = '';
+        recentRegistrations.forEach((reg, index) => {
+            const roleColor = reg.role === 'Photographer' ? '#D946EF' : '#00D9FF';
+            const roleIcon = reg.role === 'Photographer' ? 'fa-camera' : 'fa-user';
+            
+            html += `
+                <div style="background: rgba(217, 70, 239, 0.05); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 10px; transition: all 0.3s ease;" 
+                     onmouseover="this.style.background='rgba(0, 217, 255, 0.1)'; this.style.borderColor='rgba(0, 217, 255, 0.4)';"
+                     onmouseout="this.style.background='rgba(217, 70, 239, 0.05)'; this.style.borderColor='rgba(0, 217, 255, 0.2)';">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, ${roleColor}, rgba(0, 217, 255, 0.5)); display: flex; align-items: center; justify-content: center; font-size: 14px; color: white;">
+                            <i class="fas ${roleIcon}"></i>
+                        </div>
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="color: var(--neon-cyan); font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${reg.username}
+                            </div>
+                            <div style="color: rgba(224, 231, 255, 0.6); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${reg.email}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(0, 217, 255, 0.1);">
+                        <span style="background: rgba(${roleColor === '#D946EF' ? '217, 70, 239' : '0, 217, 255'}, 0.2); color: ${roleColor}; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; border: 1px solid rgba(${roleColor === '#D946EF' ? '217, 70, 239' : '0, 217, 255'}, 0.3);">
+                            ${reg.role}
+                        </span>
+                        <span style="color: rgba(224, 231, 255, 0.5); font-size: 10px;">
+                            <i class="fas fa-clock me-1"></i>${reg.date}
+                        </span>
+                    </div>
+                </div>
+            `;
+        });
+        registrationsList.innerHTML = html;
+    } else if (registrationsList) {
+        registrationsList.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: rgba(224, 231, 255, 0.5);">
+                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 12px; opacity: 0.3;"></i>
+                <p style="margin: 0; font-size: 13px;">No recent registrations</p>
+            </div>
+        `;
+    }
 </script>
 {% endblock %}

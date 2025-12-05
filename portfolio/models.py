@@ -39,10 +39,31 @@ class Photo(models.Model):
 		# Standard image optimization
 		super().save(*args, **kwargs)
 		if self.image:
+			# Keep higher resolution for better display on high-DPI displays
+			# Increase max_size and quality for HD rendering. This affects future uploads.
 			img = Image.open(self.image.path)
-			max_size = (1280, 1280)
+			
+			# Check original image quality
+			original_size = img.size
+			max_dimension = max(original_size)
+			
+			# Warn if uploaded image is too small for HD display
+			if max_dimension < 1200:
+				import warnings
+				warnings.warn(
+					f"Photo '{self.title}' uploaded with low resolution: {original_size[0]}x{original_size[1]}. "
+					f"For best HD quality, upload images at least 1920x1080 or higher.",
+					UserWarning
+				)
+			
+			# Convert to RGB if necessary
+			if img.mode in ('RGBA', 'LA', 'P'):
+				img = img.convert('RGB')
+			
+			max_size = (2560, 2560)
 			img.thumbnail(max_size, Image.LANCZOS)
-			img.save(self.image.path, optimize=True, quality=80)
+			# Save at higher quality; balance file size vs fidelity
+			img.save(self.image.path, optimize=True, quality=92)
 	
 	def simulate_ai_analysis(self):
 		"""Simulate AI analysis for demo purposes"""
@@ -157,9 +178,10 @@ class Story(models.Model):
 		if self.image:
 			from PIL import Image
 			img = Image.open(self.image.path)
-			max_size = (800, 800)
+			# Keep stories at a higher resolution than before for clearer previews
+			max_size = (1280, 1280)
 			img.thumbnail(max_size, Image.LANCZOS)
-			img.save(self.image.path, optimize=True, quality=80)
+			img.save(self.image.path, optimize=True, quality=90)
 	def is_active(self):
 		from django.utils import timezone
 		return self.created_at >= timezone.now() - timedelta(hours=24)
@@ -210,3 +232,45 @@ class TermsOfService(models.Model):
 
 	def __str__(self):
 		return f"Terms of Service (updated {self.updated_at:%Y-%m-%d})"
+
+
+def reprocess_images(dry_run=False, limit=0):
+	"""Reprocess Photo and Story images using current model save rules.
+
+	This helper is placed in `portfolio.models` so you can call it from the
+	Django shell instead of using a separate management command file.
+
+	Usage (Django shell):
+		from portfolio.models import reprocess_images
+		reprocess_images(dry_run=True, limit=10)
+
+	Arguments:
+		dry_run (bool): If True, only report which files would be processed.
+		limit (int): Optional limit to number of objects to process.
+	"""
+	photos = Photo.objects.all()
+	stories = Story.objects.all()
+
+	total = photos.count() + stories.count()
+	print(f'Found {total} images to potentially reprocess ({photos.count()} photos, {stories.count()} stories)')
+
+	processed = 0
+	for qs, name in ((photos, 'Photo'), (stories, 'Story')):
+		for obj in qs:
+			if limit and processed >= limit:
+				break
+			path = getattr(getattr(obj, 'image', None), 'path', None)
+			if not path:
+				print(f'Skipping {name} id={obj.pk}: no image')
+				continue
+			print(f'Processing {name} id={obj.pk}: {getattr(obj.image, "url", "<no url>")}')
+			if not dry_run:
+				try:
+					obj.save()
+					print(f'Reprocessed {name} id={obj.pk}')
+				except Exception as e:
+					print(f'Error processing {name} id={obj.pk}: {e}')
+			processed += 1
+
+	print(f'Done. Processed {processed} items.')
+	return processed

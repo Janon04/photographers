@@ -7,33 +7,31 @@
 <!-- Date Filter Section -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card" style="background: var(--chocolate-light); border: 1px solid var(--chocolate-medium);">
-            <div class="card-body py-3">
-                <form method="get" class="d-flex align-items-center gap-3">
-                    <!-- Preserve other filters -->
-                    {% if admin_filter %}
-                        <input type="hidden" name="admin" value="{{ admin_filter }}">
-                    {% endif %}
-                    {% if action_filter %}
-                        <input type="hidden" name="action" value="{{ action_filter }}">
-                    {% endif %}
-                    {% if model_filter %}
-                        <input type="hidden" name="model" value="{{ model_filter }}">
-                    {% endif %}
-                    
-                    <label for="filter_date" class="form-label mb-0" style="color: var(--chocolate-dark); font-weight: 600;">Filter by Date:</label>
-                    <input type="date" class="form-control" id="filter_date" name="filter_date" 
-                           value="{{ filter_date }}" style="max-width: 200px; border: 1px solid var(--chocolate-medium);">
-                    <button type="submit" class="btn btn-sm" style="background: var(--chocolate-medium); color: white; border: none;">
-                        <i class="fas fa-filter"></i> Apply Filter
-                    </button>
-                    {% if filter_date %}
-                        <a href="{% url 'admin_dashboard:activity_logs' %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-times"></i> Clear Filter
-                        </a>
-                    {% endif %}
-                </form>
-            </div>
+        <div class="content-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; border: 2px solid var(--yellow);">
+            <form method="get" class="d-flex align-items-center gap-3 flex-wrap">
+                <!-- Preserve other filters -->
+                {% if admin_filter %}
+                    <input type="hidden" name="admin" value="{{ admin_filter }}">
+                {% endif %}
+                {% if action_filter %}
+                    <input type="hidden" name="action" value="{{ action_filter }}">
+                {% endif %}
+                {% if model_filter %}
+                    <input type="hidden" name="model" value="{{ model_filter }}">
+                {% endif %}
+                
+                <label for="filter_date" class="form-label mb-0" style="color: var(--yellow); font-weight: 700;">Filter by Date:</label>
+                <input type="date" class="form-control" id="filter_date" name="filter_date" 
+                       value="{{ filter_date }}" style="max-width: 200px; background: white; color: var(--chocolate-dark);">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter me-1"></i> Apply Filter
+                </button>
+                {% if filter_date %}
+                    <a href="{% url 'admin_dashboard:activity_logs' %}" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i> Clear Filter
+                    </a>
+                {% endif %}
+            </form>
         </div>
     </div>
 </div>
@@ -53,7 +51,7 @@
         </div>
         <div class="col-md-2">
             <label for="action" class="form-label">Action</label>
-            <select class="form-control" id="action" name="action">
+            <select class="form-select" id="action" name="action">
                 <option value="">All Actions</option>
                 {% for value, label in action_choices %}
                     <option value="{{ value }}" {% if action_filter == value %}selected{% endif %}>
@@ -67,13 +65,10 @@
             <input type="text" class="form-control" id="model" name="model" 
                    value="{{ model_filter }}" placeholder="Model name...">
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary me-2">
-                <i class="fas fa-search"></i> Search
+        <div class="col-md-2 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i> Search
             </button>
-            <a href="{% url 'admin_dashboard:activity_logs' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-times"></i> Clear
-            </a>
         </div>
     </form>
 </div>
@@ -83,13 +78,13 @@
     <div class="table-header d-flex justify-content-between align-items-center">
         <span><i class="fas fa-history me-2"></i>Activity Logs ({{ page_obj.paginator.count }} total)</span>
         <div>
-            <span class="text-light">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+            <span style="color: var(--white); opacity: 0.9; font-size: 0.9rem;">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
         </div>
     </div>
     
     <div class="table-responsive">
         <table class="table table-hover mb-0">
-            <thead class="table-light">
+            <thead>
                 <tr>
                     <th>Admin User</th>
                     <th>Action</th>
@@ -105,7 +100,7 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 {% if log.admin_user.profile_picture %}
-                                    <img src="{{ log.admin_user.profile_picture.url }}" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
+                                    <img src="{{ log.admin_user.profile_picture.url }}" srcset="{{ log.admin_user.profile_picture.url }} 1x, {{ log.admin_user.profile_picture.url }} 2x" alt="Avatar" class="user-avatar me-2" style="width: 30px; height: 30px;">
                                 {% else %}
                                     <div class="user-avatar me-2 bg-warning d-flex align-items-center justify-content-center text-white" style="width: 30px; height: 30px; font-size: 0.8rem;">
                                         {{ log.admin_user.first_name|first|default:log.admin_user.email|first|upper }}

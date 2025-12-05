@@ -5,7 +5,7 @@
 <p>{{ post.description }}</p>
 <div>{{ post.content|safe }}</div>
 {% if post.image %}
-  <img src="{{ post.image.url }}" alt="Post Image" width="300" />
+  <img src="{{ post.image.url }}" srcset="{{ post.image.url }} 1x, {{ post.image.url }} 2x" alt="Post Image" style="width:100%; height:auto; max-height:600px; object-fit:cover; border-radius:0.8rem;" />
 {% endif %}
 <p><small>Posted on {{ post.date }}</small></p>
 {% endblock %}

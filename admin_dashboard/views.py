@@ -165,10 +165,10 @@ def admin_dashboard(request):
         recent_bookings = Booking.objects.order_by('-created_at')[:5]
         recent_reviews = Review.objects.order_by('-created_at')[:5]
     
-    # User growth chart data (last 7 days from filter_date or today)
+    # User growth chart data (last 30 days from filter_date or today)
     chart_base_date = filter_date if filter_date_str else today
     user_growth = []
-    for i in range(6, -1, -1):
+    for i in range(29, -1, -1):
         date = chart_base_date - timedelta(days=i)
         start_dt, end_dt = get_date_range_for_filter(date)
         count = User.objects.filter(
@@ -176,6 +176,39 @@ def admin_dashboard(request):
             date_joined__lte=end_dt
         ).count()
         user_growth.append({
+            'date': date.strftime('%m/%d'),
+            'count': count
+        })
+    
+    # Recent user registrations (last 10 users)
+    recent_registrations = []
+    if filter_date_str:
+        start_datetime, end_datetime = get_date_range_for_filter(filter_date)
+        recent_reg_users = User.objects.filter(
+            date_joined__gte=start_datetime, 
+            date_joined__lte=end_datetime
+        ).order_by('-date_joined')[:10]
+    else:
+        recent_reg_users = User.objects.order_by('-date_joined')[:10]
+    
+    for user in recent_reg_users:
+        recent_registrations.append({
+            'username': user.username,
+            'email': user.email,
+            'role': user.get_role_display(),
+            'date': user.date_joined.strftime('%Y-%m-%d %H:%M')
+        })
+    
+    # Booking trends chart data (last 30 days)
+    booking_trends = []
+    for i in range(29, -1, -1):
+        date = chart_base_date - timedelta(days=i)
+        start_dt, end_dt = get_date_range_for_filter(date)
+        count = Booking.objects.filter(
+            created_at__gte=start_dt, 
+            created_at__lte=end_dt
+        ).count()
+        booking_trends.append({
             'date': date.strftime('%m/%d'),
             'count': count
         })
@@ -256,6 +289,9 @@ def admin_dashboard(request):
         'active_subscriptions': active_subscriptions,
         'trial_subscriptions': trial_subscriptions,
         'subscription_revenue': subscription_revenue,
+        # Chart data
+        'booking_trends': json.dumps(booking_trends),
+        'recent_registrations': json.dumps(recent_registrations),
     }
     
     return render(request, 'admin_dashboard/dashboard.html', context)
@@ -365,6 +401,102 @@ def user_detail(request, user_id):
 
 @login_required
 @user_passes_test(is_admin)
+def user_details_json(request, user_id):
+    """Get complete user details as JSON for modal view"""
+    user = get_object_or_404(User, id=user_id)
+    
+    # Calculate user statistics
+    if user.role == User.Roles.PHOTOGRAPHER:
+        total_bookings = user.photographer_bookings.count()
+        pending_bookings = user.photographer_bookings.filter(status='pending').count()
+        completed_bookings = user.photographer_bookings.filter(status='completed').count()
+        total_reviews = user.reviews_received.count()
+    else:
+        total_bookings = user.client_bookings.count()
+        pending_bookings = user.client_bookings.filter(status='pending').count()
+        completed_bookings = user.client_bookings.filter(status='completed').count()
+        total_reviews = user.reviews_made.count() if hasattr(user, 'reviews_made') else 0
+    
+    # Get subscription payment information
+    from payments.models import SubscriptionPayment, UserSubscription
+    subscription_data = None
+    try:
+        # Get the user's subscription first, then get the latest payment
+        user_subscription = user.subscription  # OneToOneField
+        if user_subscription:
+            latest_payment = user_subscription.payments.order_by('-created_at').first()
+            if latest_payment:
+                subscription_data = {
+                    'amount': float(latest_payment.amount),
+                    'currency': latest_payment.currency,
+                    'plan_name': user_subscription.plan.display_name,
+                    'plan_tier': user_subscription.plan.name,
+                    'billing_cycle': user_subscription.billing_cycle,
+                    'billing_cycle_display': user_subscription.get_billing_cycle_display(),
+                    'payment_method': latest_payment.payment_method,
+                    'status': latest_payment.status,
+                    'status_display': latest_payment.get_status_display(),
+                    'subscription_status': user_subscription.status,
+                    'subscription_status_display': user_subscription.get_status_display(),
+                    'transaction_id': str(latest_payment.transaction_id),
+                    'created_at': latest_payment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    'start_date': user_subscription.start_date.strftime('%B %d, %Y') if user_subscription.start_date else None,
+                    'end_date': user_subscription.end_date.strftime('%B %d, %Y') if user_subscription.end_date else None,
+                    
+                    # Payment method specific details
+                    'card_brand': latest_payment.card_brand or None,
+                    'card_last_four': latest_payment.card_last_four or None,
+                    'cardholder_name': latest_payment.cardholder_name or None,
+                    'mobile_money_provider': latest_payment.mobile_money_provider or None,
+                    'mobile_money_phone': latest_payment.mobile_money_phone or None,
+                    'paypal_email': latest_payment.paypal_email or None,
+                }
+    except UserSubscription.DoesNotExist:
+        pass
+    
+    # Build response data
+    user_data = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'full_name': user.get_full_name() if user.get_full_name() else None,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'role': user.role,
+        'role_display': user.get_role_display(),
+        'bio': user.bio,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None,
+        'gravatar_url': user.get_gravatar_url(80),
+        'location': user.location,
+        'contact_info': user.contact_info,
+        'is_verified': user.is_verified,
+        'is_active': user.is_active,
+        'is_staff': user.is_staff,
+        'date_joined': user.date_joined.strftime('%B %d, %Y at %I:%M %p'),
+        'last_login': user.last_login.strftime('%B %d, %Y at %I:%M %p') if user.last_login else None,
+        
+        # Professional details (photographer-specific)
+        'price': str(user.price) if user.price else None,
+        'badges': user.badges if user.badges else None,
+        'certifications': user.certifications if user.certifications else None,
+        'awards': user.awards if user.awards else None,
+        'social_proof': user.social_proof if user.social_proof else None,
+        'average_rating': user.average_rating,
+        
+        # Activity statistics
+        'total_bookings': total_bookings,
+        'pending_bookings': pending_bookings,
+        'completed_bookings': completed_bookings,
+        'total_reviews': total_reviews,
+        
+        # Subscription payment information
+        'subscription': subscription_data,
+    }
+    
+    return JsonResponse({'success': True, 'user': user_data})
+
+@login_required
+@user_passes_test(is_admin)
 @require_POST
 def toggle_user_verification(request, user_id):
     """Toggle user verification status"""
@@ -407,8 +539,113 @@ def suspend_user(request, user_id):
 
 @login_required
 @user_passes_test(is_admin)
+def booking_details_json(request, booking_id):
+    """Get complete booking details as JSON for modal view"""
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Get client information
+    if booking.client:
+        client_name = booking.client.get_full_name() or booking.client.username
+        client_email = booking.client.email
+        client_phone = booking.client.contact_info
+        client_avatar = booking.client.profile_picture.url if booking.client.profile_picture else booking.client.get_gravatar_url(60)
+        client_id = booking.client.id
+    else:
+        client_name = booking.client_name or 'N/A'
+        client_email = booking.client_email or 'N/A'
+        client_phone = booking.client_phone
+        client_avatar = None
+        client_id = None
+    
+    # Get photographer information
+    photographer_name = booking.photographer.get_full_name() or booking.photographer.username
+    photographer_email = booking.photographer.email
+    photographer_phone = booking.photographer.contact_info
+    photographer_avatar = booking.photographer.profile_picture.url if booking.photographer.profile_picture else booking.photographer.get_gravatar_url(60)
+    photographer_price = str(booking.photographer.price) if booking.photographer.price else None
+    
+    # Calculate expected payment amount (from photographer's price or AI pricing)
+    expected_amount = None
+    if booking.photographer.price:
+        expected_amount = float(booking.photographer.price)
+    else:
+        # Try to get AI-generated price
+        try:
+            ai_price = booking.simulate_ai_pricing()
+            if ai_price:
+                expected_amount = float(ai_price)
+        except:
+            pass
+    
+    # Get payment transaction information (get the latest transaction)
+    payment_data = None
+    transaction = booking.transactions.order_by('-created_at').first()
+    if transaction:
+        payment_data = {
+            'amount': float(transaction.amount),
+            'currency': transaction.currency,
+            'payment_method': transaction.payment_method,
+            'payment_method_display': transaction.get_payment_method_display(),
+            'status': transaction.status,
+            'status_display': transaction.get_status_display(),
+            'transaction_id': transaction.transaction_id,
+            'created_at': transaction.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            
+            # Payment method specific details
+            'card_brand': transaction.card_brand,
+            'card_last_four': transaction.card_last_four,
+            'cardholder_name': transaction.cardholder_name,
+            'mobile_money_provider': transaction.mobile_money_provider,
+            'mobile_money_phone': transaction.mobile_money_phone,
+            'paypal_email': transaction.paypal_email,
+            'bank_name': transaction.bank_name,
+            'bank_reference': transaction.bank_reference,
+        }
+    
+    # Build response data
+    booking_data = {
+        'id': booking.id,
+        'service_type': booking.service_type,
+        'service_type_display': booking.get_service_type_display(),
+        'date': booking.date.strftime('%B %d, %Y'),
+        'time': booking.time.strftime('%I:%M %p'),
+        'location': booking.location,
+        'status': booking.status,
+        'status_display': booking.get_status_display(),
+        'payment_status': booking.payment_status,
+        'payment_status_display': booking.get_payment_status_display(),
+        'created_at': booking.created_at.strftime('%B %d, %Y at %I:%M %p'),
+        
+        # Client information
+        'client_id': client_id,
+        'client_name': client_name,
+        'client_email': client_email,
+        'client_phone': client_phone,
+        'client_avatar': client_avatar,
+        
+        # Photographer information
+        'photographer_id': booking.photographer.id,
+        'photographer_name': photographer_name,
+        'photographer_email': photographer_email,
+        'photographer_phone': photographer_phone,
+        'photographer_avatar': photographer_avatar,
+        'photographer_price': photographer_price,
+        
+        # Payment information
+        'payment': payment_data,
+        'expected_amount': expected_amount,
+    }
+    
+    return JsonResponse({'success': True, 'booking': booking_data})
+
+@login_required
+@user_passes_test(is_admin)
 def bookings_management(request):
     """Manage all bookings"""
+    from payments.models import Transaction
+    from django.db.models import Sum, Count, Q
+    from decimal import Decimal
+    
     status_filter = request.GET.get('status', '')
     payment_filter = request.GET.get('payment', '')
     search_query = request.GET.get('search', '')
@@ -436,6 +673,29 @@ def bookings_management(request):
             Q(location__icontains=search_query)
         )
     
+    # Calculate payment statistics for filtered bookings
+    filtered_bookings_queryset = bookings
+    
+    # Get all transactions for these bookings
+    booking_ids = list(filtered_bookings_queryset.values_list('id', flat=True))
+    transactions = Transaction.objects.filter(booking_id__in=booking_ids)
+    
+    # Payment statistics
+    total_paid = transactions.filter(status__in=['completed', 'paid']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    total_pending = transactions.filter(status__in=['pending', 'held_escrow', 'processing']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    total_failed = transactions.filter(status__in=['failed', 'cancelled']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+    
+    # Count by payment method
+    payment_methods = transactions.filter(status__in=['completed', 'paid']).values('payment_method').annotate(
+        count=Count('id'),
+        total=Sum('amount')
+    ).order_by('-total')
+    
+    # Count by payment status
+    paid_count = filtered_bookings_queryset.filter(payment_status='paid').count()
+    pending_count = filtered_bookings_queryset.filter(payment_status='pending').count()
+    failed_count = filtered_bookings_queryset.filter(payment_status='failed').count()
+    
     bookings = bookings.order_by('-created_at')
     
     # Pagination
@@ -451,6 +711,14 @@ def bookings_management(request):
         'filter_date': filter_date_str,
         'booking_statuses': Booking.STATUS_CHOICES,
         'payment_statuses': Booking.PAYMENT_STATUS_CHOICES,
+        # Payment statistics
+        'total_paid': total_paid,
+        'total_pending': total_pending,
+        'total_failed': total_failed,
+        'paid_count': paid_count,
+        'pending_count': pending_count,
+        'failed_count': failed_count,
+        'payment_methods': payment_methods,
     }
     
     return render(request, 'admin_dashboard/bookings_management.html', context)
@@ -523,6 +791,41 @@ def approve_review(request, review_id):
 
 @login_required
 @user_passes_test(is_admin)
+def review_details_json(request, review_id):
+    """Return review details as JSON for modal display"""
+    try:
+        review = Review.objects.select_related('reviewer', 'photographer', 'booking').get(id=review_id)
+        
+        data = {
+            'id': review.id,
+            'reviewer_name': review.reviewer.get_full_name() if review.reviewer else review.anonymous_name,
+            'reviewer_email': review.reviewer.email if review.reviewer else review.anonymous_email,
+            'photographer_name': review.photographer.get_full_name(),
+            'photographer_email': review.photographer.email,
+            'overall_rating': review.overall_rating,
+            'quality_rating': review.quality_rating,
+            'professionalism_rating': review.professionalism_rating,
+            'communication_rating': review.communication_rating,
+            'value_rating': review.value_rating,
+            'title': review.title,
+            'comment': review.comment,
+            'is_approved': review.is_approved,
+            'is_verified': review.is_verified,
+            'is_featured': review.is_featured,
+            'created_at': review.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            'updated_at': review.updated_at.strftime('%B %d, %Y at %I:%M %p'),
+            'booking_id': review.booking.id if review.booking else None,
+            'categories': [cat.name for cat in review.categories.all()],
+            'helpfulness_votes': review.helpfulness_votes,
+            'total_votes': review.total_votes,
+        }
+        
+        return JsonResponse(data)
+    except Review.DoesNotExist:
+        return JsonResponse({'error': 'Review not found'}, status=404)
+
+@login_required
+@user_passes_test(is_admin)
 def analytics_dashboard(request):
     """Advanced analytics dashboard"""
     # Time period filter
@@ -546,27 +849,26 @@ def analytics_dashboard(request):
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=days)
     
-    # User registration trends
+    # User registration trends - using cumulative data showing growth over time
     user_registrations = []
     photographer_registrations = []
     client_registrations = []
     
+    # Get all users up to the end date
+    all_users = User.objects.filter(date_joined__lte=timezone.make_aware(datetime.combine(end_date, datetime.max.time())))
+    
     for i in range(days, -1, -1):
         date = end_date - timedelta(days=i)
-        start_dt, end_dt = get_date_range_for_filter(date)
+        date_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
         
-        users_count = User.objects.filter(
-            date_joined__gte=start_dt, 
-            date_joined__lte=end_dt
-        ).count()
-        photographers_count = User.objects.filter(
-            date_joined__gte=start_dt, 
-            date_joined__lte=end_dt, 
+        # Count cumulative registrations up to this date
+        users_count = all_users.filter(date_joined__lte=date_end).count()
+        photographers_count = all_users.filter(
+            date_joined__lte=date_end, 
             role=User.Roles.PHOTOGRAPHER
         ).count()
-        clients_count = User.objects.filter(
-            date_joined__gte=start_dt, 
-            date_joined__lte=end_dt, 
+        clients_count = all_users.filter(
+            date_joined__lte=date_end, 
             role=User.Roles.CLIENT
         ).count()
         
@@ -574,28 +876,33 @@ def analytics_dashboard(request):
         photographer_registrations.append({'date': date.strftime('%m/%d'), 'count': photographers_count})
         client_registrations.append({'date': date.strftime('%m/%d'), 'count': clients_count})
     
-    # Booking trends
+    # Booking trends - using cumulative data showing growth over time
     booking_trends = []
     revenue_trends = []
     
+    # Get all bookings and transactions up to the end date
+    all_bookings = Booking.objects.filter(created_at__lte=timezone.make_aware(datetime.combine(end_date, datetime.max.time())))
+    all_transactions = Transaction.objects.filter(
+        created_at__lte=timezone.make_aware(datetime.combine(end_date, datetime.max.time())),
+        status='paid'
+    )
+    
     for i in range(days, -1, -1):
         date = end_date - timedelta(days=i)
-        start_dt, end_dt = get_date_range_for_filter(date)
+        date_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
         
-        bookings_count = Booking.objects.filter(
-            created_at__gte=start_dt, 
-            created_at__lte=end_dt
-        ).count()
-        revenue = Transaction.objects.filter(
-            created_at__gte=start_dt, 
-            created_at__lte=end_dt, 
-            status='paid'
-        ).aggregate(total=Sum('amount'))['total'] or 0
+        # Count cumulative bookings up to this date
+        bookings_count = all_bookings.filter(created_at__lte=date_end).count()
+        
+        # Calculate cumulative revenue up to this date
+        revenue = all_transactions.filter(created_at__lte=date_end).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
         
         booking_trends.append({'date': date.strftime('%m/%d'), 'count': bookings_count})
         revenue_trends.append({'date': date.strftime('%m/%d'), 'amount': float(revenue)})
     
-    # Top photographers by bookings
+    # Top photographers by bookings (top 5)
     top_photographers = User.objects.filter(
         role=User.Roles.PHOTOGRAPHER
     ).annotate(
@@ -604,7 +911,7 @@ def analytics_dashboard(request):
             'photographer_bookings',
             filter=Q(photographer_bookings__status='completed')
         )
-    ).order_by('-booking_count')[:10]
+    ).order_by('-booking_count')[:5]
     
     # Create timezone-aware datetime objects for filtering
     start_datetime = None
@@ -615,18 +922,18 @@ def analytics_dashboard(request):
     if end_date:
         end_datetime = timezone.make_aware(datetime.combine(end_date, datetime.max.time()))
     
-    # Service type popularity (filtered by date range)
+    # Service type popularity (filtered by date range, top 5)
     if start_datetime and end_datetime:
         service_popularity = Booking.objects.filter(
             created_at__gte=start_datetime,
             created_at__lte=end_datetime
         ).values('service_type').annotate(
             count=Count('id')
-        ).order_by('-count')[:10]
+        ).order_by('-count')[:5]
     else:
         service_popularity = Booking.objects.values('service_type').annotate(
             count=Count('id')
-        ).order_by('-count')[:10]
+        ).order_by('-count')[:5]
     
     # Calculate totals filtered by date range
     if start_datetime and end_datetime:
@@ -1363,6 +1670,62 @@ def subscription_stats_api(request):
 
 @login_required
 @user_passes_test(is_admin)
+def payment_details_api(request, payment_id):
+    """API endpoint to get payment details"""
+    from payments.models import SubscriptionPayment
+    
+    # Add debug logging
+    print(f"Payment details API called for payment_id: {payment_id}")
+    
+    try:
+        payment = SubscriptionPayment.objects.select_related(
+            'subscription__user',
+            'subscription__plan'
+        ).get(id=payment_id)
+        
+        data = {
+            'id': payment.id,
+            'transaction_id': payment.transaction_id or payment.id,
+            'amount': float(payment.amount),
+            'currency': payment.currency or 'RWF',
+            'status': payment.status,
+            'payment_method': payment.payment_method,
+            'created_at': payment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            'updated_at': payment.updated_at.strftime('%B %d, %Y at %I:%M %p') if payment.updated_at else None,
+            'notes': payment.notes if hasattr(payment, 'notes') else None,
+        }
+        
+        # Add user information
+        if payment.subscription and payment.subscription.user:
+            data['user'] = {
+                'id': payment.subscription.user.id,
+                'username': payment.subscription.user.username,
+                'email': payment.subscription.user.email,
+            }
+        
+        # Add plan information
+        if payment.subscription and payment.subscription.plan:
+            data['plan'] = {
+                'id': payment.subscription.plan.id,
+                'name': payment.subscription.plan.display_name,
+                'price': float(payment.subscription.plan.price_monthly),
+                'billing_cycle': 'monthly',
+            }
+            
+        # Add subscription status
+        if payment.subscription:
+            data['subscription_status'] = payment.subscription.status.title()
+        
+        return JsonResponse(data)
+        
+    except SubscriptionPayment.DoesNotExist:
+        return JsonResponse({'error': 'Payment not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@user_passes_test(is_admin)
 def admin_redirect_notice(request):
     """
     Display a notice page for users who try to access Django admin subscription pages
@@ -1376,6 +1739,157 @@ def admin_redirect_notice(request):
         'subscription_payments_url': '/admin-dashboard/subscriptions/payments/',
     }
     return render(request, 'admin_dashboard/admin_redirect_notice.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def platform_revenue_management(request):
+    """Enhanced platform revenue management view"""
+    from payments.models import PlatformRevenue, Transaction, SubscriptionPayment
+    from django.db.models import Sum, Count, Avg
+    from decimal import Decimal
+    
+    # Date filtering
+    filter_date_str = request.GET.get('filter_date', '')
+    period = request.GET.get('period', '30')  # days
+    
+    try:
+        days = int(period)
+    except (ValueError, TypeError):
+        days = 30
+    
+    # Calculate date range
+    end_date = timezone.now().date()
+    start_date = end_date - timedelta(days=days)
+    
+    if filter_date_str:
+        filter_date = parse_filter_date(filter_date_str)
+        if filter_date:
+            end_date = filter_date
+            start_date = end_date - timedelta(days=days)
+    
+    # Get platform revenue from commissions
+    commission_revenue = Transaction.objects.filter(
+        transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
+        status=Transaction.TransactionStatus.COMPLETED,
+        completed_at__date__gte=start_date,
+        completed_at__date__lte=end_date
+    ).aggregate(
+        total_commission=Sum('commission_amount'),
+        total_processing_fee=Sum('processing_fee'),
+        total_amount=Sum('amount'),
+        transaction_count=Count('id')
+    )
+    
+    # Get subscription revenue
+    subscription_revenue_data = SubscriptionPayment.objects.filter(
+        status='completed',
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date
+    ).aggregate(
+        total_amount=Sum('amount'),
+        payment_count=Count('id')
+    )
+    
+    # Calculate totals
+    total_commission = commission_revenue['total_commission'] or Decimal('0')
+    total_processing_fee = commission_revenue['total_processing_fee'] or Decimal('0')
+    total_booking_revenue = commission_revenue['total_amount'] or Decimal('0')
+    booking_transaction_count = commission_revenue['transaction_count'] or 0
+    
+    total_subscription_revenue = subscription_revenue_data['total_amount'] or Decimal('0')
+    subscription_payment_count = subscription_revenue_data['payment_count'] or 0
+    
+    # Net platform revenue (commission from bookings + subscription revenue)
+    net_platform_revenue = total_commission + total_subscription_revenue
+    
+    # Daily revenue trends
+    daily_revenue = []
+    for i in range(days - 1, -1, -1):
+        date = end_date - timedelta(days=i)
+        
+        # Commission revenue for the day
+        day_commission = Transaction.objects.filter(
+            transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
+            status=Transaction.TransactionStatus.COMPLETED,
+            completed_at__date=date
+        ).aggregate(total=Sum('commission_amount'))['total'] or Decimal('0')
+        
+        # Subscription revenue for the day
+        day_subscription = SubscriptionPayment.objects.filter(
+            status='completed',
+            created_at__date=date
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        
+        daily_revenue.append({
+            'date': date.strftime('%m/%d'),
+            'commission': float(day_commission),
+            'subscription': float(day_subscription),
+            'total': float(day_commission + day_subscription)
+        })
+    
+    # Revenue breakdown by payment method
+    payment_method_breakdown = Transaction.objects.filter(
+        transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
+        status=Transaction.TransactionStatus.COMPLETED,
+        completed_at__date__gte=start_date,
+        completed_at__date__lte=end_date
+    ).values('payment_method').annotate(
+        total=Sum('commission_amount'),
+        count=Count('id')
+    ).order_by('-total')
+    
+    # Top earning photographers
+    top_photographers = Transaction.objects.filter(
+        transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
+        status=Transaction.TransactionStatus.COMPLETED,
+        completed_at__date__gte=start_date,
+        completed_at__date__lte=end_date
+    ).values('booking__photographer__username', 'booking__photographer__email').annotate(
+        total_bookings=Count('id'),
+        platform_commission=Sum('commission_amount')
+    ).order_by('-platform_commission')[:10]
+    
+    # Recent transactions
+    recent_transactions = Transaction.objects.filter(
+        transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
+        status=Transaction.TransactionStatus.COMPLETED
+    ).select_related('booking__photographer', 'booking__client', 'user').order_by('-completed_at')[:15]
+    
+    # Statistics summary
+    avg_commission_per_booking = total_commission / booking_transaction_count if booking_transaction_count > 0 else Decimal('0')
+    avg_subscription_payment = total_subscription_revenue / subscription_payment_count if subscription_payment_count > 0 else Decimal('0')
+    
+    context = {
+        'period': period,
+        'filter_date': filter_date_str,
+        'start_date': start_date,
+        'end_date': end_date,
+        
+        # Revenue totals
+        'net_platform_revenue': net_platform_revenue,
+        'total_commission': total_commission,
+        'total_subscription_revenue': total_subscription_revenue,
+        'total_processing_fee': total_processing_fee,
+        'total_booking_revenue': total_booking_revenue,
+        
+        # Transaction counts
+        'booking_transaction_count': booking_transaction_count,
+        'subscription_payment_count': subscription_payment_count,
+        'total_transaction_count': booking_transaction_count + subscription_payment_count,
+        
+        # Averages
+        'avg_commission_per_booking': avg_commission_per_booking,
+        'avg_subscription_payment': avg_subscription_payment,
+        
+        # Charts and breakdowns
+        'daily_revenue': json.dumps(daily_revenue),
+        'payment_method_breakdown': payment_method_breakdown,
+        'top_photographers': top_photographers,
+        'recent_transactions': recent_transactions,
+    }
+    
+    return render(request, 'admin_dashboard/platform_revenue.html', context)
 
 
 @login_required

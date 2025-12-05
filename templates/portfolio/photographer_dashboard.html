@@ -707,7 +707,7 @@
                 <div class="dashboard-photos">
                     {% for photo in recent_photos %}
                         {% if photo.image %}
-                            <img src="{{ photo.image.url }}" alt="Photo" class="dashboard-photo-thumb">
+                            <img src="{{ photo.image.url }}" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" alt="Photo" class="dashboard-photo-thumb">
                         {% else %}
                             <div class="dashboard-photo-thumb no-image">
                                 <i class="fas fa-image"></i>
@@ -727,7 +727,7 @@
                 <div class="dashboard-stories">
                     {% for story in recent_stories %}
                         {% if story.image %}
-                            <img src="{{ story.image.url }}" alt="Story" class="dashboard-story-thumb">
+                            <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story" class="dashboard-story-thumb">
                         {% else %}
                             <div class="dashboard-story-thumb no-image">
                                 <i class="fas fa-image"></i>

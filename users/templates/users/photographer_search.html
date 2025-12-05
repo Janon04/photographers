@@ -13,7 +13,7 @@
       <div class="col-md-4 mb-3">
         <div class="card">
           {% if photographer.profile_picture %}
-            <img src="{{ photographer.profile_picture.url }}" class="card-img-top" alt="Profile Picture">
+            <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" class="card-img-top" alt="Profile Picture" style="height:auto; max-height:300px; object-fit:cover;">
           {% endif %}
           <div class="card-body">
             <h5 class="card-title">{{ photographer.first_name }} {{ photographer.last_name }}</h5>

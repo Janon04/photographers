@@ -25,7 +25,7 @@
   <div class="profile-card" style="max-width:900px;margin:0 auto;background:#fff;border-radius:2rem;box-shadow:0 8px 32px rgba(199,161,122,0.10);padding:2.5rem 2.5rem 2rem 2.5rem;display:flex;gap:2.5rem;align-items:center;">
     <div style="flex:0 0 180px;text-align:center;">
       {% if photographer.profile_picture %}
-        <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" style="width:150px;height:150px;object-fit:cover;border-radius:50%;border:4px solid #ffd700;box-shadow:0 2px 12px rgba(199,161,122,0.12);">
+        <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="Profile Picture" style="width:200px;height:200px;object-fit:cover;border-radius:50%;border:4px solid #ffd700;box-shadow:0 2px 12px rgba(199,161,122,0.12);">
       {% else %}
         <div style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background:#f8f6f3;border-radius:50%;border:4px solid #ffd700;font-size:3rem;color:#a67c52;">{{ photographer.first_name|first|default:photographer.username|first|upper }}</div>
       {% endif %}
@@ -50,9 +50,9 @@
   <div style="display:flex;gap:1.2rem;align-items:flex-end;overflow-x:auto;padding-bottom:0.7rem;">
     {% for story in stories %}
       <div style="flex:0 0 110px;text-align:center;">
-        <div style="width:100px;height:100px;border-radius:50%;border:3px solid #ffd700;overflow:hidden;box-shadow:0 2px 8px rgba(199,161,122,0.13);margin:0 auto 0.5rem auto;background:#fffbe6;display:flex;align-items:center;justify-content:center;">
+        <div style="width:120px;height:120px;border-radius:50%;border:3px solid #ffd700;overflow:hidden;box-shadow:0 2px 8px rgba(199,161,122,0.13);margin:0 auto 0.5rem auto;background:#fffbe6;display:flex;align-items:center;justify-content:center;">
           {% if story.image %}
-            <img src="{{ story.image.url }}" alt="Story" style="width:100%;height:100%;object-fit:cover;">
+            <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story" style="width:100%;height:100%;object-fit:cover;">
           {% else %}
             <i class="fas fa-image" style="font-size:2rem;color:#a67c52;"></i>
           {% endif %}
@@ -70,7 +70,7 @@
     {% for event in events %}
       <div style="background:#fffbe6;border-radius:1.2rem;box-shadow:0 2px 8px rgba(199,161,122,0.07);padding:1.2rem 1.5rem;min-width:220px;flex:1 1 260px;max-width:320px;">
         {% if event.image %}
-          <img src="{{ event.image.url }}" alt="{{ event.title }} cover" style="width:100%;max-width:260px;height:140px;object-fit:cover;border-radius:0.8rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);cursor:pointer;" onclick="showEventModal('image', '{{ event.image.url }}', '{{ event.title|escapejs }}')">
+          <img src="{{ event.image.url }}" srcset="{{ event.image.url }} 1x, {{ event.image.url }} 2x" alt="{{ event.title }} cover" style="width:100%;max-width:340px;height:auto;max-height:220px;object-fit:cover;border-radius:0.8rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);cursor:pointer;" onclick="showEventModal('image', '{{ event.image.url }}', '{{ event.title|escapejs }}')">
         {% endif %}
         {% if event.video %}
           <div style="position:relative;width:100%;max-width:260px;height:140px;margin-bottom:0.7rem;">
@@ -211,7 +211,7 @@ window.onclick = function(event) {
             <div style="background:#ff9800;color:#fff;padding:0.2rem 0.5rem;border-radius:0.5rem;font-size:0.8rem;font-weight:600;position:absolute;top:0.5rem;right:0.5rem;z-index:1;">Pending Approval</div>
           {% endif %}
           {% if photo.image %}
-            <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="width:100%;max-width:260px;height:180px;object-fit:cover;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
+            <img src="{{ photo.image.url }}" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" alt="{{ photo.title }}" style="width:100%;max-width:340px;height:auto;max-height:280px;object-fit:cover;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);">
           {% else %}
             <div style="width:100%;max-width:260px;height:180px;background:#f8f6f3;border-radius:1rem;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(199,161,122,0.10);display:flex;align-items:center;justify-content:center;border:2px dashed #c7a17a;">
               <i class="fas fa-image" style="font-size:3rem;color:#a67c52;"></i>

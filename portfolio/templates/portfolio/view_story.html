@@ -11,7 +11,7 @@
 <div class="feed-container" style="max-width:400px;margin-top:3rem;text-align:center;">
   <div style="margin-bottom:1rem;">
     <div class="post-avatar" style="display:inline-block;vertical-align:middle;">
-      <img src="{{ story.photographer.get_large_avatar_url }}" alt="{{ story.photographer.username }}">
+      <img src="{{ story.photographer.get_large_avatar_url }}" srcset="{{ story.photographer.get_large_avatar_url }} 1x, {{ story.photographer.get_large_avatar_url }} 2x" alt="{{ story.photographer.username }}">
     </div>
     <span style="font-weight:bold;color:#c19a6b;font-size:1.1rem;margin-left:0.5rem;">{{ story.photographer.username }}</span>
   </div>
@@ -21,7 +21,7 @@
       Your browser does not support the video tag.
     </video>
   {% elif story.image %}
-    <img src="{{ story.image.url }}" alt="Story" style="width:100%;border-radius:1rem;max-height:400px;object-fit:cover;">
+    <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story" style="width:100%;border-radius:1rem;max-height:600px;object-fit:cover;">
   {% else %}
     <div style="color:#888;">No media available.</div>
   {% endif %}

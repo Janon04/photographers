@@ -4,7 +4,7 @@
 <ul>
   {% for photo in photos %}
     <li>
-      <img src="{{ photo.image.url }}" alt="{{ photo.title }}" width="200" />
+      <img src="{{ photo.image.url }}" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" alt="{{ photo.title }}" style="width:100%; height:auto; max-height:400px; object-fit:cover; border-radius:0.5rem;" />
       <strong>{{ photo.title }}</strong> by {{ photo.photographer.username }}<br>
       {{ photo.description }}
       <button onclick="copyPhotoLink('{{ request.build_absolute_uri }}{% url 'portfolio:photographer_detail' photo.photographer.pk %}#photo-{{ photo.id }}')" style="margin-left:1rem;background:#c7a17a;color:#fff;padding:0.4rem 1rem;border-radius:0.7rem;font-weight:600;border:none;cursor:pointer;">Share</button>

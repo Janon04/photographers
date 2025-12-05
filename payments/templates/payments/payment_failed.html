@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed{% endblock %}
+
+{% block head %}
+<style>
+    .failure-container {
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .failure-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 50px 30px;
+    }
+    
+    .failure-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        animation: shake 0.5s ease-out;
+    }
+    
+    .failure-icon i {
+        font-size: 3rem;
+        color: white;
+    }
+    
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-10px);
+        }
+        75% {
+            transform: translateX(10px);
+        }
+    }
+    
+    .failure-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #dc3545;
+        margin-bottom: 15px;
+    }
+    
+    .failure-message {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .error-details {
+        background: #fff8f8;
+        border-left: 4px solid #dc3545;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: left;
+    }
+    
+    .error-details h3 {
+        color: #dc3545;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    
+    .error-details ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .error-details li {
+        padding: 8px 0;
+        color: #666;
+    }
+    
+    .error-details li i {
+        color: #dc3545;
+        margin-right: 10px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .btn-action {
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-retry {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+    }
+    
+    .btn-retry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+    
+    .btn-secondary-action {
+        background: white;
+        color: var(--chocolate-dark, #654321);
+        border: 2px solid var(--chocolate-dark, #654321);
+    }
+    
+    .btn-secondary-action:hover {
+        background: var(--chocolate-dark, #654321);
+        color: white;
+    }
+    
+    .help-section {
+        text-align: left;
+        margin-top: 30px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .help-section h3 {
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 15px;
+    }
+    
+    .help-section p {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .help-section a {
+        color: #0066cc;
+        text-decoration: none;
+    }
+    
+    .help-section a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="failure-container">
+    <div class="failure-card">
+        <div class="failure-icon">
+            <i class="fas fa-times"></i>
+        </div>
+        
+        <h1 class="failure-title">Payment Failed</h1>
+        <p class="failure-message">
+            Unfortunately, your payment could not be processed. Don't worry, no charges were made.
+        </p>
+        
+        {% if error_message %}
+        <div class="alert alert-danger">
+            <strong><i class="fas fa-exclamation-triangle"></i> Error:</strong> {{ error_message }}
+        </div>
+        {% endif %}
+        
+        <div class="error-details">
+            <h3><i class="fas fa-info-circle"></i> Common Reasons for Payment Failure</h3>
+            <ul>
+                <li><i class="fas fa-credit-card"></i> Insufficient funds in your account</li>
+                <li><i class="fas fa-ban"></i> Card expired or declined by your bank</li>
+                <li><i class="fas fa-shield-alt"></i> Security verification failed</li>
+                <li><i class="fas fa-wifi"></i> Network connectivity issues</li>
+                <li><i class="fas fa-lock"></i> Card limit exceeded</li>
+            </ul>
+        </div>
+        
+        <div class="action-buttons">
+            {% if booking %}
+            <a href="{% url 'payment_checkout' booking.id %}" class="btn-action btn-retry">
+                <i class="fas fa-redo"></i> Try Again
+            </a>
+            {% endif %}
+            <a href="{% url 'home' %}" class="btn-action btn-secondary-action">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+        </div>
+        
+        <div class="help-section">
+            <h3><i class="fas fa-life-ring"></i> Need Help?</h3>
+            <p>
+                If you continue to experience issues, please contact your bank or try a different payment method.
+            </p>
+            <p>
+                <i class="fas fa-envelope"></i> Email us at: 
+                <a href="mailto:support@photorw.com">support@photorw.com</a>
+            </p>
+            <p>
+                <i class="fas fa-phone"></i> Call us: +250 788 123 456
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

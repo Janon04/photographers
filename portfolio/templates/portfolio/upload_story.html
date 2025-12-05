@@ -344,7 +344,7 @@
       {% for story in active_stories %}
         <div class="story-item">
           {% if story.image %}
-            <img src="{{ story.image.url }}" alt="Story" class="story-image">
+            <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story" class="story-image">
           {% elif story.video %}
             <div class="video-icon">
               <i class="fas fa-play"></i>
@@ -397,7 +397,7 @@
     {% for story in expired_stories %}
       <div class="story-item" style="opacity:0.7;">
         {% if story.image %}
-          <img src="{{ story.image.url }}" alt="Story" class="story-image">
+          <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story" class="story-image">
         {% elif story.video %}
           <div class="video-icon">
             <i class="fas fa-play"></i>

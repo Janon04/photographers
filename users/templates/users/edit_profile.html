@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:2rem auto;background:#fff;padding:2rem;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.06);">
+    <h2 style="margin-bottom:1rem;">Edit Your Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div>
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+            <div>
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {{ form.first_name.errors }}
+            </div>
+            <div>
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {{ form.last_name.errors }}
+            </div>
+        </div>
+        <div style="margin-top:1rem;">
+            {{ form.bio.label_tag }}
+            {{ form.bio }}
+            {{ form.bio.errors }}
+        </div>
+        <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+                {{ form.profile_picture.label_tag }}
+                {{ form.profile_picture }}
+                {{ form.profile_picture.errors }}
+            </div>
+            <div>
+                {{ form.contact_info.label_tag }}
+                {{ form.contact_info }}
+                {{ form.contact_info.errors }}
+            </div>
+        </div>
+        <div style="margin-top:1rem;">
+            {{ form.social_proof.label_tag }}
+            {{ form.social_proof }}
+            {{ form.social_proof.errors }}
+        </div>
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:flex-end;">
+            <a href="{% url 'users:profile' %}" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -162,7 +162,7 @@
             </div>
             <div class="p-3 text-center">
                 {% if user_obj.profile_picture %}
-                    <img src="{{ user_obj.profile_picture.url }}" alt="Profile Picture" 
+                    <img src="{{ user_obj.profile_picture.url }}" srcset="{{ user_obj.profile_picture.url }} 1x, {{ user_obj.profile_picture.url }} 2x" alt="Profile Picture" 
                          class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                 {% else %}
                     <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white mb-3" 

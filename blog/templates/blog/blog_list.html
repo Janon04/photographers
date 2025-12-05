@@ -364,7 +364,7 @@
             <article class="blog-card">
                 {% if post.image %}
                     <div class="blog-image">
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
+                        <img src="{{ post.image.url }}" srcset="{{ post.image.url }} 1x, {{ post.image.url }} 2x" alt="{{ post.title }}" loading="lazy">
                     </div>
                 {% endif %}
                 

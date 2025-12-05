@@ -8,18 +8,18 @@
 {% if filter_date %}
 <div class="row mb-4">
     <div class="col-12">
-        <div class="date-filter-container" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
+        <div class="content-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; border: 2px solid var(--yellow);">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="mb-1" style="color: var(--gold); font-weight: bold;">
+                    <h6 class="mb-1" style="color: var(--yellow); font-weight: 800;">
                         <i class="fas fa-calendar-alt me-2"></i>
                         Filtered by Date: {{ filter_date_formatted }}
                     </h6>
-                    <p class="mb-0" style="color: white; opacity: 0.9; font-size: 13px;">
+                    <p class="mb-0" style="color: white; opacity: 0.9; font-size: 0.95rem;">
                         Showing users who registered on this specific date.
                     </p>
                 </div>
-                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-sm" style="background: #FF6B6B; color: white; border: none; font-weight: bold; padding: 6px 12px; border-radius: 6px;">
+                <a href="{% url 'admin_dashboard:users_management' %}" class="btn btn-danger">
                     <i class="fas fa-times me-1"></i> Clear Filter
                 </a>
             </div>
@@ -29,151 +29,305 @@
 {% endif %}
 
 <!-- Search and Filter Section -->
-<div class="search-filters">
+<div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(10, 14, 39, 0.95) 100%); border-radius: 16px; padding: 28px; margin-bottom: 32px; box-shadow: 0 0 40px rgba(0, 217, 255, 0.25), inset 0 0 20px rgba(0, 217, 255, 0.08); border: 1px solid var(--neon-blue); border-left: 5px solid var(--neon-cyan);">
+    <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <h5 style="color: var(--neon-cyan); font-weight: 800; font-size: 18px; margin: 0; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); letter-spacing: 0.5px;">
+            <i class="fas fa-search me-2"></i>Search & Filter Users
+        </h5>
+        <span style="background: rgba(0, 217, 255, 0.15); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(0, 217, 255, 0.3);">
+            <i class="fas fa-filter me-1"></i>Advanced Filters
+        </span>
+    </div>
+    
     <form method="get" class="row g-3">
-        <div class="col-md-3">
-            <label for="search" class="form-label">Search Users</label>
+        <div class="col-lg-4 col-md-6">
+            <label for="search" style="display: block; font-size: 12px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                <i class="fas fa-user-search me-1"></i>Search Users
+            </label>
             <input type="text" class="form-control" id="search" name="search" 
-                   value="{{ search_query }}" placeholder="Email, name, or username...">
+                   value="{{ search_query }}" placeholder="Email, name, or username..."
+                   style="background: rgba(10, 14, 39, 0.8); border: 2px solid var(--neon-blue); color: var(--neon-cyan); font-weight: 500; padding: 12px 16px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;"
+                   onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'; this.style.borderColor='var(--neon-cyan)';"
+                   onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'; this.style.borderColor='var(--neon-blue)';">
         </div>
-        <div class="col-md-2">
-            <label for="role" class="form-label">Role</label>
-            <select class="form-control" id="role" name="role">
-                <option value="">All Roles</option>
+        <div class="col-lg-2 col-md-6">
+            <label for="role" style="display: block; font-size: 12px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                <i class="fas fa-user-tag me-1"></i>Role
+            </label>
+            <select class="form-select" id="role" name="role"
+                    style="background: rgba(10, 14, 39, 0.8); border: 2px solid var(--neon-blue); color: var(--neon-cyan); font-weight: 500; padding: 12px 16px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;"
+                    onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'; this.style.borderColor='var(--neon-cyan)';"
+                    onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'; this.style.borderColor='var(--neon-blue)';">
+                <option value="" style="background: #0A0E27; color: var(--neon-cyan);">All Roles</option>
                 {% for value, label in user_roles %}
-                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>
+                    <option value="{{ value }}" {% if role_filter == value %}selected{% endif %} style="background: #0A0E27; color: var(--neon-cyan);">
                         {{ label }}
                     </option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2">
-            <label for="verified" class="form-label">Verification</label>
-            <select class="form-control" id="verified" name="verified">
-                <option value="">All</option>
-                <option value="true" {% if is_verified_filter == 'true' %}selected{% endif %}>Verified</option>
-                <option value="false" {% if is_verified_filter == 'false' %}selected{% endif %}>Unverified</option>
+        <div class="col-lg-2 col-md-6">
+            <label for="verified" style="display: block; font-size: 12px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                <i class="fas fa-shield-check me-1"></i>Verification
+            </label>
+            <select class="form-select" id="verified" name="verified"
+                    style="background: rgba(10, 14, 39, 0.8); border: 2px solid var(--neon-blue); color: var(--neon-cyan); font-weight: 500; padding: 12px 16px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;"
+                    onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'; this.style.borderColor='var(--neon-cyan)';"
+                    onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'; this.style.borderColor='var(--neon-blue)';">
+                <option value="" style="background: #0A0E27; color: var(--neon-cyan);">All</option>
+                <option value="true" {% if is_verified_filter == 'true' %}selected{% endif %} style="background: #0A0E27; color: var(--neon-cyan);">Verified</option>
+                <option value="false" {% if is_verified_filter == 'false' %}selected{% endif %} style="background: #0A0E27; color: var(--neon-cyan);">Unverified</option>
             </select>
         </div>
-        <div class="col-md-2">
-            <label for="filter_date" class="form-label">Registration Date</label>
+        <div class="col-lg-2 col-md-6">
+            <label for="filter_date" style="display: block; font-size: 12px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                <i class="fas fa-calendar-alt me-1"></i>Reg. Date
+            </label>
             <input type="date" class="form-control" id="filter_date" name="filter_date" 
-                   value="{{ filter_date }}" title="Filter by registration date">
+                   value="{{ filter_date }}" title="Filter by registration date"
+                   style="background: rgba(10, 14, 39, 0.8); border: 2px solid var(--neon-blue); color: var(--neon-cyan); font-weight: 500; padding: 12px 16px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;"
+                   onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'; this.style.borderColor='var(--neon-cyan)';"
+                   onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'; this.style.borderColor='var(--neon-blue)';">
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn me-2" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                <i class="fas fa-search"></i> Search
-            </button>
-        </div>
-        <div class="col-md-1 d-flex align-items-end">
-            <a href="{% url 'admin_dashboard:export_data' %}?type=users" class="btn btn-success">
-                <i class="fas fa-download"></i> Export
-            </a>
+        <div class="col-lg-2 col-md-12">
+            <label style="display: block; font-size: 12px; font-weight: 700; color: transparent; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Action</label>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn flex-grow-1" style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); color: var(--bg-darker); border: none; font-weight: 700; padding: 12px 20px; border-radius: 10px; box-shadow: 0 0 25px rgba(0, 217, 255, 0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 35px rgba(0, 217, 255, 0.6)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)';">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+                <a href="{% url 'admin_dashboard:export_data' %}?type=users" class="btn" style="background: linear-gradient(135deg, var(--neon-green), #2DD97F); color: var(--bg-darker); border: none; font-weight: 700; padding: 12px 20px; border-radius: 10px; box-shadow: 0 0 25px rgba(57, 255, 20, 0.4); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 35px rgba(57, 255, 20, 0.6)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 25px rgba(57, 255, 20, 0.4)';">
+                    <i class="fas fa-download"></i>
+                </a>
+            </div>
         </div>
     </form>
 </div>
 
 <!-- Users Table -->
-<div class="data-table" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-    <div class="table-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-        <span style="color: var(--gold); font-weight: bold;"><i class="fas fa-users me-2"></i>Users ({{ page_obj.paginator.count }} total)</span>
-        <div>
-            <span style="color: white; opacity: 0.9;">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span>
+<div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.9) 0%, rgba(10, 14, 39, 0.95) 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 0 40px rgba(0, 217, 255, 0.25), inset 0 0 20px rgba(0, 217, 255, 0.08); border: 1px solid var(--neon-blue);">
+    <div style="background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-cyan) 100%); padding: 20px 28px; border-bottom: 4px solid var(--neon-cyan); box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h5 style="color: var(--bg-darker); margin: 0; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); letter-spacing: 0.5px;">
+                <i class="fas fa-users me-2"></i>All Users <span style="background: rgba(0, 0, 0, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 14px; margin-left: 8px;">({{ page_obj.paginator.count }} total)</span>
+            </h5>
+            <div style="color: var(--bg-darker); opacity: 0.85; font-size: 14px; font-weight: 600;">
+                <i class="fas fa-list me-2"></i>Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+            </div>
         </div>
     </div>
     
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
+    <!-- Horizontal Scroll Wrapper with Custom Scrollbar -->
+    <style>
+        /* Custom Scrollbar Styling */
+        .table-scroll-wrapper::-webkit-scrollbar {
+            height: 14px;
+        }
+        .table-scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(10, 14, 39, 0.8);
+            border-radius: 10px;
+            margin: 0 20px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+        .table-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.6);
+            border: 2px solid rgba(0, 217, 255, 0.3);
+        }
+        .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+        }
+        
+        /* User Table Styling */
+        .user-table-row {
+            border-bottom: 2px solid rgba(0, 217, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(26, 31, 58, 0.35);
+        }
+        .user-table-row:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(4px);
+            box-shadow: -4px 0 0 0 var(--neon-cyan), 0 4px 20px rgba(0, 217, 255, 0.2);
+        }
+    </style>
+    
+    <div class="table-scroll-wrapper" style="overflow-x: auto; overflow-y: visible; scrollbar-width: thin; scrollbar-color: var(--neon-cyan) rgba(10, 14, 39, 0.8); padding: 0 0 15px 0;">
+        <table style="margin: 0; width: 100%; min-width: 900px; table-layout: fixed; border-collapse: separate; border-spacing: 0;">
+            <thead style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.25), rgba(0, 150, 255, 0.15)); border-bottom: 3px solid var(--neon-cyan); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0, 217, 255, 0.3);">
                 <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Joined</th>
-                    <th>Last Login</th>
-                    <th>Actions</th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; width: 180px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-user-circle me-2" style="font-size: 13px;"></i>User Information
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 75px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-user-tag me-1"></i>Role
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 70px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-shield-check me-1"></i>Verified
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 70px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-power-off me-1"></i>Active
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 100px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-calendar-plus me-1"></i>Joined
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 100px; border-right: 1px solid rgba(0, 217, 255, 0.15);">
+                        <i class="fas fa-sign-in-alt me-1"></i>Last Login
+                    </th>
+                    <th style="padding: 16px 20px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.7); text-transform: uppercase; letter-spacing: 1.2px; font-size: 11px; text-align: center; width: 205px;">
+                        <i class="fas fa-tools me-1"></i>Actions
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in page_obj %}
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
+                    <tr class="user-table-row">
+                        <!-- User Information Column -->
+                        <td style="padding: 14px 20px; width: 180px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 {% if user.profile_picture %}
-                                    <img src="{{ user.profile_picture.url }}" alt="Avatar" class="user-avatar me-2">
+                                    <img src="{{ user.profile_picture.url }}" alt="Avatar" 
+                                         style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 2px solid var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 217, 255, 0.4); flex-shrink: 0;">
                                 {% else %}
-                                    <div class="user-avatar me-2 bg-secondary d-flex align-items-center justify-content-center text-white">
+                                    <div style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--neon-purple), #8B2C8B); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 900; font-size: 16px; box-shadow: 0 0 12px rgba(217, 70, 239, 0.5); border: 2px solid rgba(217, 70, 239, 0.4); flex-shrink: 0;">
                                         {{ user.first_name|first|default:user.email|first|upper }}
                                     </div>
                                 {% endif %}
-                                <div>
-                                    <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
-                                    <small class="text-muted">{{ user.email }}</small>
+                                <div style="flex: 1; min-width: 0; overflow: hidden;">
+                                    <div style="color: var(--neon-cyan); font-weight: 700; font-size: 14px; margin-bottom: 3px; text-shadow: 0 0 8px rgba(0, 217, 255, 0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ user.get_full_name|default:user.username }}">
+                                        {{ user.get_full_name|default:user.username }}
+                                    </div>
+                                    <div style="color: rgba(224, 231, 255, 0.55); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;" title="{{ user.email }}">
+                                        <i class="fas fa-envelope" style="font-size: 10px; margin-right: 5px; opacity: 0.7;"></i>{{ user.email }}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td>
-                            <span class="badge" style="{% if user.role == 'photographer' %}background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold);{% elif user.role == 'client' %}background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark);{% else %}background: linear-gradient(135deg, #8B4513, #A0522D); color: white;{% endif %} padding: 6px 12px; border-radius: 6px; font-weight: 500; font-size: 12px;">
-                                {{ user.get_role_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                {% if user.is_verified %}
-                                    <span class="badge bg-success mb-1">
-                                        <i class="fas fa-check-circle"></i> Verified
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-warning mb-1">
-                                        <i class="fas fa-clock"></i> Unverified
-                                    </span>
-                                {% endif %}
-                                
-                                {% if user.is_active %}
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-circle"></i> Active
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-danger">
-                                        <i class="fas fa-ban"></i> Suspended
-                                    </span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                        <td>
-                            {% if user.last_login %}
-                                {{ user.last_login|date:"M d, Y" }}
+                        
+                        <!-- Role Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 75px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            {% if user.role == 'photographer' %}
+                                <span style="background: rgba(217, 70, 239, 0.25); color: var(--neon-purple); padding: 6px 12px; border-radius: 7px; font-weight: 700; border: 2px solid var(--neon-purple); box-shadow: 0 0 12px rgba(217, 70, 239, 0.35); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fas fa-camera" style="font-size: 10px; margin-right: 4px;"></i>Photo
+                                </span>
+                            {% elif user.role == 'client' %}
+                                <span style="background: rgba(0, 217, 255, 0.25); color: var(--neon-cyan); padding: 6px 12px; border-radius: 7px; font-weight: 700; border: 2px solid var(--neon-cyan); box-shadow: 0 0 12px rgba(0, 217, 255, 0.35); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fas fa-user" style="font-size: 10px; margin-right: 4px;"></i>Client
+                                </span>
                             {% else %}
-                                <span class="text-muted">Never</span>
+                                <span style="background: rgba(255, 215, 0, 0.25); color: #FFD700; padding: 6px 12px; border-radius: 7px; font-weight: 700; border: 2px solid #FFD700; box-shadow: 0 0 12px rgba(255, 215, 0, 0.35); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fas fa-crown" style="font-size: 10px; margin-right: 4px;"></i>Admin
+                                </span>
                             {% endif %}
                         </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="{% url 'admin_dashboard:user_detail' user.id %}" 
-                                   class="btn btn-sm" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: var(--gold); border: 1px solid var(--chocolate-medium); padding: 4px 8px; border-radius: 4px;" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                
-                                <button type="button" class="btn btn-sm" style="{% if user.is_verified %}background: linear-gradient(135deg, #FFA500, var(--gold)); color: var(--chocolate-dark); border: 1px solid #FFA500;{% else %}background: linear-gradient(135deg, #4ECDC4, #45B7AF); color: white; border: 1px solid #4ECDC4;{% endif %} padding: 4px 8px; border-radius: 4px; margin-left: 2px;"
-                                        onclick="toggleVerification({{ user.id }}, {{ user.is_verified|yesno:'true,false' }})"
-                                        title="{% if user.is_verified %}Unverify{% else %}Verify{% endif %} User">
-                                    <i class="fas fa-{% if user.is_verified %}times{% else %}check{% endif %}"></i>
+                        
+                        <!-- Verified Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 70px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            {% if user.is_verified %}
+                                <span style="background: rgba(57, 255, 20, 0.25); color: var(--neon-green); padding: 6px 10px; border-radius: 7px; font-weight: 700; border: 2px solid var(--neon-green); box-shadow: 0 0 12px rgba(57, 255, 20, 0.4); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase;">
+                                    <i class="fas fa-check-circle" style="font-size: 10px;"></i>
+                                </span>
+                            {% else %}
+                                <span style="background: rgba(255, 215, 0, 0.25); color: #FFD700; padding: 6px 10px; border-radius: 7px; font-weight: 700; border: 2px solid #FFD700; box-shadow: 0 0 12px rgba(255, 215, 0, 0.4); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase;">
+                                    <i class="fas fa-clock" style="font-size: 10px;"></i>
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Active Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 70px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            {% if user.is_active %}
+                                <span style="background: rgba(57, 255, 20, 0.25); color: var(--neon-green); padding: 6px 10px; border-radius: 7px; font-weight: 700; border: 2px solid var(--neon-green); box-shadow: 0 0 12px rgba(57, 255, 20, 0.4); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase;">
+                                    <i class="fas fa-power-off" style="font-size: 10px;"></i>
+                                </span>
+                            {% else %}
+                                <span style="background: rgba(239, 68, 68, 0.25); color: #EF4444; padding: 6px 10px; border-radius: 7px; font-weight: 700; border: 2px solid #EF4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); font-size: 11px; display: inline-block; white-space: nowrap; text-transform: uppercase;">
+                                    <i class="fas fa-ban" style="font-size: 10px;"></i>
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Joined Date Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 100px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            <div style="color: rgba(224, 231, 255, 0.8); font-size: 13px; font-weight: 600; white-space: nowrap; margin-bottom: 2px;">
+                                {{ user.date_joined|date:"M d, Y" }}
+                            </div>
+                            <div style="color: rgba(224, 231, 255, 0.45); font-size: 11px; white-space: nowrap; font-weight: 500;">
+                                {{ user.date_joined|date:"h:i A" }}
+                            </div>
+                        </td>
+                        
+                        <!-- Last Login Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 100px; border-right: 1px solid rgba(0, 217, 255, 0.08);">
+                            {% if user.last_login %}
+                                <div style="color: rgba(224, 231, 255, 0.8); font-size: 13px; font-weight: 600; white-space: nowrap; margin-bottom: 2px;">
+                                    {{ user.last_login|date:"M d, Y" }}
+                                </div>
+                                <div style="color: rgba(224, 231, 255, 0.45); font-size: 11px; white-space: nowrap; font-weight: 500;">
+                                    {{ user.last_login|date:"h:i A" }}
+                                </div>
+                            {% else %}
+                                <div style="color: rgba(224, 231, 255, 0.35); font-size: 12px; font-weight: 600; white-space: nowrap; font-style: italic;">
+                                    <i class="fas fa-times-circle" style="font-size: 10px; margin-right: 4px; opacity: 0.6;"></i>Never
+                                </div>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Actions Column -->
+                        <td style="padding: 14px 20px; text-align: center; width: 205px;">
+                            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: nowrap; align-items: center;">
+                                <button type="button" onclick="showUserDetails({{ user.id }})"
+                                   style="background: rgba(0, 217, 255, 0.22); color: var(--neon-cyan); border: 2px solid var(--neon-cyan); padding: 7px 16px; border-radius: 7px; font-weight: 700; box-shadow: 0 0 12px rgba(0, 217, 255, 0.35); transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;"
+                                   title="View Full User Details"
+                                   onmouseover="this.style.background='rgba(0, 217, 255, 0.35)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.6)';"
+                                   onmouseout="this.style.background='rgba(0, 217, 255, 0.22)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 0 12px rgba(0, 217, 255, 0.35)';">
+                                    <i class="fas fa-info-circle" style="font-size: 11px;"></i>Full View
                                 </button>
                                 
-                                <button type="button" class="btn btn-sm" style="{% if user.is_active %}background: linear-gradient(135deg, #FF6B6B, #E74C3C); color: white; border: 1px solid #FF6B6B;{% else %}background: linear-gradient(135deg, #4ECDC4, #45B7AF); color: white; border: 1px solid #4ECDC4;{% endif %} padding: 4px 8px; border-radius: 4px; margin-left: 2px;"
+                                <button type="button" 
+                                        style="background: {% if user.is_verified %}rgba(255, 215, 0, 0.22){% else %}rgba(57, 255, 20, 0.22){% endif %}; color: {% if user.is_verified %}#FFD700{% else %}var(--neon-green){% endif %}; border: 2px solid {% if user.is_verified %}#FFD700{% else %}var(--neon-green){% endif %}; padding: 7px 14px; border-radius: 7px; font-weight: 700; box-shadow: 0 0 12px {% if user.is_verified %}rgba(255, 215, 0, 0.35){% else %}rgba(57, 255, 20, 0.35){% endif %}; transition: all 0.25s ease; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;"
+                                        onclick="toggleVerification({{ user.id }}, {{ user.is_verified|yesno:'true,false' }})"
+                                        title="{% if user.is_verified %}Unverify{% else %}Verify{% endif %} User"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 20px {% if user.is_verified %}rgba(255, 215, 0, 0.6){% else %}rgba(57, 255, 20, 0.6){% endif %}';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 12px {% if user.is_verified %}rgba(255, 215, 0, 0.35){% else %}rgba(57, 255, 20, 0.35){% endif %}';">
+                                    <i class="fas fa-{% if user.is_verified %}times{% else %}shield-check{% endif %}" style="font-size: 11px;"></i>
+                                </button>
+                                
+                                <button type="button" 
+                                        style="background: {% if user.is_active %}rgba(239, 68, 68, 0.22){% else %}rgba(57, 255, 20, 0.22){% endif %}; color: {% if user.is_active %}#EF4444{% else %}var(--neon-green){% endif %}; border: 2px solid {% if user.is_active %}#EF4444{% else %}var(--neon-green){% endif %}; padding: 7px 14px; border-radius: 7px; font-weight: 700; box-shadow: 0 0 12px {% if user.is_active %}rgba(239, 68, 68, 0.35){% else %}rgba(57, 255, 20, 0.35){% endif %}; transition: all 0.25s ease; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;"
                                         onclick="toggleSuspension({{ user.id }}, {{ user.is_active|yesno:'true,false' }})"
-                                        title="{% if user.is_active %}Suspend{% else %}Activate{% endif %} User">
-                                    <i class="fas fa-{% if user.is_active %}ban{% else %}check-circle{% endif %}"></i>
+                                        title="{% if user.is_active %}Suspend{% else %}Activate{% endif %} User"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 20px {% if user.is_active %}rgba(239, 68, 68, 0.6){% else %}rgba(57, 255, 20, 0.6){% endif %}';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 12px {% if user.is_active %}rgba(239, 68, 68, 0.35){% else %}rgba(57, 255, 20, 0.35){% endif %}';">
+                                    <i class="fas fa-{% if user.is_active %}ban{% else %}check-circle{% endif %}" style="font-size: 11px;"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            <i class="fas fa-users fa-2x mb-2 d-block"></i>
-                            No users found matching your criteria
+                        <td colspan="7" style="text-align: center; padding: 70px 20px; background: rgba(26, 31, 58, 0.3);">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 22px;">
+                                <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(0, 217, 255, 0.08); display: flex; align-items: center; justify-content: center; border: 3px dashed rgba(0, 217, 255, 0.3); box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);">
+                                    <i class="fas fa-users-slash" style="font-size: 48px; color: rgba(0, 217, 255, 0.4); text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);"></i>
+                                </div>
+                                <div style="color: var(--neon-cyan); font-size: 24px; font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); letter-spacing: 1.5px; text-transform: uppercase;">
+                                    No Users Found
+                                </div>
+                                <div style="color: rgba(224, 231, 255, 0.6); font-size: 14px; max-width: 450px; line-height: 1.6; font-weight: 500;">
+                                    No users match your current search criteria. Try adjusting your filters or clearing the search to view all users.
+                                </div>
+                                <button onclick="document.querySelector('form').reset(); document.querySelector('form').submit();" 
+                                        style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); color: var(--bg-darker); border: none; padding: 12px 28px; border-radius: 8px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; box-shadow: 0 0 20px rgba(0, 217, 255, 0.4); cursor: pointer; transition: all 0.3s ease; margin-top: 10px;"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 30px rgba(0, 217, 255, 0.6)';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)';">
+                                    <i class="fas fa-redo me-2"></i>Clear Filters
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
@@ -184,7 +338,7 @@
 
 <!-- Pagination -->
 {% if page_obj.has_other_pages %}
-    <nav aria-label="Users pagination">
+    <nav aria-label="Users pagination" class="mt-4">
         <ul class="pagination">
             {% if page_obj.has_previous %}
                 <li class="page-item">
@@ -221,10 +375,410 @@
 
 <!-- CSRF Token for AJAX -->
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<!-- User Details Modal -->
+<div id="userDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 10000; overflow-y: auto; padding: 30px;">
+    <div style="max-width: 1200px; margin: 0 auto; background: linear-gradient(135deg, rgba(26, 31, 58, 0.98) 0%, rgba(10, 14, 39, 0.98) 100%); border-radius: 20px; box-shadow: 0 0 60px rgba(0, 217, 255, 0.4), inset 0 0 30px rgba(0, 217, 255, 0.1); border: 2px solid var(--neon-cyan); position: relative;">
+        
+        <!-- Modal Header -->
+        <div style="background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-cyan) 100%); padding: 25px 35px; border-radius: 20px 20px 0 0; border-bottom: 4px solid var(--neon-cyan); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--bg-darker); margin: 0; font-weight: 900; font-size: 24px; text-shadow: 0 0 15px rgba(255, 255, 255, 0.6); letter-spacing: 1px;">
+                <i class="fas fa-user-circle me-2"></i>Complete User Information
+            </h3>
+            <button onclick="closeUserDetails()" style="background: rgba(0, 0, 0, 0.3); border: none; color: var(--bg-darker); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; transition: all 0.3s ease; font-weight: 900;"
+                    onmouseover="this.style.background='rgba(0, 0, 0, 0.5)'; this.style.transform='rotate(90deg)';"
+                    onmouseout="this.style.background='rgba(0, 0, 0, 0.3)'; this.style.transform='rotate(0)';">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div id="userDetailsContent" style="padding: 35px;">
+            <div style="text-align: center; padding: 60px; color: rgba(224, 231, 255, 0.6);">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--neon-cyan);"></i>
+                <p style="margin-top: 20px; font-size: 16px; font-weight: 600;">Loading user details...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    function showUserDetails(userId) {
+        const modal = document.getElementById('userDetailsModal');
+        const content = document.getElementById('userDetailsContent');
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        fetch(`/admin-dashboard/users/${userId}/details/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    content.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+                            
+                            <!-- Profile Information Card -->
+                            <div style="background: rgba(0, 217, 255, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(0, 217, 255, 0.25); box-shadow: 0 0 25px rgba(0, 217, 255, 0.15);">
+                                <h4 style="color: var(--neon-cyan); font-weight: 800; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 12px rgba(0, 217, 255, 0.5); border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 12px;">
+                                    <i class="fas fa-id-card me-2"></i>Profile Information
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <img src="${user.profile_picture || user.gravatar_url}" alt="Profile" 
+                                             style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 217, 255, 0.4); object-fit: cover;">
+                                        <div>
+                                            <div style="color: var(--neon-cyan); font-weight: 700; font-size: 18px; margin-bottom: 5px;">${user.full_name || user.username}</div>
+                                            <div style="color: rgba(224, 231, 255, 0.6); font-size: 13px;">${user.email}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-user me-2"></i>Username:</span>
+                                        <span class="info-value">${user.username}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-briefcase me-2"></i>Role:</span>
+                                        <span class="info-value">${user.role_display}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-map-marker-alt me-2"></i>Location:</span>
+                                        <span class="info-value">${user.location || 'Not specified'}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-phone me-2"></i>Contact:</span>
+                                        <span class="info-value">${user.contact_info || 'Not specified'}</span>
+                                    </div>
+                                    ${user.bio ? `
+                                    <div style="margin-top: 10px;">
+                                        <div style="color: var(--neon-cyan); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                            <i class="fas fa-align-left me-2"></i>Bio:
+                                        </div>
+                                        <div style="color: rgba(224, 231, 255, 0.7); font-size: 13px; line-height: 1.6; padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--neon-cyan);">
+                                            ${user.bio}
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- Account Status Card -->
+                            <div style="background: rgba(0, 217, 255, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(0, 217, 255, 0.25); box-shadow: 0 0 25px rgba(0, 217, 255, 0.15);">
+                                <h4 style="color: var(--neon-cyan); font-weight: 800; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 12px rgba(0, 217, 255, 0.5); border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 12px;">
+                                    <i class="fas fa-shield-alt me-2"></i>Account Status
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-check-circle me-2"></i>Verified:</span>
+                                        <span class="info-value">
+                                            ${user.is_verified ? 
+                                                '<span style="color: var(--neon-green); font-weight: 700;"><i class="fas fa-check"></i> Yes</span>' : 
+                                                '<span style="color: #FFD700; font-weight: 700;"><i class="fas fa-clock"></i> No</span>'}
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-power-off me-2"></i>Active:</span>
+                                        <span class="info-value">
+                                            ${user.is_active ? 
+                                                '<span style="color: var(--neon-green); font-weight: 700;"><i class="fas fa-check"></i> Yes</span>' : 
+                                                '<span style="color: #EF4444; font-weight: 700;"><i class="fas fa-ban"></i> Suspended</span>'}
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-crown me-2"></i>Staff Status:</span>
+                                        <span class="info-value">${user.is_staff ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-calendar-plus me-2"></i>Joined:</span>
+                                        <span class="info-value">${user.date_joined}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-clock me-2"></i>Last Login:</span>
+                                        <span class="info-value">${user.last_login || 'Never'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Professional Details Card (for photographers) -->
+                            ${user.role === 'photographer' ? `
+                            <div style="background: rgba(217, 70, 239, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(217, 70, 239, 0.25); box-shadow: 0 0 25px rgba(217, 70, 239, 0.15);">
+                                <h4 style="color: var(--neon-purple); font-weight: 800; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 12px rgba(217, 70, 239, 0.5); border-bottom: 2px solid rgba(217, 70, 239, 0.3); padding-bottom: 12px;">
+                                    <i class="fas fa-camera me-2"></i>Professional Details
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    ${user.price ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-dollar-sign me-2"></i>Base Price:</span>
+                                        <span class="info-value" style="color: var(--neon-green); font-weight: 700;">Rwf ${user.price}</span>
+                                    </div>
+                                    ` : ''}
+                                    ${user.average_rating ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-star me-2"></i>Rating:</span>
+                                        <span class="info-value" style="color: #FFD700; font-weight: 700;">${user.average_rating} / 5.0</span>
+                                    </div>
+                                    ` : ''}
+                                    ${user.badges ? `
+                                    <div style="margin-top: 10px;">
+                                        <div style="color: var(--neon-purple); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                            <i class="fas fa-award me-2"></i>Badges:
+                                        </div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                            ${user.badges.split(',').map(badge => 
+                                                `<span style="background: rgba(217, 70, 239, 0.2); color: var(--neon-purple); padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid rgba(217, 70, 239, 0.4);">${badge.trim()}</span>`
+                                            ).join('')}
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    ${user.certifications ? `
+                                    <div style="margin-top: 10px;">
+                                        <div style="color: var(--neon-purple); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                            <i class="fas fa-certificate me-2"></i>Certifications:
+                                        </div>
+                                        <div style="color: rgba(224, 231, 255, 0.7); font-size: 13px; line-height: 1.8;">
+                                            ${user.certifications.split(',').map(cert => `• ${cert.trim()}`).join('<br>')}
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    ${user.awards ? `
+                                    <div style="margin-top: 10px;">
+                                        <div style="color: var(--neon-purple); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                                            <i class="fas fa-trophy me-2"></i>Awards:
+                                        </div>
+                                        <div style="color: rgba(224, 231, 255, 0.7); font-size: 13px; line-height: 1.8;">
+                                            ${user.awards.split(',').map(award => `• ${award.trim()}`).join('<br>')}
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    ${user.social_proof ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-link me-2"></i>Portfolio:</span>
+                                        <span class="info-value"><a href="${user.social_proof}" target="_blank" style="color: var(--neon-cyan); text-decoration: none;">View Portfolio <i class="fas fa-external-link-alt" style="font-size: 10px;"></i></a></span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <!-- Activity Statistics Card -->
+                            <div style="background: rgba(57, 255, 20, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(57, 255, 20, 0.25); box-shadow: 0 0 25px rgba(57, 255, 20, 0.15);">
+                                <h4 style="color: var(--neon-green); font-weight: 800; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 12px rgba(57, 255, 20, 0.5); border-bottom: 2px solid rgba(57, 255, 20, 0.3); padding-bottom: 12px;">
+                                    <i class="fas fa-chart-line me-2"></i>Activity Statistics
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-calendar-check me-2"></i>Total Bookings:</span>
+                                        <span class="info-value" style="color: var(--neon-cyan); font-weight: 700; font-size: 18px;">${user.total_bookings || 0}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-clock me-2"></i>Pending Bookings:</span>
+                                        <span class="info-value" style="color: #FFD700; font-weight: 700;">${user.pending_bookings || 0}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-check-double me-2"></i>Completed:</span>
+                                        <span class="info-value" style="color: var(--neon-green); font-weight: 700;">${user.completed_bookings || 0}</span>
+                                    </div>
+                                    ${user.role === 'photographer' ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-star me-2"></i>Total Reviews:</span>
+                                        <span class="info-value">${user.total_reviews || 0}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- Subscription Payment Card -->
+                            ${user.subscription ? `
+                            <div style="background: rgba(168, 85, 247, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(168, 85, 247, 0.25); box-shadow: 0 0 25px rgba(168, 85, 247, 0.15);">
+                                <h4 style="color: #A855F7; font-weight: 800; font-size: 18px; margin-bottom: 20px; text-shadow: 0 0 12px rgba(168, 85, 247, 0.5); border-bottom: 2px solid rgba(168, 85, 247, 0.3); padding-bottom: 12px;">
+                                    <i class="fas fa-credit-card me-2"></i>Subscription Payment
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-money-bill-wave me-2"></i>Amount:</span>
+                                        <span class="info-value" style="color: #A855F7; font-weight: 700; font-size: 18px;">Rwf ${user.subscription.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-box me-2"></i>Plan:</span>
+                                        <span class="info-value">${user.subscription.plan_name} (${user.subscription.billing_cycle_display})</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-crown me-2"></i>Subscription Status:</span>
+                                        <span class="info-value">
+                                            <span style="
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                font-size: 11px;
+                                                font-weight: 700;
+                                                text-transform: uppercase;
+                                                letter-spacing: 0.5px;
+                                                background: ${user.subscription.subscription_status === 'active' ? 'rgba(34, 197, 94, 0.2)' : user.subscription.subscription_status === 'trial' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(239, 68, 68, 0.2)'};
+                                                color: ${user.subscription.subscription_status === 'active' ? '#22C55E' : user.subscription.subscription_status === 'trial' ? '#A855F7' : '#EF4444'};
+                                                border: 1px solid ${user.subscription.subscription_status === 'active' ? 'rgba(34, 197, 94, 0.4)' : user.subscription.subscription_status === 'trial' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(239, 68, 68, 0.4)'};
+                                            ">
+                                                ${user.subscription.subscription_status_display}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-wallet me-2"></i>Payment Method:</span>
+                                        <span class="info-value">
+                                            ${user.subscription.payment_method.includes('card') ? '<i class="fas fa-credit-card me-2" style="color: #4CAF50;"></i>' : ''}
+                                            ${user.subscription.payment_method.includes('mobile') ? '<i class="fas fa-mobile-alt me-2" style="color: #FF9800;"></i>' : ''}
+                                            ${user.subscription.payment_method.includes('paypal') ? '<i class="fab fa-paypal me-2" style="color: #0070BA;"></i>' : ''}
+                                            ${user.subscription.payment_method}
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-info-circle me-2"></i>Payment Status:</span>
+                                        <span class="info-value">
+                                            <span style="
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                font-size: 12px;
+                                                font-weight: 700;
+                                                text-transform: uppercase;
+                                                letter-spacing: 0.5px;
+                                                background: ${user.subscription.status === 'completed' ? 'rgba(34, 197, 94, 0.2)' : user.subscription.status === 'pending' ? 'rgba(251, 146, 60, 0.2)' : 'rgba(239, 68, 68, 0.2)'};
+                                                color: ${user.subscription.status === 'completed' ? '#22C55E' : user.subscription.status === 'pending' ? '#FB923C' : '#EF4444'};
+                                                border: 1px solid ${user.subscription.status === 'completed' ? 'rgba(34, 197, 94, 0.4)' : user.subscription.status === 'pending' ? 'rgba(251, 146, 60, 0.4)' : 'rgba(239, 68, 68, 0.4)'};
+                                            ">
+                                                ${user.subscription.status_display}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    ${user.subscription.start_date && user.subscription.end_date ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-calendar-alt me-2"></i>Duration:</span>
+                                        <span class="info-value">${user.subscription.start_date} - ${user.subscription.end_date}</span>
+                                    </div>
+                                    ` : ''}
+                                    ${user.subscription.transaction_id ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-hashtag me-2"></i>Transaction ID:</span>
+                                        <span class="info-value" style="font-family: monospace; font-size: 12px;">${user.subscription.transaction_id}</span>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${user.subscription.card_brand && user.subscription.card_last_four ? `
+                                    <div class="info-row" style="background: rgba(76, 175, 80, 0.1); border-left-color: #4CAF50;">
+                                        <span class="info-label"><i class="fas fa-credit-card me-2"></i>Card Details:</span>
+                                        <span class="info-value">${user.subscription.card_brand} •••• ${user.subscription.card_last_four}</span>
+                                    </div>
+                                    ${user.subscription.cardholder_name ? `
+                                    <div class="info-row" style="background: rgba(76, 175, 80, 0.1); border-left-color: #4CAF50;">
+                                        <span class="info-label"><i class="fas fa-user me-2"></i>Cardholder:</span>
+                                        <span class="info-value">${user.subscription.cardholder_name}</span>
+                                    </div>
+                                    ` : ''}
+                                    ` : ''}
+                                    
+                                    ${user.subscription.mobile_money_provider && user.subscription.mobile_money_phone ? `
+                                    <div class="info-row" style="background: rgba(255, 152, 0, 0.1); border-left-color: #FF9800;">
+                                        <span class="info-label"><i class="fas fa-mobile-alt me-2"></i>Mobile Money:</span>
+                                        <span class="info-value">${user.subscription.mobile_money_provider}</span>
+                                    </div>
+                                    <div class="info-row" style="background: rgba(255, 152, 0, 0.1); border-left-color: #FF9800;">
+                                        <span class="info-label"><i class="fas fa-phone me-2"></i>Phone Number:</span>
+                                        <span class="info-value">${user.subscription.mobile_money_phone}</span>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${user.subscription.paypal_email ? `
+                                    <div class="info-row" style="background: rgba(0, 112, 186, 0.1); border-left-color: #0070BA;">
+                                        <span class="info-label"><i class="fab fa-paypal me-2"></i>PayPal Email:</span>
+                                        <span class="info-value">${user.subscription.paypal_email}</span>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-clock me-2"></i>Payment Date:</span>
+                                        <span class="info-value">${user.subscription.created_at}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : `
+                            <div style="background: rgba(100, 116, 139, 0.08); border-radius: 16px; padding: 25px; border: 2px solid rgba(100, 116, 139, 0.25); box-shadow: 0 0 25px rgba(100, 116, 139, 0.15); text-align: center;">
+                                <i class="fas fa-info-circle" style="font-size: 48px; color: #64748B; margin-bottom: 15px;"></i>
+                                <h4 style="color: #64748B; font-weight: 700; font-size: 16px; margin-bottom: 10px;">No Subscription Payment</h4>
+                                <p style="color: rgba(224, 231, 255, 0.6); font-size: 14px;">This user has not made any subscription payments yet.</p>
+                            </div>
+                            `}
+                            
+                        </div>
+                        
+                        <style>
+                            .info-row {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 12px 15px;
+                                background: rgba(0, 0, 0, 0.25);
+                                border-radius: 8px;
+                                border-left: 3px solid rgba(0, 217, 255, 0.4);
+                                transition: all 0.3s ease;
+                            }
+                            .info-row:hover {
+                                background: rgba(0, 217, 255, 0.1);
+                                border-left-color: var(--neon-cyan);
+                                transform: translateX(3px);
+                            }
+                            .info-label {
+                                color: rgba(224, 231, 255, 0.6);
+                                font-size: 13px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.3px;
+                            }
+                            .info-value {
+                                color: rgba(224, 231, 255, 0.95);
+                                font-size: 14px;
+                                font-weight: 600;
+                                text-align: right;
+                            }
+                        </style>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 60px; color: #EF4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                            <p style="font-size: 16px; font-weight: 600;">Failed to load user details</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: #EF4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <p style="font-size: 16px; font-weight: 600;">Error loading user details</p>
+                    </div>
+                `;
+            });
+    }
+    
+    function closeUserDetails() {
+        document.getElementById('userDetailsModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('userDetailsModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserDetails();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeUserDetails();
+        }
+    });
+
     function toggleVerification(userId, currentStatus) {
         if (confirm('Are you sure you want to change the verification status of this user?')) {
             fetch(`/admin-dashboard/users/${userId}/toggle-verification/`, {

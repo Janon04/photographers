@@ -7,25 +7,44 @@
 {% block content %}
 <h2>My Bookings (Client)</h2>
 <div id='calendar'></div>
-<ul>
-  {% for booking in bookings %}
-    <li>
-      With: {{ booking.photographer.get_full_name|default:booking.photographer.username }}<br>
-      Your Name: 
-      {% if booking.client %}
-        {{ booking.client.get_full_name|default:booking.client.email }}
-      {% else %}
-        {{ booking.client_name }}
-      {% endif %}<br>
-      Service: {{ booking.service_type }}<br>
-      Date: {{ booking.date }} {{ booking.time }}<br>
-      Location: {{ booking.location }}<br>
-      Status: {{ booking.status }} | Payment: {{ booking.payment_status }}
-    </li>
-  {% empty %}
-    <li>No bookings yet.</li>
-  {% endfor %}
-</ul>
+<div style="margin-top: 2rem;">
+  <h3>My Bookings</h3>
+  <ul style="list-style: none; padding: 0;">
+    {% for booking in bookings %}
+      <li style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 12px; border: 2px solid #FFD700; box-shadow: 0 2px 8px rgba(199,161,122,0.13);">
+        <strong>With:</strong> {{ booking.photographer.get_full_name|default:booking.photographer.username }}<br>
+        <strong>Your Name:</strong> 
+        {% if booking.client %}
+          {{ booking.client.get_full_name|default:booking.client.email }}
+        {% else %}
+          {{ booking.client_name }}
+        {% endif %}<br>
+        <strong>Service:</strong> {{ booking.get_service_type_display }}<br>
+        <strong>Date:</strong> {{ booking.date|date:"F d, Y" }} at {{ booking.time }}<br>
+        <strong>Location:</strong> {{ booking.location }}<br>
+        <strong>Status:</strong> 
+        <span style="padding: 0.25rem 0.75rem; border-radius: 6px; {% if booking.status == 'confirmed' %}background: #28a745; color: white;{% elif booking.status == 'pending' %}background: #ffc107; color: #000;{% elif booking.status == 'completed' %}background: #17a2b8; color: white;{% else %}background: #dc3545; color: white;{% endif %}">
+          {{ booking.status|title }}
+        </span>
+        | 
+        <strong>Payment:</strong> 
+        <span style="padding: 0.25rem 0.75rem; border-radius: 6px; {% if booking.payment_status == 'paid' %}background: #28a745; color: white;{% elif booking.payment_status == 'pending' %}background: #ffc107; color: #000;{% else %}background: #dc3545; color: white;{% endif %}">
+          {{ booking.payment_status|title }}
+        </span>
+        
+        {% if booking.payment_status == 'pending' %}
+        <div style="margin-top: 1rem;">
+          <a href="{% url 'payment_checkout' booking.id %}" style="background: linear-gradient(90deg, #28a745 0%, #20c997 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: bold;">
+            💳 Pay Now
+          </a>
+        </div>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li style="text-align: center; padding: 2rem; color: #666;">No bookings yet.</li>
+    {% endfor %}
+  </ul>
+</div>
 <!-- FullCalendar JS -->
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 <script>

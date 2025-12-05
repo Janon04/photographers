@@ -40,10 +40,10 @@
           <div class="photo-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; position: relative;">
             
             <!-- Photo Image -->
-            <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
-              <img src="{{ photo.image.url }}" 
+            <div style="position: relative; overflow: hidden;">
+              <img src="{{ photo.image.url }}\" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" 
                    alt="{{ photo.title }}" 
-                   style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"
+                   style="width: 100%; height: auto; max-height: 450px; object-fit: cover; transition: transform 0.3s ease;"
                    loading="lazy">
               
               <!-- Category Badge -->

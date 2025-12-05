@@ -126,15 +126,37 @@
       {% for photographer in photographers %}
         <div class="photographer-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2rem; text-align: center; transition: all 0.3s ease; position: relative;">
           
-          <!-- Profile Picture -->
-          {% if photographer.profile_picture %}
-            <img src="{{ photographer.profile_picture.url }}" alt="Profile Picture" 
-                 style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 4px solid #8B4513; margin: 0 auto 1.5rem; transition: all 0.3s ease;">
-          {% else %}
-            <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 50%; font-size: 2.5rem; color: white; font-weight: 600; margin: 0 auto 1.5rem;">
-              {{ photographer.first_name|first|default:photographer.username|first|upper }}
-            </div>
-          {% endif %}
+          <!-- Profile Picture with Story Ring -->
+          <div style="position: relative; width: 150px; margin: 0 auto 1.5rem;">
+            {% if photographer.id in photographer_stories %}
+              <!-- Has stories - clickable with gold ring -->
+              <div onclick="openPhotographerStories({{ photographer.id }}, '{{ photographer.username|escapejs }}', '{% if photographer.profile_picture %}{{ photographer.profile_picture.url }}{% endif %}')" 
+                   style="cursor: pointer; position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                <div style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700); padding: 3px; animation: pulse 2s infinite;">
+                  <div style="width: 100%; height: 100%; border-radius: 50%; background: white; padding: 3px;">
+                    {% if photographer.profile_picture %}
+                      <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="{{ photographer.username }}" 
+                           style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    {% else %}
+                      <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 50%; font-size: 2.5rem; color: white; font-weight: 600;">
+                        {{ photographer.first_name|first|default:photographer.username|first|upper }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <!-- No stories - regular display -->
+              {% if photographer.profile_picture %}
+                <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="Profile Picture" 
+                     style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 4px solid #8B4513;">
+              {% else %}
+                <div style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 50%; font-size: 2.5rem; color: white; font-weight: 600;">
+                  {{ photographer.first_name|first|default:photographer.username|first|upper }}
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
           
           <!-- Photographer Info -->
           <h3 style="margin: 0 0 0.5rem;">
@@ -280,7 +302,30 @@ button:hover {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(100%); opacity: 0; }
 }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
 </style>
+
+<!-- Hidden story data for JavaScript -->
+<script id="story-data" type="application/json">
+{
+  {% for photographer_id, stories in photographer_stories.items %}
+    "{{ photographer_id }}": [
+      {% for story in stories %}
+        {
+          "id": {{ story.id }},
+          "mediaUrl": "{% if story.image %}{{ story.image.url }}{% elif story.video %}{{ story.video.url }}{% endif %}",
+          "mediaType": "{% if story.image %}image{% else %}video{% endif %}",
+          "createdAt": "{{ story.created_at|date:'c' }}"
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]{% if not forloop.last %},{% endif %}
+  {% endfor %}
+}
+</script>
 
 <script>
 function copyProfileLink(url) {
@@ -299,5 +344,147 @@ function copyProfileLink(url) {
     alert('Failed to copy link. Please try again.');
   });
 }
+
+// Story Modal Functions
+const storyData = JSON.parse(document.getElementById('story-data').textContent);
+
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now - created;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) return diffSecs + 's ago';
+    if (diffMins < 60) return diffMins + 'm ago';
+    if (diffHours < 24) return diffHours + 'h ago';
+    return diffDays + 'd ago';
+}
+
+function openPhotographerStories(photographerId, username, avatarUrl) {
+    const stories = storyData[photographerId];
+    if (!stories || stories.length === 0) return;
+    
+    const currentIndex = 0;
+    const story = stories[currentIndex];
+    
+    const modal = document.createElement('div');
+    modal.id = 'storyModal';
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+            <div style="position: relative; max-width: 500px; width: 100%; height: 90vh; display: flex; flex-direction: column;">
+                
+                <button onclick="closeStoryModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                ${currentIndex > 0 ? `
+                <button onclick="navigateStory(-1)" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                ${currentIndex < stories.length - 1 ? `
+                <button onclick="navigateStory(1)" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                ` : ''}
+
+                <div style="position: absolute; top: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; align-items: center; gap: 1rem;">
+                    <img id="storyAvatar" src="${avatarUrl}" srcset="${avatarUrl} 1x, ${avatarUrl} 2x" alt="${username}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div id="storyUsername" style="color: white; font-weight: 600; font-size: 1rem;">${username}</div>
+                        <div id="storyTimeAgo" style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">${getTimeAgo(story.createdAt)}</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.85rem; backdrop-filter: blur(10px);">
+                        <span id="storyCounter">${currentIndex + 1}/${stories.length}</span>
+                    </div>
+                </div>
+
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 16px; background: #000;">
+                    ${story.mediaType === 'image' ? `
+                        <img id="storyMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">
+                    ` : `
+                        <video id="storyMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
+                            Your browser does not support the video tag.
+                        </video>
+                    `}
+                </div>
+
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/portfolio/photographer/${photographerId}/" style="background: #FFD700; color: #1a1a1a; padding: 0.7rem 1.5rem; border-radius: 20px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                        <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    window.modalStoriesData = { 
+        stories: stories, 
+        currentIndex: currentIndex,
+        username: username,
+        avatarUrl: avatarUrl,
+        photographerId: photographerId
+    };
+}
+
+function navigateStory(direction) {
+    const data = window.modalStoriesData;
+    if (!data) return;
+    
+    data.currentIndex += direction;
+    const story = data.stories[data.currentIndex];
+    
+    const media = document.getElementById('storyMedia');
+    media.style.opacity = '0';
+    
+    setTimeout(() => {
+        const container = media.parentElement;
+        
+        if (story.mediaType === 'image') {
+            container.innerHTML = `<img id="storyMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">`;
+        } else {
+            container.innerHTML = `<video id="storyMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">Your browser does not support the video tag.</video>`;
+        }
+        
+        document.getElementById('storyTimeAgo').textContent = getTimeAgo(story.createdAt);
+        document.getElementById('storyCounter').textContent = `${data.currentIndex + 1}/${data.stories.length}`;
+        
+        const prevBtn = document.querySelector('#storyModal [onclick="navigateStory(-1)"]');
+        const nextBtn = document.querySelector('#storyModal [onclick="navigateStory(1)"]');
+        
+        if (prevBtn) prevBtn.style.display = data.currentIndex > 0 ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = data.currentIndex < data.stories.length - 1 ? 'flex' : 'none';
+        
+        const newMedia = document.getElementById('storyMedia');
+        setTimeout(() => newMedia.style.opacity = '1', 50);
+    }, 300);
+}
+
+function closeStoryModal() {
+    const modal = document.getElementById('storyModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+        window.modalStoriesData = null;
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && window.modalStoriesData) {
+        closeStoryModal();
+    } else if (e.key === 'ArrowLeft' && window.modalStoriesData && window.modalStoriesData.currentIndex > 0) {
+        navigateStory(-1);
+    } else if (e.key === 'ArrowRight' && window.modalStoriesData && window.modalStoriesData.currentIndex < window.modalStoriesData.stories.length - 1) {
+        navigateStory(1);
+    }
+});
 </script>
 {% endblock %}

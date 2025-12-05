@@ -154,3 +154,47 @@ class MessageForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Type your message...'}),
         }
+
+
+class ProfileForm(forms.ModelForm):
+	"""Form for editing user profile (used by edit_profile view)."""
+	province = forms.ChoiceField(
+		choices=[('', 'Select Province')] + [(p, p) for p in get_provinces()],
+		required=False
+	)
+	district = forms.ChoiceField(choices=[('', 'Select District')], required=False)
+	sector = forms.ChoiceField(choices=[('', 'Select Sector')], required=False)
+	cell = forms.ChoiceField(choices=[('', 'Select Cell')], required=False)
+	village = forms.ChoiceField(choices=[('', 'Select Village')], required=False)
+
+	class Meta:
+		model = User
+		fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'contact_info', 'social_proof')
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Pre-fill location choices if instance has a formatted location
+		# Note: editing full location is optional; user can leave blank
+		if 'province' in self.data:
+			try:
+				province = self.data.get('province')
+				self.fields['district'].choices = [('', 'Select District')] + [(d, d) for d in get_districts(province)]
+			except Exception:
+				pass
+		elif self.instance and self.instance.location:
+			# No structured location stored; skip
+			pass
+
+	def save(self, commit=True):
+		user = super().save(commit=False)
+		# Format and save location if provided
+		province = self.cleaned_data.get('province')
+		district = self.cleaned_data.get('district')
+		sector = self.cleaned_data.get('sector')
+		cell = self.cleaned_data.get('cell')
+		village = self.cleaned_data.get('village')
+		if province or district or sector or cell or village:
+			user.location = format_location(province, district, sector, cell, village)
+		if commit:
+			user.save()
+		return user

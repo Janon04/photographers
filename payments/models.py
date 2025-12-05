@@ -201,6 +201,20 @@ class SubscriptionPayment(models.Model):
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     paid_at = models.DateTimeField(null=True, blank=True)
     
+    # Payment Method Specific Details
+    # For Card Payments
+    card_last_four = models.CharField(max_length=4, blank=True, help_text="Last 4 digits of card")
+    card_brand = models.CharField(max_length=20, blank=True, help_text="Visa, Mastercard, Amex, etc.")
+    cardholder_name = models.CharField(max_length=100, blank=True)
+    
+    # For Mobile Money
+    mobile_money_provider = models.CharField(max_length=20, blank=True, help_text="MTN, Airtel, etc.")
+    mobile_money_phone = models.CharField(max_length=20, blank=True)
+    
+    # For PayPal
+    paypal_email = models.EmailField(blank=True)
+    paypal_payer_id = models.CharField(max_length=100, blank=True)
+    
     # Invoice details
     invoice_number = models.CharField(max_length=50, unique=True, blank=True)
     invoice_url = models.URLField(blank=True)
@@ -306,6 +320,24 @@ class Transaction(models.Model):
     payment_method = models.CharField(max_length=50, default='Stripe')
     description = models.TextField(blank=True)
     metadata = models.JSONField(default=dict, blank=True)
+    
+    # Payment Method Specific Details
+    # For Card Payments
+    card_last_four = models.CharField(max_length=4, blank=True, help_text="Last 4 digits of card")
+    card_brand = models.CharField(max_length=20, blank=True, help_text="Visa, Mastercard, Amex, etc.")
+    cardholder_name = models.CharField(max_length=100, blank=True)
+    
+    # For Mobile Money
+    mobile_money_provider = models.CharField(max_length=20, blank=True, help_text="MTN, Airtel, etc.")
+    mobile_money_phone = models.CharField(max_length=20, blank=True)
+    
+    # For PayPal
+    paypal_email = models.EmailField(blank=True)
+    paypal_payer_id = models.CharField(max_length=100, blank=True)
+    
+    # For Bank Transfer
+    bank_reference = models.CharField(max_length=100, blank=True)
+    bank_name = models.CharField(max_length=100, blank=True)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

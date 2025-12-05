@@ -141,8 +141,7 @@
     
     <div class="auto-redirect">
         <i class="fas fa-info-circle"></i>
-        You will be automatically redirected to the custom dashboard in <span id="countdown">5</span> seconds.
-        <br><small>Or click any button below to navigate immediately.</small>
+        Choose an option below to navigate to your preferred section.
     </div>
     
     <div class="action-buttons">
@@ -203,24 +202,6 @@
 </div>
 
 <script>
-// Auto-redirect countdown
-let countdown = 5;
-const countdownElement = document.getElementById('countdown');
-
-const timer = setInterval(() => {
-    countdown--;
-    countdownElement.textContent = countdown;
-    
-    if (countdown <= 0) {
-        clearInterval(timer);
-        window.location.href = '{{ dashboard_url }}';
-    }
-}, 1000);
-
-// Cancel auto-redirect if user interacts with the page
-document.addEventListener('click', () => {
-    clearInterval(timer);
-    countdownElement.parentElement.style.display = 'none';
-});
+// No auto-redirect - user chooses where to go
 </script>
 {% endblock %}

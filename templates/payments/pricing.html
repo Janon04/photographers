@@ -447,19 +447,15 @@
                 </ul>
                 
                 {% if user.is_authenticated %}
-                    {% if user_subscription.plan == plan %}
+                    {% if user_subscription and user_subscription.plan == plan %}
                     <button class="plan-button current" disabled>✅ Current Plan</button>
                     {% else %}
-                    <form method="post" action="{% url 'upgrade_subscription' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="plan_name" value="{{ plan.name }}">
-                        <button type="submit" class="plan-button upgrade">
-                            🚀 Upgrade to {{ plan.display_name }}
-                        </button>
-                    </form>
+                    <a href="{% url 'subscription_checkout' plan.id %}" class="plan-button upgrade" style="text-decoration: none; display: block;">
+                        💳 Subscribe to {{ plan.display_name }}
+                    </a>
                     {% endif %}
                 {% else %}
-                <a href="{% url 'account_signup' %}" class="plan-button">🎯 Get Started Now</a>
+                <a href="{% url 'account_signup' %}" class="plan-button" style="text-decoration: none; display: block;">🎯 Get Started Now</a>
                 {% endif %}
             </div>
             {% endfor %}

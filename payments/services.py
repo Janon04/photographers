@@ -23,7 +23,7 @@ class PaymentService:
         stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
     
     @db_transaction.atomic
-    def process_client_payment(self, booking_id, amount, payment_method='stripe', customer_email=None):
+    def process_client_payment(self, booking_id, amount, payment_method='stripe', customer_email=None, payment_details=None):
         """
         Process client payment with commission calculation and escrow
         
@@ -32,6 +32,7 @@ class PaymentService:
             amount: Payment amount in RWF
             payment_method: Payment gateway (stripe, paypal, mobile_money)
             customer_email: Client email for payment
+            payment_details: Dict with payment method specific details
         
         Returns:
             dict: Payment result with transaction details
@@ -46,26 +47,53 @@ class PaymentService:
             if not gateway:
                 return {'success': False, 'error': 'Payment gateway not available'}
             
-            # Create initial transaction
-            transaction = Transaction.objects.create(
-                booking=booking,
-                user=booking.client,
-                transaction_type=Transaction.TransactionType.CLIENT_PAYMENT,
-                amount=Decimal(str(amount)),
-                gateway=gateway,
-                status=Transaction.TransactionStatus.PENDING,
-                payment_method=payment_method,
-                description=f"Payment for {booking.service_type} photography session"
-            )
+            payment_details = payment_details or {}
+            
+            # Create initial transaction with payment details
+            transaction_data = {
+                'booking': booking,
+                'user': booking.client,
+                'transaction_type': Transaction.TransactionType.CLIENT_PAYMENT,
+                'amount': Decimal(str(amount)),
+                'gateway': gateway,
+                'status': Transaction.TransactionStatus.PENDING,
+                'payment_method': payment_method,
+                'description': f"Payment for {booking.service_type} photography session"
+            }
+            
+            # Add payment method specific details
+            if payment_method == 'stripe':
+                transaction_data.update({
+                    'card_last_four': payment_details.get('card_last_four', ''),
+                    'cardholder_name': payment_details.get('cardholder_name', ''),
+                    'card_brand': payment_details.get('card_brand', 'Unknown'),
+                })
+            elif payment_method == 'mobile_money':
+                transaction_data.update({
+                    'mobile_money_provider': payment_details.get('mobile_money_provider', ''),
+                    'mobile_money_phone': payment_details.get('mobile_money_phone', ''),
+                })
+            elif payment_method == 'paypal':
+                transaction_data.update({
+                    'paypal_email': payment_details.get('paypal_email', ''),
+                })
+            elif payment_method == 'bank_transfer':
+                transaction_data.update({
+                    'bank_reference': payment_details.get('bank_reference', ''),
+                })
+            
+            transaction = Transaction.objects.create(**transaction_data)
             
             # Calculate commission and fees
             transaction.calculate_commission_and_fees()
             
             # Process payment based on gateway
             if payment_method.lower() == 'stripe':
-                result = self._process_stripe_payment(transaction, customer_email)
+                result = self._process_stripe_payment(transaction, customer_email, payment_details)
             elif payment_method.lower() == 'mobile_money':
-                result = self._process_mobile_money_payment(transaction)
+                result = self._process_mobile_money_payment(transaction, payment_details)
+            elif payment_method.lower() == 'paypal':
+                result = self._process_paypal_payment(transaction, payment_details)
             else:
                 result = {'success': False, 'error': 'Unsupported payment method'}
             
@@ -96,11 +124,13 @@ class PaymentService:
         except Exception as e:
             return {'success': False, 'error': str(e)}
     
-    def _process_stripe_payment(self, transaction, customer_email):
+    def _process_stripe_payment(self, transaction, customer_email, payment_details=None):
         """Process payment through Stripe"""
         try:
             # Convert RWF to cents for Stripe (if RWF is supported) or handle currency conversion
             amount_cents = int(transaction.amount * 100)
+            
+            payment_details = payment_details or {}
             
             # Create Stripe Payment Intent
             intent = stripe.PaymentIntent.create(
@@ -111,9 +141,16 @@ class PaymentService:
                 metadata={
                     'transaction_id': str(transaction.transaction_id),
                     'booking_id': transaction.booking.id,
-                    'platform': 'PhotoRw'
+                    'platform': 'PhotoRw',
+                    'cardholder_name': payment_details.get('cardholder_name', '')
                 }
             )
+            
+            # In production, detect card brand from Stripe response
+            if hasattr(intent, 'charges') and intent.charges.data:
+                card_info = intent.charges.data[0].payment_method_details.card
+                transaction.card_brand = card_info.brand.title()
+                transaction.save()
             
             return {
                 'success': True,
@@ -127,14 +164,33 @@ class PaymentService:
         except Exception as e:
             return {'success': False, 'error': f'Payment processing error: {str(e)}'}
     
-    def _process_mobile_money_payment(self, transaction):
+    def _process_mobile_money_payment(self, transaction, payment_details=None):
         """Process mobile money payment (MTN, Airtel)"""
         # Integrate with local mobile money APIs
         # This is a placeholder - implement actual mobile money integration
+        payment_details = payment_details or {}
+        provider = payment_details.get('mobile_money_provider', 'unknown')
+        phone = payment_details.get('mobile_money_phone', '')
+        
+        # Here you would integrate with MTN MoMo API or Airtel Money API
+        # For now, return success for demonstration
         return {
             'success': True,
-            'payment_id': f'momo_{uuid.uuid4().hex[:8]}',
-            'message': 'Mobile money payment initiated'
+            'payment_id': f'momo_{provider}_{uuid.uuid4().hex[:8]}',
+            'message': f'Mobile money payment initiated to {phone}'
+        }
+    
+    def _process_paypal_payment(self, transaction, payment_details=None):
+        """Process PayPal payment"""
+        # Integrate with PayPal API
+        # This is a placeholder - implement actual PayPal integration
+        payment_details = payment_details or {}
+        email = payment_details.get('paypal_email', '')
+        
+        return {
+            'success': True,
+            'payment_id': f'paypal_{uuid.uuid4().hex[:8]}',
+            'message': f'PayPal payment processed for {email}'
         }
     
     @db_transaction.atomic

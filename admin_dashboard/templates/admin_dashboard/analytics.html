@@ -5,288 +5,383 @@
 {% block page_title %}Platform Analytics & Insights{% endblock %}
 
 {% block content %}
-<!-- Analytics Header with Filters -->
-<div class="analytics-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2);">
-    <div class="row align-items-center">
-        <div class="col-md-5">
-            <h2 class="analytics-title" style="color: var(--gold); margin-bottom: 10px; font-weight: bold;">
-                <i class="fas fa-chart-line me-3"></i>
-                Analytics Dashboard
+<!-- Page Header Section -->
+<div style="background: linear-gradient(135deg, var(--neon-purple-dark) 0%, var(--neon-purple) 100%); border-radius: 16px; padding: 40px; margin-bottom: 40px; box-shadow: 0 0 40px rgba(217, 70, 239, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.05); position: relative; overflow: hidden; border: 1px solid var(--neon-purple-light);">
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(0, 217, 255, 0.08); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(217, 70, 239, 0.08); border-radius: 50%;"></div>
+    
+    <div class="row align-items-center" style="position: relative; z-index: 1;">
+        <div class="col-md-8">
+            <h1 style="color: var(--neon-cyan); font-size: 36px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.5px; text-shadow: 0 0 20px var(--neon-blue);">
+                <i class="fas fa-chart-line me-3"></i>Platform Analytics & Insights
+            </h1>
+            <p style="color: rgba(224, 231, 255, 0.85); font-size: 15px; margin: 0; font-weight: 400; line-height: 1.6;">
+                Real-time platform performance metrics, user engagement trends, and revenue analytics.
                 {% if filter_date %}
-                    <small style="font-size: 16px; opacity: 0.8;">- {{ filter_date_formatted }}</small>
-                {% endif %}
-            </h2>
-            <p class="analytics-subtitle" style="color: white; opacity: 0.9; margin: 0;">
-                {% if filter_date %}
-                    Analytics data centered around {{ filter_date_formatted }}
-                {% else %}
-                    Comprehensive platform performance metrics and insights
+                    <br><span style="color: var(--neon-cyan); font-weight: 600;">Filtered around: {{ filter_date_formatted }}</span>
                 {% endif %}
             </p>
         </div>
-        <div class="col-md-7">
-            <div class="analytics-filters">
-                <form method="get" class="d-flex gap-2 align-items-end">
-                    <div class="flex-grow-1">
-                        <label for="period" class="form-label small" style="color: var(--gold);">Time Period</label>
-                        <select class="form-select form-select-sm" id="period" name="period" style="border: 2px solid var(--gold); background: white; color: var(--chocolate-dark);">
-                            <option value="7" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
-                            <option value="30" {% if period == '30' %}selected{% endif %}>Last 30 days</option>
-                            <option value="90" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
-                            <option value="365" {% if period == '365' %}selected{% endif %}>Last year</option>
-                        </select>
-                    </div>
-                    <div class="flex-grow-1">
-                        <label for="filter_date" class="form-label small" style="color: var(--gold);">Center Date</label>
-                        <input type="date" class="form-control form-control-sm" id="filter_date" name="filter_date" 
-                               value="{{ filter_date }}" 
-                               style="border: 2px solid var(--gold); background: white; color: var(--chocolate-dark);"
-                               title="Select a date to center analytics around">
-                    </div>
-                    <button type="submit" class="btn btn-sm" style="background: var(--gold); color: var(--chocolate-dark); border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                        <i class="fas fa-sync-alt me-1"></i> Update
+        <div class="col-md-4 text-end">
+            <div style="background: rgba(0, 217, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 12px; padding: 16px; display: inline-block; box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);">
+                <p style="color: var(--neon-cyan); font-size: 12px; font-weight: 600; text-transform: uppercase; margin: 0 0 8px 0; letter-spacing: 1px;">Last Updated</p>
+                <p style="color: var(--text-primary); font-size: 14px; margin: 0; font-weight: 500;">{{ "now"|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div style="background: rgba(26, 31, 58, 0.8); backdrop-filter: blur(10px); border: 1px solid var(--neon-blue); border-radius: 14px; padding: 24px; margin-bottom: 32px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.2), inset 0 0 15px rgba(0, 217, 255, 0.05); border-left: 4px solid var(--neon-cyan);">
+    <form method="get">
+        <div class="row align-items-end">
+            <div class="col-md-3">
+                <label for="period" style="display: block; font-size: 12px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                    <i class="fas fa-calendar me-2"></i>Time Period
+                </label>
+                <select class="form-select" id="period" name="period" style="border: 2px solid var(--neon-blue); background: rgba(10, 14, 39, 0.8); color: var(--neon-cyan); font-weight: 500; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;" onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'" onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'">
+                    <option value="7" style="background: #0A0E27; color: var(--neon-cyan);" {% if period == '7' %}selected{% endif %}>Last 7 days</option>
+                    <option value="30" style="background: #0A0E27; color: var(--neon-cyan);" {% if period == '30' or not period %}selected{% endif %}>Last 30 days</option>
+                    <option value="90" style="background: #0A0E27; color: var(--neon-cyan);" {% if period == '90' %}selected{% endif %}>Last 90 days</option>
+                    <option value="365" style="background: #0A0E27; color: var(--neon-cyan);" {% if period == '365' %}selected{% endif %}>Last year</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="filter_date" style="display: block; font-size: 12px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.4);">
+                    <i class="fas fa-calendar-alt me-2"></i>Center Date (Optional)
+                </label>
+                <input type="date" class="form-control" id="filter_date" name="filter_date" value="{{ filter_date }}" style="border: 2px solid var(--neon-blue); background: rgba(10, 14, 39, 0.8); color: var(--neon-cyan); font-weight: 500; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15); transition: all 0.3s ease;" onfocus="this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)'" onblur="this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)'">
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%); color: var(--bg-darker); border: none; font-weight: 600; padding: 10px 24px; border-radius: 8px; flex: 1; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0, 217, 255, 0.4); text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 30px rgba(0, 217, 255, 0.7), 0 0 60px rgba(0, 217, 255, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 20px rgba(0, 217, 255, 0.4)';">
+                        <i class="fas fa-sync-alt me-2"></i>Apply Filters
                     </button>
                     {% if filter_date %}
-                    <button type="button" class="btn btn-sm clear-filter-btn" style="background: #FF6B6B; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 6px;">
-                        <i class="fas fa-times me-1"></i> Clear
+                    <button type="button" class="btn clear-filter-btn" style="background: rgba(0, 217, 255, 0.1); color: var(--neon-cyan); border: 1px solid var(--neon-blue); font-weight: 600; padding: 10px 20px; border-radius: 8px; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(0, 217, 255, 0.15);" onmouseover="this.style.background='rgba(0, 217, 255, 0.2)'; this.style.boxShadow='0 0 25px rgba(0, 217, 255, 0.4)';" onmouseout="this.style.background='rgba(0, 217, 255, 0.1)'; this.style.boxShadow='0 0 15px rgba(0, 217, 255, 0.15)';">
+                        <i class="fas fa-times me-2"></i>Clear
                     </button>
                     {% endif %}
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Key Metrics Overview -->
-<div class="row analytics-metrics" style="margin-bottom: 15px;">
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="metric-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); border: none; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2); color: white; height: 180px; display: flex; flex-direction: column; position: relative; overflow: hidden;">
-            <div class="metric-icon" style="position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="metric-content" style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h3 class="metric-value" style="color: var(--gold); font-weight: bold; font-size: 32px; margin: 0 0 8px 0; line-height: 1;">{{ total_users|default:0|intcomma }}</h3>
-                <p class="metric-label" style="color: white; opacity: 0.9; margin: 0 0 10px 0; font-size: 14px; font-weight: 500;">
-                    {% if request.GET.start_date or request.GET.end_date %}
-                        Users (Filtered)
-                        {% if request.GET.start_date and request.GET.end_date %}
-                            <br><small style="opacity: 0.7; font-size: 11px;">{{ request.GET.start_date }} - {{ request.GET.end_date }}</small>
-                        {% endif %}
-                    {% else %}
-                        Total Users
-                    {% endif %}
-                </p>
-                <small class="metric-trend" style="color: var(--gold); font-size: 12px; opacity: 0.8;">
-                    <i class="fas fa-arrow-up" style="color: #90EE90;"></i>
-                    +{{ new_users|default:0|intcomma }} this period
-                </small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="metric-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); border: none; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2); color: white; height: 180px; display: flex; flex-direction: column; position: relative; overflow: hidden;">
-            <div class="metric-icon" style="position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="metric-content" style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h3 class="metric-value" style="color: var(--gold); font-weight: bold; font-size: 32px; margin: 0 0 8px 0; line-height: 1;">{{ total_bookings|default:0|intcomma }}</h3>
-                <p class="metric-label" style="color: white; opacity: 0.9; margin: 0 0 10px 0; font-size: 14px; font-weight: 500;">
-                    {% if request.GET.start_date or request.GET.end_date %}
-                        Bookings (Filtered)
-                        {% if request.GET.start_date and request.GET.end_date %}
-                            <br><small style="opacity: 0.7; font-size: 11px;">{{ request.GET.start_date }} - {{ request.GET.end_date }}</small>
-                        {% endif %}
-                    {% else %}
-                        Total Bookings
-                    {% endif %}
-                </p>
-                <small class="metric-trend" style="color: var(--gold); font-size: 12px; opacity: 0.8;">
-                    <i class="fas fa-arrow-up" style="color: #90EE90;"></i>
-                    +{{ new_bookings|default:0|intcomma }} this period
-                </small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="metric-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); border: none; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2); color: white; height: 180px; display: flex; flex-direction: column; position: relative; overflow: hidden;">
-            <div class="metric-icon" style="position: absolute; top: 12px; right: 12px; width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0.8;">
-                <i class="fas fa-coins"></i>
-            </div>
-            <div class="metric-content" style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h3 class="metric-value" style="color: var(--gold); font-weight: bold; font-size: 24px; margin: 0 0 8px 0; line-height: 1;">Rwf {{ total_revenue|default:0|floatformat:0|intcomma }}</h3>
-                <p class="metric-label" style="color: white; opacity: 0.9; margin: 0 0 10px 0; font-size: 14px; font-weight: 500;">
-                    {% if request.GET.start_date or request.GET.end_date %}
-                        Revenue (Filtered)
-                        {% if request.GET.start_date and request.GET.end_date %}
-                            <br><small style="opacity: 0.7; font-size: 11px;">{{ request.GET.start_date }} - {{ request.GET.end_date }}</small>
-                        {% endif %}
-                    {% else %}
-                        Total Revenue
-                    {% endif %}
-                </p>
-                <small class="metric-trend" style="color: var(--gold); font-size: 12px; opacity: 0.8;">
-                    <i class="fas fa-arrow-up" style="color: #90EE90;"></i>
-                    +Rwf {{ period_revenue|default:0|floatformat:0|intcomma }} this period
-                </small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="metric-card" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); border: none; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.2); color: white; height: 180px; display: flex; flex-direction: column; position: relative; overflow: hidden;">
-            <div class="metric-icon" style="position: absolute; top: 15px; right: 15px; width: 50px; height: 50px; background: linear-gradient(135deg, var(--gold), #FFA500); color: var(--chocolate-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                <i class="fas fa-camera"></i>
-            </div>
-            <div class="metric-content" style="padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <h3 class="metric-value" style="color: var(--gold); font-weight: bold; font-size: 32px; margin: 0 0 8px 0; line-height: 1;">{{ total_photographers|default:0|intcomma }}</h3>
-                <p class="metric-label" style="color: white; opacity: 0.9; margin: 0 0 10px 0; font-size: 14px; font-weight: 500;">
-                    {% if request.GET.start_date or request.GET.end_date %}
-                        Photographers (Filtered)
-                        {% if request.GET.start_date and request.GET.end_date %}
-                            <br><small style="opacity: 0.7; font-size: 11px;">{{ request.GET.start_date }} - {{ request.GET.end_date }}</small>
-                        {% endif %}
-                    {% else %}
-                        Total Photographers
-                    {% endif %}
-                </p>
-                <small class="metric-trend" style="color: var(--gold); font-size: 12px; opacity: 0.8;">
-                    <i class="fas fa-arrow-up" style="color: #90EE90;"></i>
-                    +{{ new_photographers|default:0|intcomma }} this period
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Primary Charts Section -->
-<div class="row mt-0.5">
-    <div class="col-lg-8">
-        <div class="analytics-chart-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="chart-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="chart-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-chart-line me-2"></i>
-                    User Registration Trends
-                </h5>
-                <div class="chart-legend" style="margin-top: 10px;">
-                    <span class="legend-item" style="margin-right: 15px; color: white;"><span class="legend-color" style="background: var(--gold); display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px;"></span>All Users</span>
-                    <span class="legend-item" style="margin-right: 15px; color: white;"><span class="legend-color" style="background: #FF6B6B; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px;"></span>Photographers</span>
-                    <span class="legend-item" style="color: white;"><span class="legend-color" style="background: #4ECDC4; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px;"></span>Clients</span>
                 </div>
             </div>
-            <div class="chart-body" style="padding: 20px;">
-                <canvas id="userRegistrationChart"></canvas>
+        </div>
+    </form>
+</div>
+
+<!-- Key Metrics Grid - Modern Responsive Layout -->
+<div class="metrics-grid">
+    <!-- Total Users Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Users</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_users|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_users|default:0|intcomma }}</span>
+                <span>this period</span>
             </div>
         </div>
     </div>
-    
-    <div class="col-lg-4">
-        <div class="analytics-chart-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="chart-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="chart-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-chart-pie me-2"></i>
-                    User Distribution
-                </h5>
+
+    <!-- Total Photographers Card -->
+    <div class="dashboard-card card-info">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Photographers</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-camera"></i>
             </div>
-            <div class="chart-body" style="padding: 20px;">
-                <canvas id="userDistributionChart"></canvas>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ photographer_count|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_photographers|default:0|intcomma }}</span>
+                <span>this period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Clients Card -->
+    <div class="dashboard-card card-success">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Clients</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_clients|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_clients|default:0|intcomma }}</span>
+                <span>this period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Bookings Card -->
+    <div class="dashboard-card card-warning">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Bookings</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_bookings|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_bookings|default:0|intcomma }}</span>
+                <span>this period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue Card -->
+    <div class="dashboard-card card-danger">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Revenue</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value" style="font-size: 28px;">Rwf {{ total_revenue|default:0|floatformat:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+Rwf {{ period_revenue|default:0|floatformat:0|intcomma }}</span>
+                <span>this period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Bookings Card -->
+    <div class="dashboard-card card-success">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Completed Bookings</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ completed_bookings|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span>Success rate tracked</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Subscription Metrics Section - Modern Responsive Layout -->
+<div class="dashboard-grid" style="margin-bottom: 30px; margin-top: 20px;">
+    <!-- Total Subscriptions Card -->
+    <div class="dashboard-card card-primary">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Total Subscriptions</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ total_subscriptions|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span>Active subscriptions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Plans Card -->
+    <div class="dashboard-card card-success">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Active Plans</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ active_subscriptions|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>+{{ new_active|default:0|intcomma }}</span>
+                <span>this period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trial Users Card -->
+    <div class="dashboard-card card-warning">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Trial Users</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value">{{ trial_subscriptions|default:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span class="dashboard-card-change"><i class="fas fa-arrow-up"></i>{{ trial_this_period|default:0|intcomma }}</span>
+                <span>in trial</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Revenue Card -->
+    <div class="dashboard-card card-info">
+        <div class="dashboard-card-header">
+            <h4 class="dashboard-card-title">Monthly Revenue</h4>
+            <div class="dashboard-card-icon">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="dashboard-card-content">
+            <div class="dashboard-card-value" style="font-size: 28px;">Rwf {{ subscription_revenue|default:0|floatformat:0|intcomma }}</div>
+            <div class="dashboard-card-label">
+                <span>MRR recurring</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Secondary Charts Section -->
-<div class="row">
-    <div class="col-lg-6">
-        <div class="analytics-chart-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="chart-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="chart-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-chart-bar me-2"></i>
-                    Booking Trends
-                </h5>
-            </div>
-            <div class="chart-body" style="padding: 20px;">
-                <canvas id="bookingTrendsChart"></canvas>
+<!-- Charts and Analytics Section - Modern Responsive Layout -->
+<!-- Primary Charts Section - Full Width -->
+<div class="chart-full" style="margin-bottom: 30px; margin-top: 20px;">
+    <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(0, 217, 255, 0.2), inset 0 0 15px rgba(0, 217, 255, 0.05); border: 1px solid var(--neon-blue); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-cyan) 100%); color: var(--bg-darker); padding: 20px; border-bottom: 3px solid var(--neon-cyan);">
+            <h5 style="color: var(--bg-darker); margin: 0; font-weight: 700; font-size: 16px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-chart-line me-2"></i>User Registration Trends
+            </h5>
+            <p style="color: rgba(5, 8, 18, 0.8); font-size: 12px; margin: 8px 0 0 0;">Track user growth patterns over time by user type</p>
+        </div>
+        <div style="padding: 24px; position: relative; height: 350px;">
+            <canvas id="userRegistrationChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Charts Section - 3 Column Grid -->
+<div class="charts-grid" style="margin-bottom: 30px;">
+    <!-- User Distribution Chart -->
+    <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(217, 70, 239, 0.2), inset 0 0 15px rgba(217, 70, 239, 0.05); border: 1px solid var(--neon-purple); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, var(--neon-purple) 0%, #A020A0 100%); color: var(--bg-darker); padding: 20px; border-bottom: 3px solid #A020A0;">
+            <h5 style="color: var(--bg-darker); margin: 0; font-weight: 700; font-size: 16px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-users me-2"></i>User Distribution
+            </h5>
+        </div>
+        <div style="padding: 24px; position: relative; height: 280px;">
+            <canvas id="userDistributionChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Booking Trends Chart -->
+    <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(255, 107, 53, 0.2), inset 0 0 15px rgba(255, 107, 53, 0.05); border: 1px solid var(--neon-orange); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, var(--neon-orange) 0%, #E85A1F 100%); color: var(--bg-darker); padding: 20px; border-bottom: 3px solid #E85A1F;">
+            <h5 style="color: var(--bg-darker); margin: 0; font-weight: 700; font-size: 16px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-chart-bar me-2"></i>Booking Trends
+                <span style="font-size: 11px; opacity: 0.8; font-weight: 400; margin-left: 8px;">(Total: {{ total_bookings|default:0 }})</span>
+            </h5>
+        </div>
+        <div style="padding: 24px; position: relative; height: 280px;">
+            <canvas id="bookingTrendsChart"></canvas>
+            <div id="bookingDebugInfo" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); color: #00D9FF; padding: 8px; border-radius: 5px; font-size: 10px; max-width: 200px; display: none;">
+                <strong>Debug Info:</strong><br>
+                Period: {{ period }} days<br>
+                Total Bookings: {{ total_bookings|default:0 }}<br>
+                New Bookings: {{ new_bookings|default:0 }}
             </div>
         </div>
     </div>
-    
-    <div class="col-lg-6">
-        <div class="analytics-chart-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="chart-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="chart-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-chart-area me-2"></i>
-                    Revenue Trends
-                </h5>
-            </div>
-            <div class="chart-body" style="padding: 20px;">
-                <canvas id="revenueTrendsChart"></canvas>
-            </div>
+
+    <!-- Revenue Trends Chart -->
+    <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(57, 255, 20, 0.2), inset 0 0 15px rgba(57, 255, 20, 0.05); border: 1px solid var(--neon-green); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, var(--neon-green) 0%, #2DD97F 100%); color: var(--bg-darker); padding: 20px; border-bottom: 3px solid #2DD97F;">
+            <h5 style="color: var(--bg-darker); margin: 0; font-weight: 700; font-size: 16px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-chart-area me-2"></i>Revenue Trends
+            </h5>
+        </div>
+        <div style="padding: 24px; position: relative; height: 280px;">
+            <canvas id="revenueTrendsChart"></canvas>
         </div>
     </div>
 </div>
 
 <!-- Data Tables Section -->
-<div class="row">
-    <div class="col-lg-7">
-        <div class="analytics-table-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="table-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="table-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-trophy me-2"></i>
-                    Top Performing Photographers
+<div class="row" style="margin-bottom: 40px; margin-top: 40px;">
+    <!-- Top Performing Photographers Table -->
+    <div class="col-lg-7 mb-4">
+        <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 16px; box-shadow: 0 0 40px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.05); border: 1px solid var(--neon-blue); overflow: hidden;">
+            <div style="background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-cyan) 100%); color: var(--bg-darker); padding: 24px; border-bottom: 4px solid var(--neon-cyan); box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2);">
+                <h5 style="color: var(--bg-darker); margin: 0 0 8px 0; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); letter-spacing: 0.5px;">
+                    <i class="fas fa-trophy me-2" style="color: #FFD700;"></i>Top 5 Performing Photographers
                 </h5>
+                <p style="color: rgba(5, 8, 18, 0.85); font-size: 13px; margin: 0; font-weight: 500;">Ranked by total bookings and completion rate</p>
             </div>
-            <div class="table-responsive">
-                <table class="table analytics-table">
-                    <thead>
+            <div class="table-responsive" style="padding: 0;">
+                <table class="table" style="margin: 0; font-size: 14px;">
+                    <thead style="background: rgba(0, 217, 255, 0.2); border-bottom: 3px solid var(--neon-cyan); position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th>Rank</th>
-                            <th>Photographer</th>
-                            <th>Total Bookings</th>
-                            <th>Completed</th>
-                            <th>Success Rate</th>
+                            <th style="padding: 18px 14px; color: var(--neon-cyan); font-weight: 800; text-align: center; width: 70px; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Rank</th>
+                            <th style="padding: 18px 14px; color: var(--neon-cyan); font-weight: 800; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Photographer</th>
+                            <th style="padding: 18px 14px; color: var(--neon-cyan); font-weight: 800; text-align: center; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Bookings</th>
+                            <th style="padding: 18px 14px; color: var(--neon-cyan); font-weight: 800; text-align: center; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Completed</th>
+                            <th style="padding: 18px 14px; color: var(--neon-cyan); font-weight: 800; text-align: center; text-shadow: 0 0 15px rgba(0, 217, 255, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Success Rate</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for photographer in top_photographers %}
-                            <tr>
-                                <td>
-                                    <span class="rank-badge">{{ forloop.counter }}</span>
+                            <tr style="border-bottom: 2px solid rgba(0, 217, 255, 0.15); transition: all 0.3s ease; background: rgba(26, 31, 58, 0.4);" onmouseover="this.style.background='rgba(0, 217, 255, 0.12)'; this.style.transform='scale(1.01)'; this.style.boxShadow='0 4px 20px rgba(0, 217, 255, 0.2)';" onmouseout="this.style.background='rgba(26, 31, 58, 0.4)'; this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                <td style="padding: 18px 14px; text-align: center;">
+                                    {% if forloop.counter == 1 %}
+                                        <div style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: 900; font-size: 16px; box-shadow: 0 0 20px #FFD700, 0 4px 15px rgba(255, 215, 0, 0.4); border: 3px solid #FFF;">
+                                            <i class="fas fa-crown" style="color: #000;"></i>
+                                        </div>
+                                    {% elif forloop.counter == 2 %}
+                                        <div style="background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: #000; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: 800; font-size: 15px; box-shadow: 0 0 15px #C0C0C0; border: 2px solid #FFF;">
+                                            {{ forloop.counter }}
+                                        </div>
+                                    {% elif forloop.counter == 3 %}
+                                        <div style="background: linear-gradient(135deg, #CD7F32, #A0522D); color: #FFF; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: 800; font-size: 14px; box-shadow: 0 0 15px #CD7F32; border: 2px solid #FFF;">
+                                            {{ forloop.counter }}
+                                        </div>
+                                    {% else %}
+                                        <div style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); color: var(--bg-darker); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: 700; font-size: 14px; box-shadow: 0 0 15px var(--neon-blue);">
+                                            {{ forloop.counter }}
+                                        </div>
+                                    {% endif %}
                                 </td>
-                                <td>
-                                    <div class="photographer-info">
+                                <td style="padding: 14px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
                                         {% if photographer.profile_picture %}
-                                            <img src="{{ photographer.profile_picture.url }}" alt="Avatar" class="photographer-avatar">
+                                            <img src="{{ photographer.profile_picture.url }}" alt="Avatar" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 3px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);">
                                         {% else %}
-                                            <div class="photographer-avatar photographer-avatar-placeholder">
+                                            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--bg-darker); font-weight: 800; font-size: 16px; box-shadow: 0 0 15px var(--neon-blue); border: 3px solid rgba(0, 217, 255, 0.3);">
                                                 {{ photographer.first_name|first|default:photographer.email|first|upper }}
                                             </div>
                                         {% endif %}
-                                        <div class="photographer-details">
-                                            <div class="photographer-name">{{ photographer.get_full_name|default:photographer.username }}</div>
-                                            <div class="photographer-email">{{ photographer.email }}</div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <div style="color: var(--neon-cyan); font-weight: 700; margin: 0 0 4px 0; text-shadow: 0 0 10px rgba(0, 217, 255, 0.5); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ photographer.get_full_name|default:photographer.username }}</div>
+                                            <div style="color: rgba(224, 231, 255, 0.6); font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-envelope me-1" style="font-size: 10px;"></i>{{ photographer.email }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="metric-badge" style="background: var(--gold); color: var(--chocolate-dark); padding: 4px 8px; border-radius: 6px; font-weight: bold;">{{ photographer.booking_count|intcomma }}</span>
+                                <td style="padding: 18px 14px; text-align: center;">
+                                    <span style="background: rgba(0, 217, 255, 0.2); color: var(--neon-cyan); padding: 8px 16px; border-radius: 8px; font-weight: 700; border: 2px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 217, 255, 0.3); font-size: 15px;">{{ photographer.booking_count|intcomma }}</span>
                                 </td>
-                                <td>
-                                    <span class="metric-badge" style="background: #4ECDC4; color: white; padding: 4px 8px; border-radius: 6px; font-weight: bold;">{{ photographer.completed_bookings|intcomma }}</span>
+                                <td style="padding: 18px 14px; text-align: center;">
+                                    <span style="background: rgba(57, 255, 20, 0.2); color: var(--neon-green); padding: 8px 16px; border-radius: 8px; font-weight: 700; border: 2px solid var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); font-size: 15px;">{{ photographer.completed_bookings|intcomma }}</span>
                                 </td>
-                                <td>
+                                <td style="padding: 18px 14px; text-align: center;">
                                     {% widthratio photographer.completed_bookings photographer.booking_count 100 as success_rate %}
-                                    <div class="progress-container">
-                                        <div class="progress" style="height: 8px; background-color: #f8f9fa; border-radius: 4px;">
-                                            <div class="progress-bar" style="width: {{ success_rate }}%; background: linear-gradient(90deg, #4ECDC4, #45B7AF); border-radius: 4px;"></div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                        <span style="color: var(--neon-cyan); font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(0, 217, 255, 0.6);">{{ success_rate }}%</span>
+                                        <div style="width: 80px; height: 6px; background: rgba(0, 217, 255, 0.15); border-radius: 3px; overflow: hidden; border: 1px solid rgba(0, 217, 255, 0.3); box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);">
+                                            <div style="width: {{ success_rate }}%; height: 100%; background: linear-gradient(90deg, var(--neon-green), #39FF14); box-shadow: 0 0 10px var(--neon-green); transition: width 0.3s ease;"></div>
                                         </div>
-                                        <span class="progress-text" style="color: var(--chocolate-dark); font-weight: bold;">{{ success_rate }}%</span>
                                     </div>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    No photographer data available for this period
+                                <td colspan="5" style="padding: 24px; text-align: center; color: rgba(224, 231, 255, 0.4);">
+                                    <i class="fas fa-inbox me-2"></i>No photographer data available
                                 </td>
                             </tr>
                         {% endfor %}
@@ -295,50 +390,56 @@
             </div>
         </div>
     </div>
-    
-    <div class="col-lg-5">
-        <div class="analytics-table-container" style="background: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(45, 32, 19, 0.1); margin-bottom: 20px;">
-            <div class="table-header" style="background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium)); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-                <h5 class="table-title" style="color: var(--gold); margin: 0; font-weight: bold;">
-                    <i class="fas fa-fire me-2"></i>
-                    Popular Services
+
+    <!-- Popular Services Table -->
+    <div class="col-lg-5 mb-4" style="margin-top: 40px;">
+        <div style="background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(10, 14, 39, 0.9) 100%); border-radius: 16px; box-shadow: 0 0 40px rgba(217, 70, 239, 0.3), inset 0 0 20px rgba(217, 70, 239, 0.05); border: 1px solid var(--neon-purple); overflow: hidden;">
+            <div style="background: linear-gradient(135deg, var(--neon-purple) 0%, #A020A0 100%); color: var(--bg-darker); padding: 24px; border-bottom: 4px solid #A020A0; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.2);">
+                <h5 style="color: var(--bg-darker); margin: 0 0 8px 0; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); letter-spacing: 0.5px;">
+                    <i class="fas fa-fire me-2" style="color: #FF6B35;"></i>Top 5 Popular Services
                 </h5>
+                <p style="color: rgba(5, 8, 18, 0.85); font-size: 13px; margin: 0; font-weight: 500;">Service demand analysis by booking volume</p>
             </div>
-            <div class="table-responsive">
-                <table class="table analytics-table">
-                    <thead>
+            <div class="table-responsive" style="padding: 0;">
+                <table class="table" style="margin: 0; font-size: 14px;">
+                    <thead style="background: rgba(217, 70, 239, 0.2); border-bottom: 3px solid var(--neon-purple); position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th>Service Type</th>
-                            <th>Bookings</th>
-                            <th>Popularity</th>
+                            <th style="padding: 18px 14px; color: var(--neon-purple); font-weight: 800; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Service Type</th>
+                            <th style="padding: 18px 14px; color: var(--neon-purple); font-weight: 800; text-align: center; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Bookings</th>
+                            <th style="padding: 18px 14px; color: var(--neon-purple); font-weight: 800; text-align: center; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">Popularity</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for service in service_popularity %}
-                            <tr>
-                                <td>
-                                    <div class="service-info">
-                                        <span class="service-name">{{ service.service_type|title }}</span>
+                            <tr style="border-bottom: 2px solid rgba(217, 70, 239, 0.15); transition: all 0.3s ease; background: rgba(26, 31, 58, 0.4);" onmouseover="this.style.background='rgba(217, 70, 239, 0.12)'; this.style.transform='scale(1.01)'; this.style.boxShadow='0 4px 20px rgba(217, 70, 239, 0.2)';" onmouseout="this.style.background='rgba(26, 31, 58, 0.4)'; this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                <td style="padding: 18px 14px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--neon-purple), #A020A0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFF; font-weight: 800; font-size: 14px; box-shadow: 0 0 15px var(--neon-purple); border: 2px solid rgba(217, 70, 239, 0.3);">
+                                            {{ forloop.counter }}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <span style="color: var(--neon-purple); font-weight: 700; font-size: 15px; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);">{{ service.service_type|title }}</span>
+                                            <div style="width: 100%; height: 2px; background: linear-gradient(90deg, var(--neon-purple), transparent); margin-top: 4px; border-radius: 1px;"></div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="metric-badge" style="background: var(--gold); color: var(--chocolate-dark); padding: 4px 8px; border-radius: 6px; font-weight: bold;">{{ service.count|intcomma }}</span>
+                                <td style="padding: 18px 14px; text-align: center;">
+                                    <span style="background: rgba(217, 70, 239, 0.2); color: var(--neon-purple); padding: 8px 16px; border-radius: 8px; font-weight: 700; border: 2px solid var(--neon-purple); box-shadow: 0 0 15px rgba(217, 70, 239, 0.3); font-size: 15px;">{{ service.count|intcomma }}</span>
                                 </td>
-                                <td>
+                                <td style="padding: 18px 14px; text-align: center;">
                                     {% widthratio service.count total_bookings 100 as popularity %}
-                                    <div class="progress-container">
-                                        <div class="progress" style="height: 8px; background-color: #f8f9fa; border-radius: 4px;">
-                                            <div class="progress-bar" style="width: {{ popularity }}%; background: linear-gradient(90deg, var(--gold), #FFA500); border-radius: 4px;"></div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                        <span style="color: var(--neon-purple); font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(217, 70, 239, 0.6);">{{ popularity }}%</span>
+                                        <div style="width: 80px; height: 6px; background: rgba(217, 70, 239, 0.15); border-radius: 3px; overflow: hidden; border: 1px solid rgba(217, 70, 239, 0.3); box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);">
+                                            <div style="width: {{ popularity }}%; height: 100%; background: linear-gradient(90deg, var(--neon-purple), #D946EF); box-shadow: 0 0 10px var(--neon-purple); transition: width 0.3s ease;"></div>
                                         </div>
-                                        <span class="progress-text" style="color: var(--chocolate-dark); font-weight: bold;">{{ popularity }}%</span>
                                     </div>
                                 </td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    No service data available
+                                <td colspan="3" style="padding: 24px; text-align: center; color: rgba(224, 231, 255, 0.4);">
+                                    <i class="fas fa-inbox me-2"></i>No service data available
                                 </td>
                             </tr>
                         {% endfor %}
@@ -351,14 +452,48 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
     // Chart.js Global Configuration
     Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     Chart.defaults.color = '#6B6B6B';
     Chart.defaults.borderColor = '#e9e1d6';
 
-    // User Registration Trends Chart
+    // Utility function to calculate linear regression for trendline
+    function calculateTrendline(data) {
+        const n = data.length;
+        if (n === 0) return [];
+        
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        
+        data.forEach((y, x) => {
+            sumX += x;
+            sumY += y;
+            sumXY += x * y;
+            sumX2 += x * x;
+        });
+        
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        
+        return data.map((_, x) => Math.max(0, slope * x + intercept));
+    }
+
+    // User Registration Trends Chart with Trendlines
     const userRegistrationData = {{ user_registrations|safe }};
+    const photographerData = {{ photographer_registrations|safe }};
+    const clientData = {{ client_registrations|safe }};
+    
+    console.log('User Registration Data:', userRegistrationData);
+    
+    const userCounts = userRegistrationData.map(item => item.count);
+    const photographerCounts = photographerData.map(item => item.count);
+    const clientCounts = clientData.map(item => item.count);
+    
+    const userTrendline = calculateTrendline(userCounts);
+    const photographerTrendline = calculateTrendline(photographerCounts);
+    const clientTrendline = calculateTrendline(clientCounts);
+    
     const userRegistrationCtx = document.getElementById('userRegistrationChart').getContext('2d');
     new Chart(userRegistrationCtx, {
         type: 'line',
@@ -367,45 +502,87 @@
             datasets: [
                 {
                     label: 'All Users',
-                    data: userRegistrationData.map(item => item.count),
-                    borderColor: '#A67C52',
-                    backgroundColor: 'rgba(166, 124, 82, 0.1)',
+                    data: userCounts,
+                    borderColor: '#00D9FF',
+                    backgroundColor: 'rgba(0, 217, 255, 0.15)',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
                     pointRadius: 5,
                     pointHoverRadius: 8,
-                    pointBackgroundColor: '#A67C52',
+                    pointBackgroundColor: '#00D9FF',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    order: 1
+                },
+                {
+                    label: 'Users Trend',
+                    data: userTrendline,
+                    borderColor: '#0A7EA4',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    order: 4
                 },
                 {
                     label: 'Photographers',
-                    data: {{ photographer_registrations|safe }}.map(item => item.count),
-                    borderColor: '#FFD700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                    data: photographerCounts,
+                    borderColor: '#D946EF',
+                    backgroundColor: 'rgba(217, 70, 239, 0.15)',
                     borderWidth: 2,
                     tension: 0.4,
                     fill: false,
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    pointBackgroundColor: '#FFD700',
+                    pointBackgroundColor: '#D946EF',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    order: 2
+                },
+                {
+                    label: 'Photographers Trend',
+                    data: photographerTrendline,
+                    borderColor: '#8B2FB9',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    order: 5
                 },
                 {
                     label: 'Clients',
-                    data: {{ client_registrations|safe }}.map(item => item.count),
-                    borderColor: '#3A2A1B',
-                    backgroundColor: 'rgba(58, 42, 27, 0.1)',
+                    data: clientCounts,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.15)',
                     borderWidth: 2,
                     tension: 0.4,
                     fill: false,
                     pointRadius: 4,
                     pointHoverRadius: 6,
-                    pointBackgroundColor: '#3A2A1B',
+                    pointBackgroundColor: '#4CAF50',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    order: 3
+                },
+                {
+                    label: 'Clients Trend',
+                    data: clientTrendline,
+                    borderColor: '#2E7D32',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    order: 6
                 }
             ]
         },
@@ -420,36 +597,61 @@
                 x: {
                     display: true,
                     grid: {
-                        display: false
+                        display: false,
+                        color: 'rgba(0, 217, 255, 0.1)'
                     },
                     ticks: {
-                        font: { size: 11 }
+                        font: { size: 10 },
+                        color: 'rgba(224, 231, 255, 0.7)',
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 },
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: '#F5F3F0',
+                        color: 'rgba(0, 217, 255, 0.1)',
                         borderDash: [2, 2]
                     },
                     ticks: {
-                        stepSize: 1,
-                        font: { size: 11 }
+                        stepSize: Math.max(1, Math.ceil(Math.max(...userCounts) / 10)),
+                        font: { size: 11 },
+                        color: 'rgba(224, 231, 255, 0.7)'
                     }
                 }
             },
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: '#E0E7FF',
+                        usePointStyle: true,
+                        padding: 10,
+                        font: { size: 11, weight: '600' },
+                        filter: function(item, chart) {
+                            // Hide trend labels from legend
+                            return !item.text.includes('Trend');
+                        }
+                    }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.9)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#A67C52',
-                    borderWidth: 1,
+                    backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                    titleColor: '#00D9FF',
+                    bodyColor: '#E0E7FF',
+                    borderColor: '#00D9FF',
+                    borderWidth: 2,
                     cornerRadius: 8,
-                    padding: 12
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            if (context.dataset.label.includes('Trend')) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(1);
+                            }
+                            return context.dataset.label + ': ' + context.parsed.y;
+                        }
+                    }
                 }
             }
         }
@@ -460,44 +662,55 @@
     const totalPhotographers = {{ total_photographers|default:0 }};
     const totalClients = totalUsers - totalPhotographers;
     
+    console.log('=== USER DISTRIBUTION DEBUG ===');
+    console.log('Total Users:', totalUsers);
+    console.log('Photographers:', totalPhotographers);
+    console.log('Clients:', totalClients);
+    
     const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
-    new Chart(userDistributionCtx, {
+    const userDistributionChart = new Chart(userDistributionCtx, {
         type: 'doughnut',
         data: {
             labels: ['Photographers', 'Clients'],
             datasets: [{
                 data: [totalPhotographers, totalClients],
-                backgroundColor: ['#FFD700', '#A67C52'],
-                borderWidth: 0,
-                hoverBorderWidth: 3,
-                hoverBorderColor: '#ffffff'
+                backgroundColor: [
+                    'rgba(217, 70, 239, 0.8)',  // Purple
+                    'rgba(0, 217, 255, 0.8)'     // Cyan
+                ],
+                borderColor: ['#D946EF', '#00D9FF'],
+                borderWidth: 3,
+                hoverBorderWidth: 5,
+                hoverBorderColor: '#ffffff',
+                hoverOffset: 15
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '65%',
+            cutout: '60%',
             plugins: {
                 legend: {
                     display: true,
                     position: 'bottom',
                     labels: {
-                        padding: 10,
+                        padding: 15,
                         usePointStyle: true,
                         pointStyle: 'circle',
                         font: {
-                            size: 10,
-                            weight: '400'
+                            size: 12,
+                            weight: '600'
                         },
-                        color: '#2D2013'
+                        color: '#333'
                     }
                 },
                 tooltip: {
+                    enabled: true,
                     backgroundColor: 'rgba(0,0,0,0.9)',
                     titleColor: '#ffffff',
                     bodyColor: '#ffffff',
-                    borderColor: '#A67C52',
-                    borderWidth: 1,
+                    borderColor: '#D946EF',
+                    borderWidth: 2,
                     cornerRadius: 8,
                     padding: 12,
                     callbacks: {
@@ -508,89 +721,65 @@
                         }
                     }
                 }
-            }
-        }
-    });
-
-    // Booking Trends Chart
-    const bookingTrendsData = {{ booking_trends|safe }};
-    const bookingTrendsCtx = document.getElementById('bookingTrendsChart').getContext('2d');
-    new Chart(bookingTrendsCtx, {
-        type: 'bar',
-        data: {
-            labels: bookingTrendsData.map(item => item.date),
-            datasets: [{
-                label: 'Bookings',
-                data: bookingTrendsData.map(item => item.count),
-                backgroundColor: 'rgba(243, 156, 18, 0.8)',
-                borderColor: '#f39c12',
-                borderWidth: 2,
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: { size: 11 }
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: '#f8f9fa',
-                        borderDash: [2, 2]
-                    },
-                    ticks: {
-                        stepSize: 1,
-                        font: { size: 11 }
-                    }
-                }
             },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.9)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#f39c12',
-                    borderWidth: 1,
-                    cornerRadius: 8,
-                    padding: 12
-                }
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1000
             }
         }
     });
+    
+    console.log('User Distribution Chart created:', userDistributionChart);
 
-    // Revenue Trends Chart
-    const revenueTrendsData = {{ revenue_trends|safe }};
-    const revenueTrendsCtx = document.getElementById('revenueTrendsChart').getContext('2d');
-    new Chart(revenueTrendsCtx, {
+    // Booking Trends Chart with Trendline
+    const bookingTrendsData = {{ booking_trends|safe }};
+    
+    console.log('=== BOOKING TRENDS DEBUG ===');
+    console.log('Total data points:', bookingTrendsData.length);
+    console.log('Data sample (first 5):', bookingTrendsData.slice(0, 5));
+    console.log('Data sample (last 5):', bookingTrendsData.slice(-5));
+    
+    const bookingCounts = bookingTrendsData.map(item => item.count);
+    const bookingTrendline = calculateTrendline(bookingCounts);
+    
+    const bookingTrendsCtx = document.getElementById('bookingTrendsChart').getContext('2d');
+    const bookingTrendsChart = new Chart(bookingTrendsCtx, {
         type: 'line',
         data: {
-            labels: revenueTrendsData.map(item => item.date),
-            datasets: [{
-                label: 'Revenue (Rwf)',
-                data: revenueTrendsData.map(item => item.amount),
-                borderColor: '#8B4513',
-                backgroundColor: 'rgba(139, 69, 19, 0.1)',
-                borderWidth: 3,
-                tension: 0.4,
-                fill: true,
-                pointRadius: 5,
-                pointHoverRadius: 8,
-                pointBackgroundColor: '#8B4513',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2
-            }]
+            labels: bookingTrendsData.map(item => item.date),
+            datasets: [
+                {
+                    label: 'Total Bookings',
+                    data: bookingCounts,
+                    borderColor: '#FF6B35',
+                    backgroundColor: 'rgba(255, 107, 53, 0.15)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#FF6B35',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: '#FF6B35',
+                    order: 1
+                },
+                {
+                    label: 'Booking Trend',
+                    data: bookingTrendline,
+                    borderColor: '#D2691E',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    order: 2
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -602,20 +791,152 @@
             scales: {
                 x: {
                     grid: {
-                        display: false
+                        display: false,
+                        color: 'rgba(255, 107, 53, 0.1)'
                     },
                     ticks: {
-                        font: { size: 11 }
+                        font: { size: 10 },
+                        color: 'rgba(224, 231, 255, 0.7)',
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 },
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: '#f8f9fa',
-                        borderDash: [2, 2]
+                        display: true,
+                        color: 'rgba(255, 107, 53, 0.1)',
+                        borderDash: [3, 3]
+                    },
+                    ticks: {
+                        stepSize: Math.max(1, Math.ceil(Math.max(...bookingCounts) / 10)),
+                        precision: 0,
+                        font: { size: 11 },
+                        color: 'rgba(224, 231, 255, 0.7)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: '#E0E7FF',
+                        usePointStyle: true,
+                        padding: 10,
+                        font: { size: 11, weight: '600' },
+                        filter: function(item, chart) {
+                            return !item.text.includes('Trend');
+                        }
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                    titleColor: '#FF6B35',
+                    bodyColor: '#E0E7FF',
+                    borderColor: '#FF6B35',
+                    borderWidth: 2,
+                    cornerRadius: 8,
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            if (context.dataset.label.includes('Trend')) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(1);
+                            }
+                            return context.dataset.label + ': ' + context.parsed.y + ' bookings';
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+
+    // Revenue Trends Chart with Trendline
+    const revenueTrendsData = {{ revenue_trends|safe }};
+    
+    console.log('=== REVENUE TRENDS DEBUG ===');
+    console.log('Total data points:', revenueTrendsData.length);
+    console.log('Data sample:', revenueTrendsData.slice(0, 5));
+    console.log('Total revenue:', revenueTrendsData.reduce((sum, item) => sum + item.amount, 0));
+    
+    const revenueAmounts = revenueTrendsData.map(item => item.amount);
+    const revenueTrendline = calculateTrendline(revenueAmounts);
+    
+    const revenueTrendsCtx = document.getElementById('revenueTrendsChart').getContext('2d');
+    const revenueTrendsChart = new Chart(revenueTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: revenueTrendsData.map(item => item.date),
+            datasets: [
+                {
+                    label: 'Revenue (Rwf)',
+                    data: revenueAmounts,
+                    borderColor: '#39FF14',
+                    backgroundColor: 'rgba(57, 255, 20, 0.15)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#39FF14',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#39FF14',
+                    pointHoverBorderColor: '#ffffff',
+                    order: 1
+                },
+                {
+                    label: 'Revenue Trend',
+                    data: revenueTrendline,
+                    borderColor: '#2E7D32',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    order: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        color: 'rgba(57, 255, 20, 0.1)'
+                    },
+                    ticks: {
+                        font: { size: 10 },
+                        color: 'rgba(224, 231, 255, 0.7)',
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: true,
+                        color: 'rgba(57, 255, 20, 0.1)',
+                        borderDash: [3, 3]
                     },
                     ticks: {
                         font: { size: 11 },
+                        color: 'rgba(224, 231, 255, 0.7)',
                         callback: function(value) {
                             return 'Rwf ' + value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         }
@@ -624,49 +945,71 @@
             },
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: '#E0E7FF',
+                        usePointStyle: true,
+                        padding: 10,
+                        font: { size: 11, weight: '600' },
+                        filter: function(item, chart) {
+                            return !item.text.includes('Trend');
+                        }
+                    }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.9)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#27ae60',
-                    borderWidth: 1,
+                    enabled: true,
+                    backgroundColor: 'rgba(13, 17, 28, 0.95)',
+                    titleColor: '#39FF14',
+                    bodyColor: '#E0E7FF',
+                    borderColor: '#39FF14',
+                    borderWidth: 2,
                     cornerRadius: 8,
                     padding: 12,
+                    displayColors: true,
                     callbacks: {
                         label: function(context) {
-                            return 'Revenue: Rwf ' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                            if (context.dataset.label.includes('Trend')) {
+                                return context.dataset.label + ': Rwf ' + context.parsed.y.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                            }
+                            return context.dataset.label + ': Rwf ' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         }
                     }
                 }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
             }
         }
     });
+    
+    console.log('Revenue Trends Chart created:', revenueTrendsChart);
 
     // Analytics form handling
     document.addEventListener('DOMContentLoaded', function() {
-        const filterForm = document.querySelector('.analytics-filters form');
         const periodSelect = document.getElementById('period');
         const dateInput = document.getElementById('filter_date');
         const clearButton = document.querySelector('.clear-filter-btn');
+        const filterForm = document.querySelector('form');
 
         // Auto-submit form when period changes
-        if (periodSelect) {
+        if (periodSelect && filterForm) {
             periodSelect.addEventListener('change', function() {
                 filterForm.submit();
             });
         }
 
         // Auto-submit form when date changes
-        if (dateInput) {
+        if (dateInput && filterForm) {
             dateInput.addEventListener('change', function() {
                 filterForm.submit();
             });
         }
 
         // Handle clear button
-        if (clearButton) {
+        if (clearButton && filterForm) {
             clearButton.addEventListener('click', function() {
                 // Clear the date input and submit
                 if (dateInput) {
@@ -681,7 +1024,7 @@
 <style>
     .rank-badge {
         background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
-        color: var(--gold);
+        color: var(--yellow);
         padding: 6px 10px;
         border-radius: 50%;
         font-weight: bold;
@@ -692,7 +1035,13 @@
         min-width: 30px;
         height: 30px;
         box-shadow: 0 2px 4px rgba(45, 32, 19, 0.3);
-        border: 2px solid var(--gold);
+        border: 2px solid var(--yellow);
+        transition: all 0.3s ease;
+    }
+    
+    .rank-badge:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
     }
 </style>
 {% endblock %}

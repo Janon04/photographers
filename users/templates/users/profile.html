@@ -127,7 +127,7 @@
 <div class="profile-hero">
   <div class="profile-card">
     {% if user.profile_picture %}
-      <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-avatar" />
+      <img src="{{ user.profile_picture.url }}" srcset="{{ user.profile_picture.url }} 1x, {{ user.profile_picture.url }} 2x" alt="Profile Picture" class="profile-avatar" />
     {% else %}
       <div class="profile-avatar">{{ user.first_name|default:user.username|first|upper }}</div>
     {% endif %}
@@ -151,6 +151,7 @@
     </form>
     <div class="profile-actions">
       {% if is_own_profile %}
+        <a href="{% url 'users:edit_profile' %}">✏️ Edit Profile</a>
         <a href="{% url 'users:dashboard' %}">📊 My Dashboard</a>
         <a href="{% url 'blog_create' %}">✍️ Write Blog Post</a>
         <a href="{% url 'blog_list' %}?author={{ user.id }}">📖 My Blog Posts</a>

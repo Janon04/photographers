@@ -1,0 +1,800 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Checkout{% endblock %}
+
+{% block head %}
+<style>
+    .checkout-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .checkout-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--gold, #FFD700);
+    }
+    
+    .booking-summary {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    .payment-method-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method-card:hover {
+        border-color: var(--gold, #FFD700);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .payment-method-card.selected {
+        border-color: var(--chocolate-dark, #654321);
+        background: #fff8f0;
+    }
+    
+    .payment-method-card input[type="radio"] {
+        margin-right: 15px;
+    }
+    
+    .payment-method-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .payment-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+    }
+    
+    .payment-details {
+        flex: 1;
+    }
+    
+    .payment-title {
+        font-weight: bold;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 5px;
+    }
+    
+    .payment-description {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .btn-pay {
+        background: linear-gradient(135deg, var(--chocolate-dark, #654321), var(--chocolate-medium, #8B4513));
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(101, 67, 33, 0.3);
+    }
+    
+    .btn-pay:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .security-badge i {
+        margin-right: 8px;
+        color: #28a745;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    /* Payment Tabs */
+    .payment-tabs {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 30px;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 12px;
+    }
+    
+    .payment-tab {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #666;
+    }
+    
+    .payment-tab i {
+        font-size: 1.8rem;
+        color: #999;
+    }
+    
+    .payment-tab:hover {
+        border-color: var(--gold, #FFD700);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .payment-tab.active {
+        border-color: var(--chocolate-dark, #654321);
+        background: linear-gradient(135deg, #fff8f0, white);
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    .payment-tab.active i {
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    /* Payment Forms */
+    .payment-form-container {
+        margin-top: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .payment-form-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .payment-form-header i {
+        font-size: 2.5rem;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 10px;
+    }
+    
+    .payment-form-header h3 {
+        margin: 0 0 5px 0;
+        color: var(--chocolate-dark, #654321);
+        font-size: 1.5rem;
+    }
+    
+    .payment-form-header p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--chocolate-dark, #654321);
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--chocolate-dark, #654321);
+        box-shadow: 0 0 0 3px rgba(101, 67, 33, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: #999;
+    }
+    
+    .input-with-icon {
+        position: relative;
+    }
+    
+    .input-with-icon .form-input {
+        padding-right: 45px;
+    }
+    
+    .card-brand-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.2rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .form-hint {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 0.85rem;
+    }
+    
+    .accepted-cards {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .accepted-cards span {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .accepted-cards i {
+        font-size: 2rem;
+        color: #666;
+    }
+    
+    .momo-instructions,
+    .paypal-benefits {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .momo-instructions h4,
+    .paypal-benefits h4 {
+        margin: 0 0 15px 0;
+        color: var(--chocolate-dark, #654321);
+        font-size: 1.1rem;
+    }
+    
+    .momo-instructions ol {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .momo-instructions li,
+    .paypal-benefits li {
+        margin-bottom: 8px;
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .paypal-benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .paypal-benefits li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .paypal-benefits i {
+        color: #28a745;
+    }
+    
+    .info-box {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 8px;
+    }
+    
+    .info-box i {
+        font-size: 1.5rem;
+        color: #0066cc;
+        flex-shrink: 0;
+    }
+    
+    .info-box strong {
+        display: block;
+        color: var(--chocolate-dark, #654321);
+        margin-bottom: 5px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .bank-details {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .bank-details h4 {
+        margin: 0 0 15px 0;
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    .bank-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .bank-detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .bank-detail-item strong {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .bank-detail-item span {
+        color: var(--chocolate-dark, #654321);
+        font-weight: 600;
+    }
+    
+    .copy-btn {
+        background: var(--gold, #FFD700);
+        color: var(--chocolate-dark, #654321);
+        border: none;
+        padding: 5px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-left: 10px;
+    }
+    
+    .copy-btn:hover {
+        background: var(--chocolate-dark, #654321);
+        color: white;
+    }
+    
+    .bank-notice {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        background: #fff8e1;
+        border-left: 4px solid #ffc107;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .bank-notice i {
+        font-size: 1.5rem;
+        color: #ffc107;
+        flex-shrink: 0;
+    }
+    
+    .bank-notice p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .payment-tabs {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .photographer-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .photographer-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+    
+    .photographer-details h4 {
+        margin: 0 0 5px 0;
+        color: var(--chocolate-dark, #654321);
+    }
+    
+    .photographer-details p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1 style="text-align: center; color: var(--chocolate-dark, #654321); margin-bottom: 30px;">
+        <i class="fas fa-credit-card"></i> Complete Your Payment
+    </h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Booking Summary -->
+    <div class="checkout-card">
+        <h2 class="section-title">
+            <i class="fas fa-receipt"></i> Booking Summary
+        </h2>
+        
+        <div class="photographer-info">
+            <img src="{{ booking.photographer.profile_picture.url|default:'/static/images/default-avatar.png' }}" 
+                 alt="{{ booking.photographer.get_full_name }}" 
+                 class="photographer-avatar">
+            <div class="photographer-details">
+                <h4>{{ booking.photographer.get_full_name|default:booking.photographer.username }}</h4>
+                <p><i class="fas fa-envelope"></i> {{ booking.photographer.email }}</p>
+            </div>
+        </div>
+        
+        <div class="booking-summary">
+            <div class="summary-item">
+                <span><i class="fas fa-camera"></i> Service:</span>
+                <strong>{{ booking.get_service_type_display }}</strong>
+            </div>
+            <div class="summary-item">
+                <span><i class="fas fa-calendar"></i> Date:</span>
+                <strong>{{ booking.date|date:"F d, Y" }}</strong>
+            </div>
+            <div class="summary-item">
+                <span><i class="fas fa-clock"></i> Time:</span>
+                <strong>{{ booking.time }}</strong>
+            </div>
+            <div class="summary-item">
+                <span><i class="fas fa-map-marker-alt"></i> Location:</span>
+                <strong>{{ booking.location }}</strong>
+            </div>
+            <div class="summary-item">
+                <span>Total Amount:</span>
+                <strong>{{ amount|floatformat:0 }} RWF</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Method Selection -->
+    <div class="checkout-card">
+        <h2 class="section-title">
+            <i class="fas fa-wallet"></i> Payment Method
+        </h2>
+        
+        <form id="paymentForm" method="POST" action="{% url 'process_payment' %}">
+            {% csrf_token %}
+            <input type="hidden" name="booking_id" value="{{ booking.id }}">
+            <input type="hidden" name="amount" value="{{ amount }}">
+            <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="">
+            
+            <!-- Payment Method Tabs -->
+            <div class="payment-tabs">
+                <button type="button" class="payment-tab" data-method="card" onclick="showPaymentForm('card')">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Card</span>
+                </button>
+                <button type="button" class="payment-tab" data-method="mobile_money" onclick="showPaymentForm('mobile_money')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Mobile Money</span>
+                </button>
+                <button type="button" class="payment-tab" data-method="paypal" onclick="showPaymentForm('paypal')">
+                    <i class="fab fa-paypal"></i>
+                    <span>PayPal</span>
+                </button>
+                <button type="button" class="payment-tab" data-method="bank" onclick="showPaymentForm('bank')">
+                    <i class="fas fa-university"></i>
+                    <span>Bank</span>
+                </button>
+            </div>
+            
+            <!-- Card Payment Form -->
+            <div class="payment-form-container" id="cardForm" style="display: none;">
+                <div class="payment-form-header">
+                    <i class="fas fa-credit-card"></i>
+                    <h3>Credit or Debit Card</h3>
+                    <p>Secure payment powered by Stripe</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <div class="input-with-icon">
+                        <input type="text" id="cardNumber" name="card_number" class="form-input" 
+                               placeholder="1234 5678 9012 3456" maxlength="19" 
+                               oninput="formatCardNumber(this)">
+                        <div class="card-brand-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cardExpiry">Expiry Date</label>
+                        <input type="text" id="cardExpiry" name="card_expiry" class="form-input" 
+                               placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCVV">CVV</label>
+                        <input type="text" id="cardCVV" name="card_cvv" class="form-input" 
+                               placeholder="123" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cardName">Cardholder Name</label>
+                    <input type="text" id="cardName" name="card_name" class="form-input" 
+                           placeholder="JOHN DOE" style="text-transform: uppercase;">
+                </div>
+                
+                <div class="accepted-cards">
+                    <span>We accept:</span>
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fab fa-cc-discover"></i>
+                </div>
+            </div>
+            
+            <!-- Mobile Money Form -->
+            <div class="payment-form-container" id="mobileMoneyForm" style="display: none;">
+                <div class="payment-form-header">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Mobile Money Payment</h3>
+                    <p>Pay with MTN Mobile Money or Airtel Money</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="momoProvider">Mobile Money Provider</label>
+                    <select id="momoProvider" name="momo_provider" class="form-input">
+                        <option value="">Select Provider</option>
+                        <option value="mtn">MTN Mobile Money</option>
+                        <option value="airtel">Airtel Money</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="momoPhone">Phone Number</label>
+                    <div class="input-with-icon">
+                        <input type="tel" id="momoPhone" name="momo_phone" class="form-input" 
+                               placeholder="+250 7XX XXX XXX" oninput="formatPhoneNumber(this)">
+                        <div class="card-brand-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                    </div>
+                    <small class="form-hint">Enter your registered Mobile Money number</small>
+                </div>
+                
+                <div class="momo-instructions">
+                    <h4><i class="fas fa-info-circle"></i> How it works:</h4>
+                    <ol>
+                        <li>You'll receive a USSD prompt on your phone</li>
+                        <li>Enter your Mobile Money PIN to confirm</li>
+                        <li>Payment will be processed instantly</li>
+                        <li>You'll receive a confirmation SMS</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- PayPal Form -->
+            <div class="payment-form-container" id="paypalForm" style="display: none;">
+                <div class="payment-form-header">
+                    <i class="fab fa-paypal"></i>
+                    <h3>PayPal Payment</h3>
+                    <p>Pay securely with your PayPal account</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paypalEmail">PayPal Email Address</label>
+                    <div class="input-with-icon">
+                        <input type="email" id="paypalEmail" name="paypal_email" class="form-input" 
+                               placeholder="your.email@example.com">
+                        <div class="card-brand-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                    <small class="form-hint">Use the email associated with your PayPal account</small>
+                </div>
+                
+                <div class="paypal-info">
+                    <div class="info-box">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Secure Payment</strong>
+                            <p>You'll be redirected to PayPal to complete your payment securely</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="paypal-benefits">
+                    <h4>PayPal Benefits:</h4>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Buyer Protection</li>
+                        <li><i class="fas fa-check"></i> No card details shared</li>
+                        <li><i class="fas fa-check"></i> Instant payment confirmation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bank Transfer Form -->
+            <div class="payment-form-container" id="bankForm" style="display: none;">
+                <div class="payment-form-header">
+                    <i class="fas fa-university"></i>
+                    <h3>Bank Transfer</h3>
+                    <p>Direct bank account transfer</p>
+                </div>
+                
+                <div class="bank-details">
+                    <h4>Transfer to:</h4>
+                    <div class="bank-detail-item">
+                        <strong>Bank Name:</strong>
+                        <span>Bank of Kigali</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <strong>Account Name:</strong>
+                        <span>PhotoRw Platform Ltd</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <strong>Account Number:</strong>
+                        <span>1234567890</span>
+                        <button type="button" class="copy-btn" onclick="copyToClipboard('1234567890')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="bank-detail-item">
+                        <strong>SWIFT Code:</strong>
+                        <span>BKIGRWRW</span>
+                    </div>
+                    <div class="bank-detail-item">
+                        <strong>Reference:</strong>
+                        <span>BOOKING-{{ booking.id }}</span>
+                        <button type="button" class="copy-btn" onclick="copyToClipboard('BOOKING-{{ booking.id }}')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bankTransferName">Your Full Name</label>
+                    <input type="text" id="bankTransferName" name="bank_transfer_name" class="form-input" 
+                           placeholder="As it appears on your bank account">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bankTransferRef">Transaction Reference (Optional)</label>
+                    <input type="text" id="bankTransferRef" name="bank_transfer_ref" class="form-input" 
+                           placeholder="Your bank transfer reference number">
+                    <small class="form-hint">Enter this after completing the transfer</small>
+                </div>
+                
+                <div class="bank-notice">
+                    <i class="fas fa-clock"></i>
+                    <p><strong>Note:</strong> Bank transfers may take 1-3 business days to process. Your booking will be confirmed once payment is received.</p>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-pay" id="payButton" disabled>
+                <i class="fas fa-lock"></i> <span id="payButtonText">Select Payment Method</span>
+            </button>
+            
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure payment • 256-bit SSL encryption • PCI DSS compliant</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectPaymentMethod(method) {
+    // Unselect all cards
+    document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Select clicked card
+    const selectedCard = event.currentTarget;
+    selectedCard.classList.add('selected');
+    
+    // Check the radio button
+    document.getElementById(method).checked = true;
+    
+    // Enable pay button
+    document.getElementById('payButton').disabled = false;
+}
+
+// Form submission handler
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    const payButton = document.getElementById('payButton');
+    payButton.disabled = true;
+    payButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+});
+</script>
+{% endblock %}

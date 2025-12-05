@@ -193,6 +193,39 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # Admin emails for notifications
 ADMIN_EMAILS = ['janon3030@gmail.com']  # Add more admin emails as needed
 
+# Payment Gateway Configuration
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+
+# PayPal Configuration
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID', '')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
+PAYPAL_MODE = os.getenv('PAYPAL_MODE', 'sandbox')  # 'sandbox' or 'live'
+
+# Mobile Money Configuration
+# MTN Mobile Money
+MTN_MOMO_API_KEY = os.getenv('MTN_MOMO_API_KEY', '')
+MTN_MOMO_USER_ID = os.getenv('MTN_MOMO_USER_ID', '')
+MTN_MOMO_SUBSCRIPTION_KEY = os.getenv('MTN_MOMO_SUBSCRIPTION_KEY', '')
+MTN_MOMO_ENVIRONMENT = os.getenv('MTN_MOMO_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+
+# Airtel Money
+AIRTEL_MONEY_CLIENT_ID = os.getenv('AIRTEL_MONEY_CLIENT_ID', '')
+AIRTEL_MONEY_CLIENT_SECRET = os.getenv('AIRTEL_MONEY_CLIENT_SECRET', '')
+AIRTEL_MONEY_ENVIRONMENT = os.getenv('AIRTEL_MONEY_ENVIRONMENT', 'sandbox')
+
+# Platform Fee Configuration
+PLATFORM_COMMISSION_RATE = 10.0  # Default commission rate percentage
+PLATFORM_PROCESSING_FEE_RATE = 2.5  # Payment gateway processing fee percentage
+PLATFORM_CURRENCY = 'RWF'  # Rwanda Franc
+
+# Payment Configuration
+PAYMENT_ESCROW_RELEASE_DAYS = 7  # Days to hold payment in escrow
+PAYMENT_MIN_AMOUNT = 1000  # Minimum payment amount in RWF
+PAYMENT_MAX_AMOUNT = 10000000  # Maximum payment amount in RWF
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

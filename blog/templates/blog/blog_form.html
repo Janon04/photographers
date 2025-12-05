@@ -339,7 +339,7 @@
                                     <i class="fas fa-image"></i>
                                     Current Article Image
                                 </div>
-                                <img src="{{ field.value.url }}" alt="Current article image">
+                                <img src="{{ field.value.url }}" srcset="{{ field.value.url }} 1x, {{ field.value.url }} 2x" alt="Current article image" style="max-height:300px; border-radius:0.5rem;">
                                 <button type="button" class="remove-image-btn" onclick="removeCurrentImage()">
                                     <i class="fas fa-trash"></i>
                                     Remove Current Image

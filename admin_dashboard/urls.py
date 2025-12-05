@@ -10,15 +10,18 @@ urlpatterns = [
     # User management
     path('users/', views.users_management, name='users_management'),
     path('users/<int:user_id>/', views.user_detail, name='user_detail'),
+    path('users/<int:user_id>/details/', views.user_details_json, name='user_details_json'),
     path('users/<int:user_id>/toggle-verification/', views.toggle_user_verification, name='toggle_user_verification'),
     path('users/<int:user_id>/suspend/', views.suspend_user, name='suspend_user'),
     
     # Booking management
     path('bookings/', views.bookings_management, name='bookings_management'),
+    path('bookings/<int:booking_id>/details/', views.booking_details_json, name='booking_details_json'),
     
     # Reviews management
     path('reviews/', views.reviews_management, name='reviews_management'),
     path('reviews/<int:review_id>/approve/', views.approve_review, name='approve_review'),
+    path('reviews/<int:review_id>/details/', views.review_details_json, name='review_details_json'),
     
     # Analytics
     path('analytics/', views.analytics_dashboard, name='analytics'),
@@ -51,6 +54,10 @@ urlpatterns = [
     path('subscriptions/users/', views.subscription_users_management, name='subscription_users'),
     path('subscriptions/payments/', views.subscription_payments_management, name='subscription_payments'),
     
+    # Platform Revenue Management
+    path('revenue/', views.platform_revenue_management, name='platform_revenue'),
+    
     # API endpoints
     path('api/subscription-stats/', views.subscription_stats_api, name='subscription_stats_api'),
+    path('api/payment-details/<int:payment_id>/', views.payment_details_api, name='payment_details_api'),
 ]

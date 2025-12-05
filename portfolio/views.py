@@ -63,6 +63,21 @@ def explore(request):
 	today = timezone.now().date()
 	events = Event.objects.filter(date__gte=today).order_by('date')
 
+	# Create a dictionary mapping photographer IDs to their stories for avatar clicks
+	photographer_stories = {}
+	photographer_stories_json = {}
+	for story in stories:
+		if story.photographer_id not in photographer_stories:
+			photographer_stories[story.photographer_id] = []
+			photographer_stories_json[story.photographer_id] = []
+		photographer_stories[story.photographer_id].append(story)
+		photographer_stories_json[story.photographer_id].append({
+			'id': story.id,
+			'image': story.image.url if story.image else None,
+			'video': story.video.url if story.video else None,
+			'created_at': story.created_at.isoformat(),
+		})
+
 	# Prepare photos for JSON serialization for gallery modal
 	photos_json = [
 		{
@@ -85,6 +100,8 @@ def explore(request):
 		'events': events,
 		'stories': stories,
 		'posts': posts,
+		'photographer_stories': photographer_stories,
+		'photographer_stories_json': json.dumps(photographer_stories_json),
 	})
 
 from django.utils import timezone
@@ -360,7 +377,19 @@ def feed(request):
 	time_threshold = timezone.now() - timezone.timedelta(hours=24)
 	stories = Story.objects.filter(created_at__gte=time_threshold).order_by('-created_at')
 	posts = Photo.objects.all().order_by('-uploaded_at')[:20]  # Latest posts for the feed
-	return render(request, 'feed.html', {'stories': stories, 'posts': posts})
+	
+	# Create a dictionary mapping photographer IDs to their stories for avatar clicks
+	photographer_stories = {}
+	for story in stories:
+		if story.photographer_id not in photographer_stories:
+			photographer_stories[story.photographer_id] = []
+		photographer_stories[story.photographer_id].append(story)
+	
+	return render(request, 'feed.html', {
+		'stories': stories, 
+		'posts': posts,
+		'photographer_stories': photographer_stories
+	})
 
 # View a single story
 def view_story(request, story_id):
@@ -406,6 +435,9 @@ def upload_story(request):
 	return render(request, 'portfolio/upload_story.html', context)
 
 def photographer_list(request):
+	from django.utils import timezone
+	from .models import Story
+	
 	photographers = User.objects.filter(role='photographer')
 	
 	# Get filters from URL parameters
@@ -431,11 +463,23 @@ def photographer_list(request):
 		location__isnull=False
 	).exclude(location='').values_list('location', flat=True).distinct().order_by('location')
 	
+	# Get active stories (last 24h)
+	time_threshold = timezone.now() - timezone.timedelta(hours=24)
+	all_stories = Story.objects.filter(created_at__gte=time_threshold).select_related('photographer').order_by('-created_at')
+	
+	# Create a dictionary mapping photographer IDs to their stories
+	photographer_stories = {}
+	for story in all_stories:
+		if story.photographer_id not in photographer_stories:
+			photographer_stories[story.photographer_id] = []
+		photographer_stories[story.photographer_id].append(story)
+	
 	context = {
 		'photographers': photographers,
 		'all_locations': all_locations,
 		'selected_location': location_filter,
 		'search_query': search_query,
+		'photographer_stories': photographer_stories,
 	}
 	
 	return render(request, 'portfolio/photographer_list.html', context)
@@ -899,72 +943,89 @@ from django.views.decorators.http import require_POST
 from .models import Photo, PhotoLike, PhotoComment
 
 @require_POST
-@login_required
 def toggle_photo_like(request, photo_id):
-    """Toggle like on a photo"""
-    try:
-        photo = Photo.objects.get(id=photo_id)
-        
-        # Check if user already voted
-        existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
-        
-        if existing_vote:
-            if existing_vote.is_like:
-                # User already liked, remove the like
-                existing_vote.delete()
-                user_vote = None
-            else:
-                # User disliked, change to like
-                existing_vote.is_like = True
-                existing_vote.save()
-                user_vote = 'like'
-        else:
-            # Create new like
-            PhotoLike.objects.create(photo=photo, user=request.user, is_like=True)
-            user_vote = 'like'
-        
-        return JsonResponse({
-            'success': True,
-            'likes_count': photo.likes_count,
-            'dislikes_count': photo.dislikes_count,
-            'user_vote': user_vote
-        })
-    except Photo.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Photo not found'})
+	"""Toggle like on a photo. Supports authenticated and anonymous (session-key) users."""
+	try:
+		photo = Photo.objects.get(id=photo_id)
+
+		# Determine existing vote depending on authenticated vs anonymous
+		if request.user.is_authenticated:
+			existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
+		else:
+			session_key = request.session.session_key
+			if not session_key:
+				request.session.create()
+				session_key = request.session.session_key
+			existing_vote = PhotoLike.objects.filter(photo=photo, user=None, session_key=session_key).first()
+
+		if existing_vote:
+			if existing_vote.is_like:
+				# Already liked -> remove
+				existing_vote.delete()
+				user_vote = None
+			else:
+				# Previously disliked -> switch to like
+				existing_vote.is_like = True
+				existing_vote.save()
+				user_vote = 'like'
+		else:
+			# Create new like record
+			if request.user.is_authenticated:
+				PhotoLike.objects.create(photo=photo, user=request.user, is_like=True)
+			else:
+				PhotoLike.objects.create(photo=photo, user=None, session_key=session_key, is_like=True)
+			user_vote = 'like'
+
+		return JsonResponse({
+			'success': True,
+			'likes_count': photo.likes_count,
+			'dislikes_count': photo.dislikes_count,
+			'user_vote': user_vote
+		})
+	except Photo.DoesNotExist:
+		return JsonResponse({'success': False, 'error': 'Photo not found'})
 
 @require_POST
-@login_required
 def toggle_photo_dislike(request, photo_id):
-    """Toggle dislike on a photo"""
-    try:
-        photo = Photo.objects.get(id=photo_id)
-        
-        # Check if user already voted
-        existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
-        
-        if existing_vote:
-            if not existing_vote.is_like:
-                # User already disliked, remove the dislike
-                existing_vote.delete()
-                user_vote = None
-            else:
-                # User liked, change to dislike
-                existing_vote.is_like = False
-                existing_vote.save()
-                user_vote = 'dislike'
-        else:
-            # Create new dislike
-            PhotoLike.objects.create(photo=photo, user=request.user, is_like=False)
-            user_vote = 'dislike'
-        
-        return JsonResponse({
-            'success': True,
-            'likes_count': photo.likes_count,
-            'dislikes_count': photo.dislikes_count,
-            'user_vote': user_vote
-        })
-    except Photo.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Photo not found'})
+	"""Toggle dislike on a photo. Supports authenticated and anonymous (session-key) users."""
+	try:
+		photo = Photo.objects.get(id=photo_id)
+
+		if request.user.is_authenticated:
+			existing_vote = PhotoLike.objects.filter(photo=photo, user=request.user).first()
+		else:
+			session_key = request.session.session_key
+			if not session_key:
+				request.session.create()
+				session_key = request.session.session_key
+			existing_vote = PhotoLike.objects.filter(photo=photo, user=None, session_key=session_key).first()
+
+		if existing_vote:
+			if not existing_vote.is_like:
+				# Already disliked -> remove
+				existing_vote.delete()
+				user_vote = None
+			else:
+				# Previously liked -> switch to dislike
+				existing_vote.is_like = False
+				existing_vote.save()
+				user_vote = 'dislike'
+		else:
+			# Create new dislike record
+			if request.user.is_authenticated:
+				PhotoLike.objects.create(photo=photo, user=request.user, is_like=False)
+			else:
+				PhotoLike.objects.create(photo=photo, user=None, session_key=session_key, is_like=False)
+			user_vote = 'dislike'
+
+		return JsonResponse({
+			'success': True,
+			'likes_count': photo.likes_count,
+			'dislikes_count': photo.dislikes_count,
+			'user_vote': user_vote
+		})
+	except Photo.DoesNotExist:
+		return JsonResponse({'success': False, 'error': 'Photo not found'})
 
 @require_POST
 def add_photo_comment(request, photo_id):

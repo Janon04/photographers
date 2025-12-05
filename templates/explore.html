@@ -325,12 +325,12 @@ body {
 /* Photo Card */
 .photo-card {
     position: relative;
-    aspect-ratio: 1;
 }
 
 .photo-img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: 500px;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
@@ -556,6 +556,30 @@ body {
 {% endblock %}
 
 {% block content %}
+<!-- Photographer Story Modal -->
+<div id="photographer-story-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.98); z-index: 10001; align-items: center; justify-content: center;">
+    <div style="position: relative; max-width: 500px; width: 100%; height: 100vh; display: flex; flex-direction: column;">
+        <!-- Header -->
+        <div id="photographer-story-header" style="padding: 20px; display: flex; justify-content: space-between; align-items: center; color: white; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);"></div>
+        
+        <!-- Progress Bar -->
+        <div style="position: absolute; top: 70px; left: 20px; right: 20px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px;">
+            <div id="photographer-story-progress-fill" style="height: 100%; background: #FFD700; border-radius: 2px; transition: width 0.3s ease; width: 0%;"></div>
+        </div>
+        
+        <!-- Story Content -->
+        <div id="photographer-story-container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 20px;"></div>
+        
+        <!-- Navigation -->
+        <button onclick="navigatePhotographerStory(-1)" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+            ‹
+        </button>
+        <button onclick="navigatePhotographerStory(1)" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+            ›
+        </button>
+    </div>
+</div>
+
 <div class="explore-container">
     <!-- Enhanced Hero Section -->
     <section class="hero" style="background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; padding: 4rem 2rem; text-align: center; border-radius: 20px; margin-bottom: 3rem; position: relative; overflow: hidden;">
@@ -655,12 +679,12 @@ body {
         </h2>
         <div class="stories-container" style="display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0.5rem; scrollbar-width: thin;">
             {% for story in stories %}
-                <div class="story-item" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto;">
+                <div class="story-item" data-story-id="{{ story.id }}" onclick="openStoryModal({{ story.id }}, '{% if story.image %}{{ story.image.url }}{% elif story.video %}{{ story.video.url }}{% endif %}', '{{ story.photographer.username|escapejs }}', {{ story.photographer.pk }}, '{{ story.photographer.get_medium_avatar_url }}', {% if story.image %}'image'{% else %}'video'{% endif %}, '{{ story.created_at|date:'c' }}')" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto;">
                     <div class="story-avatar" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FFD700; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; margin-bottom: 0.8rem; position: relative; transition: all 0.3s ease;">
                         {% if story.image %}
-                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
-                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="{{ story.photographer.get_medium_avatar_url }}" srcset="{{ story.photographer.get_medium_avatar_url }} 1x, {{ story.photographer.get_medium_avatar_url }} 2x" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% endif %}
                     </div>
                     <div class="story-username" style="font-size: 0.9rem; color: #2c3e50; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;">{{ story.photographer.username }}</div>
@@ -703,15 +727,36 @@ body {
         <div class="grid photographers-grid" style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); margin-bottom: 3rem;">
             {% for photographer in photographers %}
             <div class="card photographer-card" style="background: #fff; border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative;">
-                <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link" style="text-decoration: none; color: inherit;">
-                    {% if photographer.profile_picture %}
-                        <img src="{{ photographer.profile_picture.url }}" alt="{{ photographer.first_name }} {{ photographer.last_name }}" 
-                             class="photographer-avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.5rem; border: 3px solid #8B4513; transition: all 0.3s ease;">
-                    {% else %}
-                        <div class="avatar-placeholder" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; margin: 0 auto 1.5rem;">
-                            {{ photographer.username|first|upper }}
+                {% if photographer.id in photographer_stories %}
+                    <!-- Has stories - clickable avatar with gold ring -->
+                    <div onclick="openPhotographerStories({{ photographer.id }}, '{{ photographer.username|escapejs }}', '{% if photographer.profile_picture %}{{ photographer.profile_picture.url }}{% endif %}')" 
+                         style="cursor: pointer; position: relative; width: 120px; height: 120px; margin: 0 auto 1.5rem;">
+                        <div style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 50%; background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700); padding: 3px; animation: pulse 2s infinite;">
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: white; padding: 3px;">
+                                {% if photographer.profile_picture %}
+                                    <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="{{ photographer.username }}" 
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 50%; font-size: 2rem; color: white; font-weight: 600;">
+                                        {{ photographer.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endif %}
+                    </div>
+                    <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link" style="text-decoration: none; color: inherit;">
+                {% else %}
+                    <!-- No stories - regular display -->
+                    <a href="{% url 'portfolio:photographer_detail' photographer.pk %}" class="photographer-link" style="text-decoration: none; color: inherit;">
+                        {% if photographer.profile_picture %}
+                            <img src="{{ photographer.profile_picture.url }}" srcset="{{ photographer.profile_picture.url }} 1x, {{ photographer.profile_picture.url }} 2x" alt="{{ photographer.first_name }} {{ photographer.last_name }}" 
+                                 class="photographer-avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.5rem; border: 3px solid #8B4513; transition: all 0.3s ease;">
+                        {% else %}
+                            <div class="avatar-placeholder" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; margin: 0 auto 1.5rem;">
+                                {{ photographer.username|first|upper }}
+                            </div>
+                        {% endif %}
+                {% endif %}
                     <div class="photographer-name" style="color: #2c3e50; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
                         {{ photographer.first_name }} {{ photographer.last_name }}
                     </div>
@@ -746,10 +791,10 @@ body {
     <div id="photos" class="tab-content">
         <div class="grid photos-grid" style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 3rem;">
             {% for photo in photos %}
-            <div class="card photo-card" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative;">
-                <div style="position: relative; overflow: hidden; aspect-ratio: 4/3;">
-                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-img" 
-                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+            <div class="card photo-card" data-photo-id="{{ photo.id }}" style="background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.3s ease; position: relative;">
+                <div style="position: relative; overflow: hidden; cursor: pointer;" onclick="openPhotoModal({{ photo.id }}, '{{ photo.image.url }}', '{{ photo.title|escapejs }}', '{{ photo.photographer.first_name|escapejs }} {{ photo.photographer.last_name|escapejs }}', {{ photo.photographer.pk }}, '{{ photo.category.name|default:""|escapejs }}', {{ photo.likes_count }}, {{ photo.comments_count }})">
+                    <img src="{{ photo.image.url }}" srcset="{{ photo.image.url }} 1x, {{ photo.image.url }} 2x" alt="{{ photo.title }}" class="photo-img" 
+                         style="width: 100%; height: auto; max-height: 500px; object-fit: cover; transition: transform 0.3s ease;">
                     
                     <!-- Category Badge -->
                     {% if photo.category %}
@@ -765,11 +810,11 @@ body {
                     <div class="photo-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 2rem 1.5rem 1.5rem; transform: translateY(100%); transition: all 0.3s ease;">
                         <div class="photo-title" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">{{ photo.title }}</div>
                         <div class="photo-author" style="font-size: 0.9rem; opacity: 0.9;">by {{ photo.photographer.first_name }} {{ photo.photographer.last_name }}</div>
-                        <a href="{% url 'portfolio:photographer_detail' photo.photographer.pk %}" 
-                           style="background: #FFD700; color: #1a1a1a; padding: 0.5rem 1rem; border-radius: 15px; text-decoration: none; font-weight: 500; font-size: 0.85rem; margin-top: 0.75rem; display: inline-flex; align-items: center;">
-                            <i class="fas fa-user" style="margin-right: 0.3rem;"></i>
-                            View Profile
-                        </a>
+                        <button onclick="event.stopPropagation(); openPhotoModal({{ photo.id }}, '{{ photo.image.url }}', '{{ photo.title|escapejs }}', '{{ photo.photographer.first_name|escapejs }} {{ photo.photographer.last_name|escapejs }}', {{ photo.photographer.pk }}, '{{ photo.category.name|default:""|escapejs }}', {{ photo.likes_count }}, {{ photo.comments_count }})"
+                           style="background: #FFD700; color: #1a1a1a; padding: 0.5rem 1rem; border-radius: 15px; border: none; cursor: pointer; font-weight: 500; font-size: 0.85rem; margin-top: 0.75rem; display: inline-flex; align-items: center;">
+                            <i class="fas fa-expand" style="margin-right: 0.3rem;"></i>
+                            View Photo
+                        </button>
                     </div>
                 </div>
             </div>
@@ -871,5 +916,480 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Professional Photo Modal
+function openPhotoModal(photoId, imageUrl, title, photographer, photographerId, category, likes, comments) {
+    // Get all photos on the page for navigation
+    const allPhotos = Array.from(document.querySelectorAll('.photo-card')).map(card => {
+        const img = card.querySelector('img');
+        return {
+            id: card.getAttribute('data-photo-id'),
+            imageUrl: img.src,
+            title: img.alt,
+            photographer: card.querySelector('.photo-author')?.textContent.replace('by ', '') || photographer,
+            photographerId: photographerId,
+            category: category,
+            likes: likes,
+            comments: comments
+        };
+    });
+    
+    const currentIndex = allPhotos.findIndex(p => p.imageUrl === imageUrl);
+    
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.id = 'photoModal';
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 2rem; animation: fadeIn 0.3s ease;">
+            <div style="position: relative; max-width: 1400px; width: 100%; max-height: 90vh; background: #1a1a1a; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
+                
+                <!-- Close Button -->
+                <button onclick="closePhotoModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- Previous Button -->
+                ${currentIndex > 0 ? `
+                <button onclick="navigatePhoto(-1)" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                <!-- Next Button -->
+                ${currentIndex < allPhotos.length - 1 ? `
+                <button onclick="navigatePhoto(1)" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                ` : ''}
+
+                <!-- Photo Container -->
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; min-height: 60vh; position: relative;">
+                    <img id="modalPhotoImage" src="${imageUrl}" 
+                         srcset="${imageUrl} 1x, ${imageUrl} 2x"
+                         alt="${title}" 
+                         style="max-width: 100%; max-height: 85vh; width: auto; height: auto; object-fit: contain; border-radius: 8px; transition: opacity 0.3s ease;">
+                    
+                    <!-- Photo Counter -->
+                    <div style="position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; backdrop-filter: blur(10px);">
+                        <i class="fas fa-images" style="margin-right: 0.5rem;"></i>
+                        <span id="photoCounter">${currentIndex + 1} / ${allPhotos.length}</span>
+                    </div>
+                </div>
+
+                <!-- Photo Info -->
+                <div style="background: #1a1a1a; padding: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 2rem; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 300px;">
+                            <h2 id="modalPhotoTitle" style="color: #FFD700; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 600;">${title}</h2>
+                            <div id="modalPhotoCategory">
+                                ${category ? `<span style="background: rgba(139,69,19,0.8); color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem;"><i class="fas fa-tag" style="margin-right: 0.3rem;"></i>${category}</span>` : ''}
+                            </div>
+                            <p id="modalPhotoPhotographer" style="color: #ccc; margin: 1rem 0; font-size: 1rem;">
+                                <i class="fas fa-user" style="margin-right: 0.5rem; color: #FFD700;"></i>
+                                <span style="color: white;">by ${photographer}</span>
+                            </p>
+                            <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+                                <div style="color: #888;">
+                                    <i class="fas fa-heart" style="color: #ff4757; margin-right: 0.5rem;"></i>
+                                    <span id="modalPhotoLikes" style="color: white; font-weight: 500;">${likes}</span> likes
+                                </div>
+                                <div style="color: #888;">
+                                    <i class="fas fa-comment" style="color: #5352ed; margin-right: 0.5rem;"></i>
+                                    <span id="modalPhotoComments" style="color: white; font-weight: 500;">${comments}</span> comments
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                            <a id="modalPhotographerLink" href="/portfolio/photographer/${photographerId}/" 
+                               style="background: #FFD700; color: #1a1a1a; padding: 0.8rem 1.5rem; border-radius: 15px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                                <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                                View Photographer
+                            </a>
+                            <button onclick="downloadPhoto('${imageUrl}', '${title}')" 
+                                    style="background: rgba(255,255,255,0.1); color: white; padding: 0.8rem 1.5rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                                <i class="fas fa-download" style="margin-right: 0.5rem;"></i>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Store photos array and current index globally
+    window.modalPhotosData = { photos: allPhotos, currentIndex: currentIndex };
+}
+
+function navigatePhoto(direction) {
+    const data = window.modalPhotosData;
+    if (!data) return;
+    
+    data.currentIndex += direction;
+    const photo = data.photos[data.currentIndex];
+    
+    // Fade out
+    const img = document.getElementById('modalPhotoImage');
+    img.style.opacity = '0';
+    
+    setTimeout(() => {
+        // Update photo
+        img.src = photo.imageUrl;
+        img.srcset = `${photo.imageUrl} 1x, ${photo.imageUrl} 2x`;
+        img.alt = photo.title;
+        
+        // Update info
+        document.getElementById('modalPhotoTitle').textContent = photo.title;
+        document.getElementById('modalPhotoPhotographer').innerHTML = `
+            <i class="fas fa-user" style="margin-right: 0.5rem; color: #FFD700;"></i>
+            <span style="color: white;">by ${photo.photographer}</span>
+        `;
+        document.getElementById('modalPhotoCategory').innerHTML = photo.category ? 
+            `<span style="background: rgba(139,69,19,0.8); color: white; padding: 0.3rem 0.8rem; border-radius: 12px; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem;"><i class="fas fa-tag" style="margin-right: 0.3rem;"></i>${photo.category}</span>` : '';
+        document.getElementById('modalPhotoLikes').textContent = photo.likes;
+        document.getElementById('modalPhotoComments').textContent = photo.comments;
+        document.getElementById('photoCounter').textContent = `${data.currentIndex + 1} / ${data.photos.length}`;
+        document.getElementById('modalPhotographerLink').href = `/portfolio/photographer/${photo.photographerId}/`;
+        
+        // Update navigation buttons visibility
+        const prevBtn = document.querySelector('[onclick="navigatePhoto(-1)"]');
+        const nextBtn = document.querySelector('[onclick="navigatePhoto(1)"]');
+        
+        if (prevBtn) prevBtn.style.display = data.currentIndex > 0 ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = data.currentIndex < data.photos.length - 1 ? 'flex' : 'none';
+        
+        // Fade in
+        img.style.opacity = '1';
+    }, 300);
+}
+
+function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+        window.modalPhotosData = null;
+    }
+}
+
+function downloadPhoto(url, title) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.jpg';
+    link.click();
+}
+
+// Close modal on escape key or arrow key navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePhotoModal();
+        closeStoryModal();
+    } else if (e.key === 'ArrowLeft') {
+        if (window.modalPhotosData && window.modalPhotosData.currentIndex > 0) {
+            navigatePhoto(-1);
+        } else if (window.modalStoriesData && window.modalStoriesData.currentIndex > 0) {
+            navigateStory(-1);
+        }
+    } else if (e.key === 'ArrowRight') {
+        if (window.modalPhotosData && window.modalPhotosData.currentIndex < window.modalPhotosData.photos.length - 1) {
+            navigatePhoto(1);
+        } else if (window.modalStoriesData && window.modalStoriesData.currentIndex < window.modalStoriesData.stories.length - 1) {
+            navigateStory(1);
+        }
+    }
+});
+
+// Story Modal Functions
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now - created;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) return diffSecs + 's ago';
+    if (diffMins < 60) return diffMins + 'm ago';
+    if (diffHours < 24) return diffHours + 'h ago';
+    return diffDays + 'd ago';
+}
+
+function openStoryModal(storyId, mediaUrl, username, photographerId, avatarUrl, mediaType, createdAt) {
+    // Get all stories on the page for navigation
+    const allStories = Array.from(document.querySelectorAll('.story-item')).map(item => {
+        const onclick = item.getAttribute('onclick');
+        if (!onclick) return null;
+        
+        const match = onclick.match(/openStoryModal\((\d+),\s*'([^']*)',\s*'([^']*)',\s*(\d+),\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)/);
+        if (!match) return null;
+        
+        return {
+            id: match[1],
+            mediaUrl: match[2],
+            username: match[3],
+            photographerId: match[4],
+            avatarUrl: match[5],
+            mediaType: match[6],
+            createdAt: match[7]
+        };
+    }).filter(s => s !== null);
+    
+    const currentIndex = allStories.findIndex(s => s.mediaUrl === mediaUrl);
+    
+    const modal = document.createElement('div');
+    modal.id = 'storyModal';
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+            <div style="position: relative; max-width: 500px; width: 100%; height: 90vh; display: flex; flex-direction: column;">
+                
+                <!-- Close Button -->
+                <button onclick="closeStoryModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- Previous Button -->
+                ${currentIndex > 0 ? `
+                <button onclick="navigateStory(-1)" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                <!-- Next Button -->
+                ${currentIndex < allStories.length - 1 ? `
+                <button onclick="navigateStory(1)" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                ` : ''}
+
+                <!-- Story Header -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; align-items: center; gap: 1rem;">
+                    <img id="storyAvatar" src="${avatarUrl}" srcset="${avatarUrl} 1x, ${avatarUrl} 2x" alt="${username}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div id="storyUsername" style="color: white; font-weight: 600; font-size: 1rem;">${username}</div>
+                        <div id="storyTimeAgo" style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">${getTimeAgo(createdAt)}</div>
+                    </div>
+                    <!-- Story Counter -->
+                    <div style="background: rgba(0,0,0,0.5); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.85rem; backdrop-filter: blur(10px);">
+                        <span id="storyCounter">${currentIndex + 1}/${allStories.length}</span>
+                    </div>
+                </div>
+
+                <!-- Story Content -->
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 16px; background: #000;">
+                    ${mediaType === 'image' ? `
+                        <img id="storyMedia" src="${mediaUrl}" srcset="${mediaUrl} 1x, ${mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">
+                    ` : `
+                        <video id="storyMedia" src="${mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
+                            Your browser does not support the video tag.
+                        </video>
+                    `}
+                </div>
+
+                <!-- Story Footer -->
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/portfolio/photographer/${photographerId}/" style="background: #FFD700; color: #1a1a1a; padding: 0.7rem 1.5rem; border-radius: 20px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                        <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    window.modalStoriesData = { stories: allStories, currentIndex: currentIndex };
+}
+
+function navigateStory(direction) {
+    const data = window.modalStoriesData;
+    if (!data) return;
+    
+    data.currentIndex += direction;
+    const story = data.stories[data.currentIndex];
+    
+    // Fade out
+    const media = document.getElementById('storyMedia');
+    media.style.opacity = '0';
+    
+    setTimeout(() => {
+        // Update story content
+        const container = media.parentElement;
+        
+        if (story.mediaType === 'image') {
+            container.innerHTML = `<img id="storyMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">`;
+        } else {
+            container.innerHTML = `<video id="storyMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">Your browser does not support the video tag.</video>`;
+        }
+        
+        // Update header info
+        document.getElementById('storyAvatar').src = story.avatarUrl;
+        document.getElementById('storyAvatar').srcset = `${story.avatarUrl} 1x, ${story.avatarUrl} 2x`;
+        document.getElementById('storyUsername').textContent = story.username;
+        document.getElementById('storyTimeAgo').textContent = getTimeAgo(story.createdAt);
+        document.getElementById('storyCounter').textContent = `${data.currentIndex + 1}/${data.stories.length}`;
+        
+        // Update navigation buttons
+        const prevBtn = document.querySelector('#storyModal [onclick="navigateStory(-1)"]');
+        const nextBtn = document.querySelector('#storyModal [onclick="navigateStory(1)"]');
+        
+        if (prevBtn) prevBtn.style.display = data.currentIndex > 0 ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = data.currentIndex < data.stories.length - 1 ? 'flex' : 'none';
+        
+        // Fade in
+        const newMedia = document.getElementById('storyMedia');
+        setTimeout(() => newMedia.style.opacity = '1', 50);
+    }, 300);
+}
+
+function closeStoryModal() {
+    const modal = document.getElementById('storyModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+        window.modalStoriesData = null;
+    }
+}
+
+// Add fadeIn animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+`;
+document.head.appendChild(style);
+
+// Photographer Stories Data
+const photographerStoriesData = {{ photographer_stories_json|safe }};
+
+// Open photographer stories modal
+function openPhotographerStories(photographerId, photographerName, profilePicUrl) {
+    const stories = photographerStoriesData[photographerId];
+    if (!stories || stories.length === 0) return;
+    
+    window.photographerModalData = {
+        stories: stories,
+        currentIndex: 0,
+        photographerId: photographerId,
+        photographerName: photographerName,
+        profilePicUrl: profilePicUrl
+    };
+    
+    const modal = document.getElementById('photographer-story-modal');
+    const container = document.getElementById('photographer-story-container');
+    const header = document.getElementById('photographer-story-header');
+    const progressBar = document.getElementById('photographer-story-progress-fill');
+    
+    // Update header
+    header.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="${profilePicUrl || '/static/images/default-avatar.png'}" 
+                 alt="${photographerName}" 
+                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #FFD700;">
+            <div>
+                <div style="font-weight: 600; font-size: 14px;">${photographerName}</div>
+                <div style="font-size: 12px; opacity: 0.8;" id="photographer-story-time"></div>
+            </div>
+        </div>
+        <button onclick="closePhotographerStoryModal()" 
+                style="background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+            ×
+        </button>
+    `;
+    
+    // Display first story
+    displayPhotographerStory(0);
+    
+    modal.style.display = 'flex';
+}
+
+function displayPhotographerStory(index) {
+    const data = window.photographerModalData;
+    if (!data || !data.stories[index]) return;
+    
+    const story = data.stories[index];
+    data.currentIndex = index;
+    
+    const container = document.getElementById('photographer-story-container');
+    const timeElement = document.getElementById('photographer-story-time');
+    const progressBar = document.getElementById('photographer-story-progress-fill');
+    
+    // Update time
+    if (story.created_at) {
+        const storyDate = new Date(story.created_at);
+        timeElement.textContent = getTimeAgo(storyDate);
+    }
+    
+    // Update progress
+    const progress = ((index + 1) / data.stories.length) * 100;
+    progressBar.style.width = progress + '%';
+    
+    // Display media
+    if (story.video) {
+        container.innerHTML = `
+            <video src="${story.video}" 
+                   style="max-width: 100%; max-height: 90vh; object-fit: contain;" 
+                   controls autoplay>
+            </video>
+        `;
+    } else if (story.image) {
+        container.innerHTML = `
+            <img src="${story.image}" 
+                 alt="Story" 
+                 style="max-width: 100%; max-height: 90vh; object-fit: contain;">
+        `;
+    }
+}
+
+function navigatePhotographerStory(direction) {
+    const data = window.photographerModalData;
+    if (!data) return;
+    
+    let newIndex = data.currentIndex + direction;
+    if (newIndex >= 0 && newIndex < data.stories.length) {
+        displayPhotographerStory(newIndex);
+    } else if (newIndex >= data.stories.length) {
+        closePhotographerStoryModal();
+    }
+}
+
+function closePhotographerStoryModal() {
+    const modal = document.getElementById('photographer-story-modal');
+    modal.style.display = 'none';
+    window.photographerModalData = null;
+}
+
+// Update keyboard handler to support both modals
+document.addEventListener('keydown', function(e) {
+    if (window.photographerModalData) {
+        if (e.key === 'ArrowRight') {
+            navigatePhotographerStory(1);
+        } else if (e.key === 'ArrowLeft') {
+            navigatePhotographerStory(-1);
+        } else if (e.key === 'Escape') {
+            closePhotographerStoryModal();
+        }
+    } else if (window.modalStoriesData) {
+        if (e.key === 'ArrowRight') {
+            navigateStory(1);
+        } else if (e.key === 'ArrowLeft') {
+            navigateStory(-1);
+        } else if (e.key === 'Escape') {
+            closeStoryModal();
+        }
+    }
+});
+
 </script>
 {% endblock %}

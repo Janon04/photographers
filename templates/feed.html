@@ -561,16 +561,16 @@
         
         <div class="stories-scroll" style="display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0.5rem; scrollbar-width: thin;">
             {% for story in stories %}
-                <div class="story-item" data-story-index="{{ forloop.counter0 }}" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto; text-decoration: none;">
+                <div class="story-item" data-story-id="{{ story.id }}" onclick="openStoryModal({{ story.id }}, '{% if story.image %}{{ story.image.url }}{% else %}{{ story.video.url }}{% endif %}', '{{ story.photographer.username|escapejs }}', {{ story.photographer.pk }}, '{{ story.photographer.get_medium_avatar_url }}', '{% if story.image %}image{% else %}video{% endif %}', '{{ story.created_at|date:'c' }}')" data-story-index="{{ forloop.counter0 }}" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto; text-decoration: none;">
                     <div class="story-avatar" title="{{ story.photographer.username }}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FFD700; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; margin-bottom: 0.8rem; position: relative; transition: all 0.3s ease;">
                         {% if story.video %}
                             <video muted style="width: 100%; height: 100%; object-fit: cover;">
                                 <source src="{{ story.video.url }}" type="video/mp4">
                             </video>
                         {% elif story.image %}
-                            <img src="{{ story.image.url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="{{ story.image.url }}" srcset="{{ story.image.url }} 1x, {{ story.image.url }} 2x" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% else %}
-                            <img src="{{ story.photographer.get_medium_avatar_url }}" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="{{ story.photographer.get_medium_avatar_url }}" srcset="{{ story.photographer.get_medium_avatar_url }} 1x, {{ story.photographer.get_medium_avatar_url }} 2x" alt="Story by {{ story.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% endif %}
                     </div>
                     <div class="story-label" style="font-size: 0.9rem; color: #2c3e50; font-weight: 500; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center;">{{ story.photographer.username }}</div>
@@ -607,9 +607,23 @@
             {% for post in posts %}
                 <article class="post-card" style="background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; position: relative;">
                     <div class="post-header" style="display: flex; align-items: center; padding: 1.5rem; gap: 1rem; border-bottom: 1px solid #f8f9fa;">
-                        <div class="post-avatar" style="width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid #8B4513;">
-                            <img src="{{ post.photographer.get_medium_avatar_url }}" alt="Profile picture of {{ post.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
+                        {% if post.photographer.id in photographer_stories %}
+                            <!-- Has stories - clickable with gold ring -->
+                            <div onclick="openPhotographerStories({{ post.photographer.id }}, '{{ post.photographer.username|escapejs }}', '{{ post.photographer.get_medium_avatar_url }}')" 
+                                 style="cursor: pointer; position: relative; width: 45px; height: 45px;">
+                                <div style="position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; border-radius: 50%; background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700); padding: 2px;">
+                                    <div style="width: 100%; height: 100%; border-radius: 50%; background: white; padding: 2px;">
+                                        <img src="{{ post.photographer.get_medium_avatar_url }}" srcset="{{ post.photographer.get_medium_avatar_url }} 1x, {{ post.photographer.get_medium_avatar_url }} 2x" alt="{{ post.photographer.username }}" 
+                                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- No stories - regular display -->
+                            <div class="post-avatar" style="width: 45px; height: 45px; border-radius: 50%; overflow: hidden; border: 2px solid #8B4513;">
+                                <img src="{{ post.photographer.get_medium_avatar_url }}" srcset="{{ post.photographer.get_medium_avatar_url }} 1x, {{ post.photographer.get_medium_avatar_url }} 2x" alt="Profile picture of {{ post.photographer.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        {% endif %}
                         <div class="post-user-info" style="flex: 1;">
                             <div class="post-username" style="font-weight: 600; color: #2c3e50; margin-bottom: 0.2rem;">{{ post.photographer.username }}</div>
                             <div class="post-time" style="font-size: 0.85rem; color: #6c757d;">{{ post.uploaded_at|localtime|timesince }} ago</div>
@@ -634,7 +648,7 @@
                     
                     <!-- Post Image with Category Badge -->
                     <div style="position: relative; overflow: hidden;">
-                        <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }} by {{ post.photographer.username }}" style="width: 100%; height: 300px; object-fit: cover; transition: transform 0.3s ease;">
+                        <img class="post-image" src="{{ post.image.url }}" srcset="{{ post.image.url }} 1x, {{ post.image.url }} 2x" alt="{{ post.title }} by {{ post.photographer.username }}" style="width: 100%; height: auto; max-height: 900px; object-fit: contain; transition: transform 0.3s ease;">
                         
                         {% if post.category %}
                         <div style="position: absolute; top: 1rem; left: 1rem;">
@@ -685,7 +699,9 @@
                     <div class="comments-section" id="comments-{{ post.id }}" style="display:none; padding: 0 1.5rem 1.5rem;">
                         <div class="comments-list" style="background: #f8f9fa; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
                             {% for comment in post.comments.all|slice:':3' %}
-                                <div class="comment" style="margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 8px;"><b style="color: #8B4513;">{{ comment.username|default:comment.user.username }}</b>: {{ comment.text }}</div>
+                                <div class="comment" style="margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 8px;">
+                                    <b style="color: #8B4513;">{% if comment.username %}{{ comment.username }}{% elif comment.user %}{{ comment.user.username }}{% else %}Anonymous{% endif %}</b>: {{ comment.text }}
+                                </div>
                             {% empty %}
                                 <div class="comment" style="color:#6c757d; text-align: center; font-style: italic;">No comments yet. Be the first to comment!</div>
                             {% endfor %}
@@ -949,5 +965,296 @@ function copyPostLink(photoId) {
         alert('Post link copied to clipboard!');
     });
 }
+
+// Story data for photographer avatars
+const photographerStoryData = {
+  {% for photographer_id, stories in photographer_stories.items %}
+    "{{ photographer_id }}": [
+      {% for story in stories %}
+        {
+          "id": {{ story.id }},
+          "mediaUrl": "{% if story.image %}{{ story.image.url }}{% elif story.video %}{{ story.video.url }}{% endif %}",
+          "mediaType": "{% if story.image %}image{% else %}video{% endif %}",
+          "createdAt": "{{ story.created_at|date:'c' }}"
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]{% if not forloop.last %},{% endif %}
+  {% endfor %}
+};
+
+// Open photographer's stories when clicking their avatar
+function openPhotographerStories(photographerId, username, avatarUrl) {
+    const stories = photographerStoryData[photographerId];
+    if (!stories || stories.length === 0) return;
+    
+    const currentIndex = 0;
+    const story = stories[currentIndex];
+    
+    const modal = document.createElement('div');
+    modal.id = 'photographerStoryModal';
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 10001; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+            <div style="position: relative; max-width: 500px; width: 100%; height: 90vh; display: flex; flex-direction: column;">
+                
+                <button onclick="closePhotographerStoryModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                ${currentIndex > 0 ? `
+                <button onclick="navigatePhotographerStory(-1)" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                ${currentIndex < stories.length - 1 ? `
+                <button onclick="navigatePhotographerStory(1)" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                ` : ''}
+
+                <div style="position: absolute; top: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; align-items: center; gap: 1rem;">
+                    <img id="photographerStoryAvatar" src="${avatarUrl}" srcset="${avatarUrl} 1x, ${avatarUrl} 2x" alt="${username}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div id="photographerStoryUsername" style="color: white; font-weight: 600; font-size: 1rem;">${username}</div>
+                        <div id="photographerStoryTimeAgo" style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">${getTimeAgo(story.createdAt)}</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.85rem; backdrop-filter: blur(10px);">
+                        <span id="photographerStoryCounter">${currentIndex + 1}/${stories.length}</span>
+                    </div>
+                </div>
+
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 16px; background: #000;">
+                    ${story.mediaType === 'image' ? `
+                        <img id="photographerStoryMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">
+                    ` : `
+                        <video id="photographerStoryMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
+                            Your browser does not support the video tag.
+                        </video>
+                    `}
+                </div>
+
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/portfolio/photographer/${photographerId}/" style="background: #FFD700; color: #1a1a1a; padding: 0.7rem 1.5rem; border-radius: 20px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                        <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    window.photographerModalData = { 
+        stories: stories, 
+        currentIndex: currentIndex,
+        username: username,
+        avatarUrl: avatarUrl,
+        photographerId: photographerId
+    };
+}
+
+function navigatePhotographerStory(direction) {
+    const data = window.photographerModalData;
+    if (!data) return;
+    
+    data.currentIndex += direction;
+    const story = data.stories[data.currentIndex];
+    
+    const media = document.getElementById('photographerStoryMedia');
+    media.style.opacity = '0';
+    
+    setTimeout(() => {
+        const container = media.parentElement;
+        
+        if (story.mediaType === 'image') {
+            container.innerHTML = `<img id="photographerStoryMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">`;
+        } else {
+            container.innerHTML = `<video id="photographerStoryMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">Your browser does not support the video tag.</video>`;
+        }
+        
+        document.getElementById('photographerStoryTimeAgo').textContent = getTimeAgo(story.createdAt);
+        document.getElementById('photographerStoryCounter').textContent = `${data.currentIndex + 1}/${data.stories.length}`;
+        
+        const prevBtn = document.querySelector('#photographerStoryModal [onclick="navigatePhotographerStory(-1)"]');
+        const nextBtn = document.querySelector('#photographerStoryModal [onclick="navigatePhotographerStory(1)"]');
+        
+        if (prevBtn) prevBtn.style.display = data.currentIndex > 0 ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = data.currentIndex < data.stories.length - 1 ? 'flex' : 'none';
+        
+        const newMedia = document.getElementById('photographerStoryMedia');
+        setTimeout(() => newMedia.style.opacity = '1', 50);
+    }, 300);
+}
+
+function closePhotographerStoryModal() {
+    const modal = document.getElementById('photographerStoryModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+        window.photographerModalData = null;
+    }
+}
+
+// Story Modal Functions
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now - created;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) return diffSecs + 's ago';
+    if (diffMins < 60) return diffMins + 'm ago';
+    if (diffHours < 24) return diffHours + 'h ago';
+    return diffDays + 'd ago';
+}
+
+function openStoryModal(storyId, mediaUrl, username, photographerId, avatarUrl, mediaType, createdAt) {
+    const allStories = Array.from(document.querySelectorAll('.story-item[data-story-id]')).map(item => {
+        const onclick = item.getAttribute('onclick');
+        if (!onclick) return null;
+        
+        const match = onclick.match(/openStoryModal\((\d+),\s*'([^']*)',\s*'([^']*)',\s*(\d+),\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)/);
+        if (!match) return null;
+        
+        return {
+            id: match[1],
+            mediaUrl: match[2],
+            username: match[3],
+            photographerId: match[4],
+            avatarUrl: match[5],
+            mediaType: match[6],
+            createdAt: match[7]
+        };
+    }).filter(s => s !== null);
+    
+    const currentIndex = allStories.findIndex(s => s.mediaUrl === mediaUrl);
+    
+    const modal = document.createElement('div');
+    modal.id = 'storyModal';
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+            <div style="position: relative; max-width: 500px; width: 100%; height: 90vh; display: flex; flex-direction: column;">
+                
+                <button onclick="closeStoryModal()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                ${currentIndex > 0 ? `
+                <button onclick="navigateStory(-1)" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                ${currentIndex < allStories.length - 1 ? `
+                <button onclick="navigateStory(1)" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 10; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                ` : ''}
+
+                <div style="position: absolute; top: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; align-items: center; gap: 1rem;">
+                    <img id="storyAvatar" src="${avatarUrl}" srcset="${avatarUrl} 1x, ${avatarUrl} 2x" alt="${username}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div id="storyUsername" style="color: white; font-weight: 600; font-size: 1rem;">${username}</div>
+                        <div id="storyTimeAgo" style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">${getTimeAgo(createdAt)}</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); color: white; padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.85rem; backdrop-filter: blur(10px);">
+                        <span id="storyCounter">${currentIndex + 1}/${allStories.length}</span>
+                    </div>
+                </div>
+
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 16px; background: #000;">
+                    ${mediaType === 'image' ? `
+                        <img id="storyMedia" src="${mediaUrl}" srcset="${mediaUrl} 1x, ${mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">
+                    ` : `
+                        <video id="storyMedia" src="${mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
+                            Your browser does not support the video tag.
+                        </video>
+                    `}
+                </div>
+
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 5; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/portfolio/photographer/${photographerId}/" style="background: #FFD700; color: #1a1a1a; padding: 0.7rem 1.5rem; border-radius: 20px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: all 0.3s ease;">
+                        <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    window.modalStoriesData = { stories: allStories, currentIndex: currentIndex };
+}
+
+function navigateStory(direction) {
+    const data = window.modalStoriesData;
+    if (!data) return;
+    
+    data.currentIndex += direction;
+    const story = data.stories[data.currentIndex];
+    
+    const media = document.getElementById('storyMedia');
+    media.style.opacity = '0';
+    
+    setTimeout(() => {
+        const container = media.parentElement;
+        
+        if (story.mediaType === 'image') {
+            container.innerHTML = `<img id="storyMedia" src="${story.mediaUrl}" srcset="${story.mediaUrl} 1x, ${story.mediaUrl} 2x" alt="Story" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; transition: opacity 0.3s ease;">`;
+        } else {
+            container.innerHTML = `<video id="storyMedia" src="${story.mediaUrl}" autoplay loop muted playsinline style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;">Your browser does not support the video tag.</video>`;
+        }
+        
+        document.getElementById('storyAvatar').src = story.avatarUrl;
+        document.getElementById('storyAvatar').srcset = `${story.avatarUrl} 1x, ${story.avatarUrl} 2x`;
+        document.getElementById('storyUsername').textContent = story.username;
+        document.getElementById('storyTimeAgo').textContent = getTimeAgo(story.createdAt);
+        document.getElementById('storyCounter').textContent = `${data.currentIndex + 1}/${data.stories.length}`;
+        
+        const prevBtn = document.querySelector('#storyModal [onclick="navigateStory(-1)"]');
+        const nextBtn = document.querySelector('#storyModal [onclick="navigateStory(1)"]');
+        
+        if (prevBtn) prevBtn.style.display = data.currentIndex > 0 ? 'flex' : 'none';
+        if (nextBtn) nextBtn.style.display = data.currentIndex < data.stories.length - 1 ? 'flex' : 'none';
+        
+        const newMedia = document.getElementById('storyMedia');
+        setTimeout(() => newMedia.style.opacity = '1', 50);
+    }, 300);
+}
+
+function closeStoryModal() {
+    const modal = document.getElementById('storyModal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+        window.modalStoriesData = null;
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    // Handle photographer story modal
+    if (e.key === 'Escape' && window.photographerModalData) {
+        closePhotographerStoryModal();
+    } else if (e.key === 'ArrowLeft' && window.photographerModalData && window.photographerModalData.currentIndex > 0) {
+        navigatePhotographerStory(-1);
+    } else if (e.key === 'ArrowRight' && window.photographerModalData && window.photographerModalData.currentIndex < window.photographerModalData.stories.length - 1) {
+        navigatePhotographerStory(1);
+    }
+    // Handle regular story modal
+    else if (e.key === 'Escape' && window.modalStoriesData) {
+        closeStoryModal();
+    } else if (e.key === 'ArrowLeft' && window.modalStoriesData && window.modalStoriesData.currentIndex > 0) {
+        navigateStory(-1);
+    } else if (e.key === 'ArrowRight' && window.modalStoriesData && window.modalStoriesData.currentIndex < window.modalStoriesData.stories.length - 1) {
+        navigateStory(1);
+    }
+});
 </script>
 {% endblock %}

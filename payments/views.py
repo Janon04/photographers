@@ -298,3 +298,235 @@ def retry_payment(request, transaction_id):
 	# Redirect to payment page or process immediately
 	messages.info(request, 'Payment retry initiated. Please complete the payment.')
 	return redirect('process_payment')
+
+
+# New Checkout Views
+@login_required
+def payment_checkout(request, booking_id):
+	"""Display payment checkout page for a booking"""
+	booking = get_object_or_404(Booking, id=booking_id)
+	
+	# Check if user is authorized to pay for this booking
+	if booking.client and booking.client != request.user:
+		messages.error(request, 'You are not authorized to pay for this booking.')
+		return redirect('bookings:client_dashboard')
+	
+	# Check if already paid
+	if booking.payment_status == 'paid':
+		messages.info(request, 'This booking has already been paid.')
+		return redirect('bookings:client_dashboard')
+	
+	# Calculate amount (you can add pricing logic here)
+	# For now, using photographer's price or a default
+	amount = booking.photographer.price or Decimal('50000')  # Default 50,000 RWF
+	
+	context = {
+		'booking': booking,
+		'amount': amount,
+	}
+	
+	return render(request, 'payments/checkout.html', context)
+
+
+@login_required
+@require_POST
+def process_booking_payment(request, booking_id):
+	"""Process payment for a booking"""
+	booking = get_object_or_404(Booking, id=booking_id)
+	payment_method = request.POST.get('payment_method')
+	
+	# Check authorization
+	if booking.client and booking.client != request.user:
+		return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+	
+	# Check if already paid
+	if booking.payment_status == 'paid':
+		return JsonResponse({'success': False, 'error': 'Already paid'}, status=400)
+	
+	amount = booking.photographer.price or Decimal('50000')
+	
+	# Extract payment method specific details
+	payment_details = {
+		'payment_method': payment_method,
+		'customer_email': request.user.email
+	}
+	
+	# Card payment details
+	if payment_method == 'stripe':
+		card_number = request.POST.get('card_number', '').replace(' ', '')
+		payment_details.update({
+			'card_last_four': card_number[-4:] if len(card_number) >= 4 else '',
+			'cardholder_name': request.POST.get('cardholder_name', ''),
+			'card_expiry': request.POST.get('card_expiry', ''),
+			'card_cvv': request.POST.get('card_cvv', ''),
+		})
+	
+	# Mobile Money details
+	elif payment_method == 'mobile_money':
+		payment_details.update({
+			'mobile_money_provider': request.POST.get('momo_provider', ''),
+			'mobile_money_phone': request.POST.get('momo_phone', ''),
+		})
+	
+	# PayPal details
+	elif payment_method == 'paypal':
+		payment_details.update({
+			'paypal_email': request.POST.get('paypal_email', ''),
+		})
+	
+	# Bank Transfer details
+	elif payment_method == 'bank_transfer':
+		payment_details.update({
+			'bank_reference': request.POST.get('bank_reference', ''),
+		})
+	
+	# Use payment service
+	from .services import PaymentService
+	payment_service = PaymentService()
+	
+	result = payment_service.process_client_payment(
+		booking_id=booking.id,
+		amount=amount,
+		payment_method=payment_method,
+		customer_email=request.user.email,
+		payment_details=payment_details
+	)
+	
+	if result['success']:
+		# Redirect to success page
+		messages.success(request, 'Payment successful!')
+		return redirect('payment_success', transaction_id=result['transaction_id'])
+	else:
+		messages.error(request, f'Payment failed: {result.get("error", "Unknown error")}')
+		return redirect('payment_failed', booking_id=booking.id)
+
+
+def payment_success(request, transaction_id):
+	"""Display payment success page"""
+	try:
+		transaction = Transaction.objects.get(transaction_id=transaction_id)
+		context = {
+			'transaction_id': transaction_id,
+			'amount': transaction.amount,
+			'payment_method': transaction.payment_method,
+			'booking': transaction.booking,
+		}
+		return render(request, 'payments/payment_success.html', context)
+	except Transaction.DoesNotExist:
+		messages.error(request, 'Transaction not found.')
+		return redirect('home')
+
+
+def payment_failed(request, booking_id):
+	"""Display payment failure page"""
+	try:
+		booking = Booking.objects.get(id=booking_id)
+		error_message = request.GET.get('error', 'Payment could not be processed')
+		context = {
+			'booking': booking,
+			'error_message': error_message,
+		}
+		return render(request, 'payments/payment_failed.html', context)
+	except Booking.DoesNotExist:
+		messages.error(request, 'Booking not found.')
+		return redirect('home')
+
+
+# Subscription Payment Views
+@login_required
+def subscription_checkout(request, plan_id):
+	"""Display subscription payment checkout"""
+	plan = get_object_or_404(SubscriptionPlan, id=plan_id, is_active=True)
+	
+	context = {
+		'plan': plan,
+	}
+	
+	return render(request, 'payments/subscription_checkout.html', context)
+
+
+@login_required
+@require_POST
+def subscription_payment_process(request):
+	"""Process subscription payment"""
+	plan_id = request.POST.get('plan_id')
+	billing_cycle = request.POST.get('billing_cycle', 'monthly')
+	payment_method = request.POST.get('payment_method')
+	
+	plan = get_object_or_404(SubscriptionPlan, id=plan_id, is_active=True)
+	
+	# Calculate amount based on billing cycle
+	if billing_cycle == 'yearly':
+		amount = plan.get_yearly_price()
+	else:
+		amount = plan.price_monthly
+	
+	# Create or get user subscription
+	try:
+		subscription = request.user.subscription
+		# Upgrade subscription
+		from .services import SubscriptionService
+		subscription_service = SubscriptionService()
+		subscription, prorated_amount = subscription_service.upgrade_subscription(
+			request.user, plan.name, billing_cycle
+		)
+	except UserSubscription.DoesNotExist:
+		# Create new subscription
+		from datetime import timedelta
+		from django.utils import timezone
+		
+		end_date = timezone.now() + timedelta(days=365 if billing_cycle == 'yearly' else 30)
+		subscription = UserSubscription.objects.create(
+			user=request.user,
+			plan=plan,
+			billing_cycle=billing_cycle,
+			status='active',
+			end_date=end_date,
+			next_billing_date=end_date
+		)
+	
+	# Create subscription payment record
+	from datetime import timedelta
+	from django.utils import timezone
+	
+	billing_start = timezone.now()
+	billing_end = billing_start + timedelta(days=365 if billing_cycle == 'yearly' else 30)
+	
+	# Build payment record with method-specific details
+	payment_data = {
+		'subscription': subscription,
+		'amount': amount,
+		'billing_period_start': billing_start,
+		'billing_period_end': billing_end,
+		'payment_method': payment_method,
+		'payment_gateway': 'stripe' if payment_method == 'stripe' else 'other',
+		'status': 'completed'  # In production, this would be 'pending' until confirmed
+	}
+	
+	# Add payment method specific details
+	if payment_method == 'stripe':
+		card_number = request.POST.get('card_number', '').replace(' ', '')
+		payment_data.update({
+			'card_last_four': card_number[-4:] if len(card_number) >= 4 else '',
+			'cardholder_name': request.POST.get('cardholder_name', ''),
+			'card_brand': 'Unknown',  # Would be detected from card number in production
+		})
+	elif payment_method == 'mobile_money':
+		payment_data.update({
+			'mobile_money_provider': request.POST.get('momo_provider', ''),
+			'mobile_money_phone': request.POST.get('momo_phone', ''),
+		})
+	elif payment_method == 'paypal':
+		payment_data.update({
+			'paypal_email': request.POST.get('paypal_email', ''),
+		})
+	
+	payment = SubscriptionPayment.objects.create(**payment_data)
+	
+	# Mark subscription as active
+	subscription.status = 'active'
+	subscription.last_payment_date = timezone.now()
+	subscription.save()
+	
+	messages.success(request, f'Successfully subscribed to {plan.display_name}!')
+	return redirect('subscription_dashboard')
